@@ -1,8 +1,9 @@
+import React from "react";
+import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Clock } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 
-interface DashboardPathCardProps {
+interface PathCardProps {
   path: {
     id: string;
     title: string;
@@ -13,45 +14,43 @@ interface DashboardPathCardProps {
   };
 }
 
-export default function DashboardPathCard({ path }: DashboardPathCardProps) {
-  const router = useRouter();
-
+const DashboardPathCard: React.FC<PathCardProps> = ({ path }) => {
   return (
-    <div
-      onClick={() => router.push(`/paths/${path.id}`)}
-      className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group overflow-hidden"
-    >
-      <div className="relative h-32 w-full">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-100">
+      <div className="relative h-32">
         <Image
           src={path.image}
           alt={path.title}
           fill
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
-        <div className="absolute top-2 right-2">
-          <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-sm font-medium text-sky-700">
-            {path.matchPercentage}% Match
-          </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/70 to-sky-500/70"></div>
+        <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-full text-xs font-medium text-sky-600">
+          {path.matchPercentage}% Match
         </div>
       </div>
 
       <div className="p-4">
-        <h3 className="font-medium text-gray-900 group-hover:text-sky-700 transition-colors mb-1">
-          {path.title}
-        </h3>
-        <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+        <h3 className="font-semibold text-gray-900 mb-1">{path.title}</h3>
+        <p className="text-gray-600 text-sm line-clamp-2 mb-3">
           {path.description}
         </p>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center text-xs text-gray-500">
-            <Clock className="w-3 h-3 mr-1" />
-            Last viewed: {path.lastViewed}
-          </div>
-          <ArrowRight className="w-4 h-4 text-sky-700 group-hover:translate-x-1 transition-transform" />
+
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-gray-500">
+            Viewed {path.lastViewed}
+          </span>
+          <Link
+            href={`/paths/${path.id}`}
+            className="flex items-center text-xs font-medium text-sky-600 hover:text-sky-800 transition-colors"
+          >
+            Explore
+            <ArrowRight className="ml-1 h-3 w-3" />
+          </Link>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default DashboardPathCard;

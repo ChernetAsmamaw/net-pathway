@@ -4,6 +4,7 @@ import { connectDatabase } from "./config/db";
 import { userRouter } from "./routes/user.routes";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import passport from "passport";
 
 dotenv.config();
 
@@ -26,6 +27,9 @@ const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
 connectDatabase();
+
+// Initialize Passport
+app.use(passport.initialize());
 
 // Routes
 app.use("/api/users", userRouter);

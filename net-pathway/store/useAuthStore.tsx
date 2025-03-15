@@ -28,7 +28,7 @@ interface AuthState {
     password: string
   ) => Promise<void>;
   checkAuthStatus: () => Promise<boolean>;
-  logout: () => Promise<void>;
+  logout: () => Promise<boolean>;
 
   // Profile methods
   updateProfile: (data: { username?: string; email?: string }) => Promise<void>;
@@ -70,7 +70,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
       });
     } catch (error) {
-      set({ isLoading: false, error: "Login failed" });
+      console.error("Login error:", error);
+      set({
+        isLoading: false,
+        error: "Login failed. Please check your credentials.",
+        isAuthenticated: false,
+      });
       throw error;
     }
   },
@@ -101,15 +106,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
       });
     } catch (error) {
-      set({ isLoading: false, error: "Registration failed" });
+      console.error("Registration error:", error);
+      set({
+        isLoading: false,
+        error: "Registration failed. Please try again.",
+        isAuthenticated: false,
+      });
       throw error;
     }
   },
 
-  logout: async (): Promise<void> => {
+  logout: async (): Promise<boolean> => {
+    set({ isLoading: true });
     try {
       // Clear token from localStorage first
       localStorage.removeItem("token");
+      localStorage.removeItem("userData");
       document.cookie =
         "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
@@ -127,10 +139,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
       });
 
-      return; // Return void as specified in the Promise<void> type
+      return true;
     } catch (error) {
       console.error("Logout error:", error);
-      return;
+      set({ isLoading: false });
+      return false;
     }
   },
 
@@ -139,7 +152,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        set({ isAuthenticated: false, isLoading: false });
+        set({ isAuthenticated: false, isLoading: false, user: null });
         return false;
       }
 
@@ -150,6 +163,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             Authorization: `Bearer ${token}`,
           },
         });
+
+        if (!response.data || !response.data.user) {
+          throw new Error("Invalid response format");
+        }
 
         set({
           user: {
@@ -167,7 +184,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } catch (error) {
         console.error("API error:", error);
 
-        // If the /me endpoint isn't working, but we still have token data
+        // If the /profile endpoint isn't working, but we still have token data
         // Continue with limited user data from login response stored in localStorage
         const storedUserData = localStorage.getItem("userData");
         if (storedUserData) {
@@ -185,16 +202,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           }
         }
 
-        // We can't get user data, but we'll keep the user authenticated
-        // This is a fallback that allows the UI to render even if the /me endpoint fails
+        // If we can't get user data and the API call failed, we should consider
+        // the user as not authenticated
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
+        document.cookie =
+          "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
         set({
-          isAuthenticated: true,
+          user: null,
+          isAuthenticated: false,
           isLoading: false,
-          error: "Could not fetch user details",
+          error: "Authentication failed. Please log in again.",
         });
-        return true;
+        return false;
       }
-    } catch {
+    } catch (error) {
       // Token invalid or expired
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
@@ -227,7 +250,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         set({
           user: {
-            ...get().user,
+            ...get().user!,
             ...data,
           },
           isSubmitting: false,
@@ -288,7 +311,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isSubmitting: true, error: null, successMessage: null });
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/users/profile`, {
+      await axios.delete(`${API_URL}/users/account`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

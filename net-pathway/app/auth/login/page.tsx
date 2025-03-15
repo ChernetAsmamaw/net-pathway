@@ -42,6 +42,10 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:5000/api/users/auth/google";
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
@@ -69,7 +73,8 @@ export default function LoginPage() {
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-[0_0_15px_rgba(0,0,0,0.1)] space-y-6">
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300"
           >
             <FcGoogle className="w-5 h-5" />
             <span className="text-gray-700 font-medium">
@@ -87,7 +92,6 @@ export default function LoginPage() {
               </span>
             </div>
           </div>
-
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>

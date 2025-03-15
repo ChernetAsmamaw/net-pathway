@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
-import { AuthRequest } from "../middleware/auth.middleware";
 
 export const userController = {
   async register(req: Request, res: Response) {
@@ -41,14 +40,12 @@ export const userController = {
         isActive: true,
       });
 
-      // Impliment a jsonwebtoken here
       const token = jwt.sign(
         { userId: user._id, role: user.role },
         process.env.JWT_SECRET!,
         { expiresIn: "48h" }
       );
 
-      // Send the token in a cookie
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -138,7 +135,7 @@ export const userController = {
     }
   },
 
-  async getProfile(req: AuthRequest, res: Response) {
+  async getProfile(req: Request, res: Response) {
     try {
       const user = await User.findById(req.user?.userId).select("-password");
       if (!user) {
@@ -153,7 +150,7 @@ export const userController = {
     }
   },
 
-  async updateProfile(req: AuthRequest, res: Response) {
+  async updateProfile(req: Request, res: Response) {
     try {
       const { username, email } = req.body;
       const userId = req.user?.userId;
@@ -184,7 +181,7 @@ export const userController = {
     }
   },
 
-  async deleteAccount(req: AuthRequest, res: Response) {
+  async deleteAccount(req: Request, res: Response) {
     try {
       const userId = req.user?.userId;
 

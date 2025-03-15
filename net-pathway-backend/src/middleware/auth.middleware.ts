@@ -1,15 +1,28 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+// Define the structure of the decoded JWT token
+interface DecodedToken {
+  userId: string;
+  role: string;
+}
+
+// Declare module to extend Express Request type
+declare global {
+  namespace Express {
+    interface Request {
+      user?: DecodedToken;
+    }
+  }
+}
+
+// You can keep this for backward compatibility and your own code consistency
 export interface AuthRequest extends Request {
-  user?: {
-    userId: string;
-    role: string;
-  };
+  user?: DecodedToken;
 }
 
 export const requireAuth = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): void => {
@@ -30,10 +43,7 @@ export const requireAuth = (
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-      role: string;
-    };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
     req.user = decoded;
     next();
   } catch (error) {
