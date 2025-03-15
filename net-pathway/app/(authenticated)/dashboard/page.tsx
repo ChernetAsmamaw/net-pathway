@@ -36,7 +36,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Career Assessment Banner */}
+      {/* Career Assessment Banner
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="relative h-48">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-sky-500"></div>
@@ -69,7 +69,7 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Quick Actions Section */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
