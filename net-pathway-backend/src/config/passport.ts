@@ -1,7 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/User";
-import jwt from "jsonwebtoken";
 
 export const configurePassport = () => {
   passport.use(
@@ -16,33 +15,52 @@ export const configurePassport = () => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
+          console.log("Google profile data:", {
+            id: profile.id,
+            displayName: profile.displayName,
+            emails: profile.emails,
+            photos: profile.photos,
+          });
+
           // Check if user already exists
           let user = await User.findOne({ googleId: profile.id });
 
           if (user) {
+            console.log("Existing user found with googleId:", user._id);
+
             // Update last login time
             user.lastLogin = new Date();
             await user.save();
           } else {
             // Get email from profile
             const email =
-              profile.emails && profile.emails[0]
+              profile.emails && profile.emails.length > 0
                 ? profile.emails[0].value
                 : "";
+
+            if (!email) {
+              console.error("No email found in Google profile");
+              return done(new Error("No email found in Google profile"));
+            }
 
             // Check if email is already in use
             const existingUser = await User.findOne({ email });
 
             if (existingUser) {
+              console.log(
+                "Linking Google account to existing user:",
+                existingUser._id
+              );
+
               // Link Google account to existing user
               existingUser.googleId = profile.id;
               existingUser.isEmailVerified = true; // Email is verified through Google
               existingUser.lastLogin = new Date();
 
-              // Fix for TypeScript error - handle null case explicitly
+              // Update profile picture if available
               if (
                 profile.photos &&
-                profile.photos[0] &&
+                profile.photos.length > 0 &&
                 profile.photos[0].value
               ) {
                 existingUser.profilePicture = profile.photos[0].value;
@@ -51,6 +69,8 @@ export const configurePassport = () => {
               await existingUser.save();
               user = existingUser;
             } else {
+              console.log("Creating new user from Google profile");
+
               // Create new user
               user = await User.create({
                 username:
@@ -60,17 +80,20 @@ export const configurePassport = () => {
                 googleId: profile.id,
                 isEmailVerified: true,
                 profilePicture:
-                  profile.photos && profile.photos[0]
+                  profile.photos && profile.photos.length > 0
                     ? profile.photos[0].value
-                    : undefined, // Using undefined instead of null
+                    : undefined,
                 lastLogin: new Date(),
                 role: "user",
               });
+
+              console.log("New user created:", user._id);
             }
           }
 
           return done(null, user);
         } catch (error) {
+          console.error("Google auth strategy error:", error);
           return done(error as Error);
         }
       }

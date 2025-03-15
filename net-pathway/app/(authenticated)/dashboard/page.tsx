@@ -1,3 +1,5 @@
+// In net-pathway/app/(authenticated)/dashboard/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import Navbar from "@/components/dashboard/Navbar";
 import Sidebar from "@/components/dashboard/Sidebar";
-import Image from "next/image";
+import AuthDebug from "@/components/debug/AuthDebug";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -13,34 +15,85 @@ export default function DashboardPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [localLoading, setLocalLoading] = useState(true);
 
-  // Handle auth check and redirect in useEffect, not during render
+  // Handle auth check
   useEffect(() => {
+    let isMounted = true;
+
     const initAuth = async () => {
       try {
         setLocalLoading(true);
-        const isAuthed = await checkAuthStatus();
 
-        // Do the redirect inside useEffect, not during render
-        if (!isAuthed) {
-          router.push("/auth/login");
+        // Check localStorage first for faster rendering
+        const token = localStorage.getItem("token");
+        const storedUserData = localStorage.getItem("userData");
+
+        console.log(
+          "Dashboard init - Has token:",
+          !!token,
+          "Has stored user data:",
+          !!storedUserData
+        );
+
+        // If we have both token and userData, use it immediately
+        if (storedUserData) {
+          try {
+            const userData = JSON.parse(storedUserData);
+
+            // Directly update auth state for immediate UI rendering
+            if (isMounted) {
+              useAuthStore.setState({
+                user: userData,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+              });
+            }
+
+            console.log("Dashboard init - Using stored credentials initially");
+          } catch (e) {
+            console.warn("Failed to parse stored user data:", e);
+          }
+        }
+
+        if (!token) {
+          console.warn("No token found, checking if user data exists anyway");
+        }
+
+        // Regardless of local data, always verify with server
+        const isAuthed = await checkAuthStatus();
+        console.log("Dashboard auth check result:", {
+          isAuthed,
+          user: useAuthStore.getState().user,
+        });
+
+        if (isMounted) {
+          if (!isAuthed && !useAuthStore.getState().user) {
+            console.log("Authentication failed, redirecting to login");
+            router.push("/auth/login");
+          } else {
+            console.log(
+              "Authentication succeeded, user is",
+              useAuthStore.getState().user?.username
+            );
+          }
+          setLocalLoading(false);
         }
       } catch (error) {
         console.error("Auth check error:", error);
-        router.push("/auth/login");
-      } finally {
-        setLocalLoading(false);
+        if (isMounted) {
+          router.push("/auth/login");
+          setLocalLoading(false);
+        }
       }
     };
 
     initAuth();
-  }, [checkAuthStatus, router]);
 
-  // Handle redirect for unauthenticated users in useEffect, not in render
-  useEffect(() => {
-    if (!localLoading && !isLoading && !isAuthenticated) {
-      router.push("/auth/login");
-    }
-  }, [isAuthenticated, localLoading, isLoading, router]);
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
+  }, [checkAuthStatus, router]);
 
   // Show loading state if we're still checking auth
   if (localLoading || isLoading) {
@@ -54,12 +107,12 @@ export default function DashboardPage() {
     );
   }
 
-  // Don't try to redirect during render - just return null
-  if (!isAuthenticated) {
-    return null; // The useEffect will handle the redirect
+  // Don't render anything while redirecting to login
+  if (!isAuthenticated || !user) {
+    return null;
   }
 
-  // We should have user data here
+  // Main dashboard content with proper data
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -70,7 +123,7 @@ export default function DashboardPage() {
         } transition-all duration-300`}
       >
         <div className="p-6 md:p-8">
-          {/* Welcome Section with Animated Stats */}
+          {/* Welcome Section */}
           <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center">
               <div>
@@ -100,7 +153,6 @@ export default function DashboardPage() {
           {/* Career Assessment Banner */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="relative h-48">
-              {/* Placeholder for image - can be updated later */}
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-sky-500"></div>
               <div className="absolute inset-0 p-6 flex flex-col justify-center">
                 <h2 className="text-md md:text-xl font-bold text-white mb-3">
@@ -111,7 +163,10 @@ export default function DashboardPage() {
                   match your interests, strengths, and personality. Get
                   personalized university recommendations.
                 </p>
-                <button className="bg-white text-purple-700 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-colors w-max flex items-center gap-2">
+                <button
+                  onClick={() => router.push("/assessment")}
+                  className="bg-white text-purple-700 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-colors w-max flex items-center gap-2"
+                >
                   Take an Assessment
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -130,75 +185,62 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-8">
-            {/* Simple content without path cards */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-sky-800 mb-4 flex items-center">
-                <span className="inline-block w-1 h-6 bg-purple-700 mr-3 rounded"></span>
-                Welcome to Net Pathway
-              </h2>
-              <p className="text-gray-600">
-                You've successfully logged in with Google Authentication. This
-                simplified dashboard removes the path cards component to help
-                diagnose the reload issue.
-              </p>
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium text-gray-900">Next Steps:</h3>
-                <ul className="mt-2 space-y-2">
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 text-green-500 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Take an assessment to discover your career path
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 text-green-500 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Connect with mentors in your field of interest
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 text-green-500 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Explore recommended university programs
-                  </li>
-                </ul>
+          {/* Quick Actions Section */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: "Explore Paths",
+                description:
+                  "Discover recommended career paths based on your profile",
+                action: () => router.push("/paths"),
+                color: "from-sky-500 to-sky-600",
+              },
+              {
+                title: "Find Mentors",
+                description: "Connect with industry professionals for guidance",
+                action: () => router.push("/mentorship"),
+                color: "from-purple-500 to-purple-600",
+              },
+              {
+                title: "Join Discussions",
+                description: "Participate in community conversations",
+                action: () => router.push("/discussions"),
+                color: "from-sky-600 to-purple-500",
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                onClick={item.action}
+                className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all cursor-pointer"
+              >
+                <div
+                  className={`w-12 h-12 mb-4 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-gray-600 text-sm">{item.description}</p>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </main>
+      <AuthDebug />
     </div>
   );
 }

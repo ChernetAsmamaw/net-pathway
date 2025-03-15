@@ -54,24 +54,43 @@ router.get(
       // Get the user from the request (added by passport)
       const user = req.user as any;
 
-      // Create JWT token
+      if (!user) {
+        console.error("No user data received from Google authentication");
+        return res.redirect(
+          `${process.env.FRONTEND_URL}/auth/login?error=no_user_data`
+        );
+      }
+
+      // Create JWT token with user ID and role
       const token = jwt.sign(
         { userId: user._id, role: user.role },
         process.env.JWT_SECRET!,
         { expiresIn: "48h" }
       );
 
-      // Set cookie
+      // Set the token as an HTTP-only cookie
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production", // Only in production
+        sameSite: "lax", // Less restrictive for 3rd party auth
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
       });
 
-      // Redirect to frontend callback URL with token
+      // Prepare user data for frontend
+      const userData = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture || null,
+      };
+
+      // Encode user data for URL to avoid storing sensitive info in localStorage
+      const encodedUserData = encodeURIComponent(JSON.stringify(userData));
+
+      // Redirect to frontend callback URL with token and encoded user data
       res.redirect(
-        `${process.env.FRONTEND_URL}/auth/google/callback?token=${token}`
+        `${process.env.FRONTEND_URL}/auth/google/callback?token=${token}&userData=${encodedUserData}`
       );
     } catch (error: any) {
       console.error("Google auth error:", error);

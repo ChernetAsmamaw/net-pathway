@@ -29,12 +29,25 @@ interface AuthState {
   ) => Promise<void>;
   checkAuthStatus: () => Promise<boolean>;
   logout: () => Promise<boolean>;
+  setGoogleAuthData: (token: string, userData: any) => boolean; // Add this line
 
   // Profile methods
   updateProfile: (data: { username?: string; email?: string }) => Promise<void>;
   updateProfileImage: (imageData: string) => Promise<void>;
   deactivateAccount: () => Promise<boolean>;
   clearMessages: () => void;
+}
+
+// Helper function to get token from cookies
+function getCookieToken() {
+  const cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith("token=")) {
+      return cookie.substring(6);
+    }
+  }
+  return null;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -48,14 +61,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/users/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${API_URL}/users/login`,
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
 
       if (response.data.token) {
+        // Store token in both localStorage and as a cookie
         localStorage.setItem("token", response.data.token);
-        document.cookie = `token=${response.data.token}; path=/`;
+        document.cookie = `token=${response.data.token}; path=/; max-age=2592000; SameSite=Lax`; // 30 days
 
         // Store user data in localStorage as fallback
         if (response.data.user) {
@@ -147,87 +165,131 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
+  // Add this function inside the store definition
+  setGoogleAuthData: (token: string, userData: any) => {
+    // Store token
+    localStorage.setItem("token", token);
+    document.cookie = `token=${token}; path=/; max-age=2592000; SameSite=Lax`;
+
+    // Store user data
+    if (userData) {
+      localStorage.setItem("userData", JSON.stringify(userData));
+    }
+
+    // Directly update auth state
+    set({
+      user: userData,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+
+    return true;
+  },
+
   checkAuthStatus: async () => {
-    set({ isLoading: true, error: null });
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        set({ isAuthenticated: false, isLoading: false, user: null });
-        return false;
+      set({ isLoading: true, error: null });
+
+      // Check for both token and userData
+      const token = localStorage.getItem("token") || getCookie("token");
+      const storedUserData = localStorage.getItem("userData");
+
+      console.log(
+        "Auth check - Token exists:",
+        !!token,
+        "Token start:",
+        token?.substring(0, 5) || "none"
+      );
+
+      // Special handling for Google login - may not have traditional token but has user data
+      if (!token && storedUserData) {
+        try {
+          const userData = JSON.parse(storedUserData);
+
+          // If we have valid user data from Google, try to fetch a new token or validate with backend
+          const response = await fetch("/api/auth/validate-google-session", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userData }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+
+            // Store the token we received
+            if (data.token) {
+              localStorage.setItem("token", data.token);
+              setCookie("token", data.token, { expires: 7 });
+            }
+
+            // Update auth state with user data
+            set({
+              isAuthenticated: true,
+              user: userData,
+              isLoading: false,
+            });
+
+            return true;
+          }
+        } catch (error) {
+          console.error("Failed to validate Google session:", error);
+        }
       }
 
-      try {
-        // Updated endpoint and handling of nested user object
-        const response = await axios.get(`${API_URL}/users/profile`, {
+      // Continue with normal token validation if available
+      if (token) {
+        const response = await fetch("/api/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!response.data || !response.data.user) {
-          throw new Error("Invalid response format");
+        if (response.ok) {
+          const userData = await response.json();
+          set({
+            isAuthenticated: true,
+            user: userData,
+            isLoading: false,
+          });
+
+          // Update stored user data if needed
+          localStorage.setItem("userData", JSON.stringify(userData));
+
+          return true;
+        } else {
+          console.log("Token validation failed, clearing auth data");
+          // Clear invalid token
+          localStorage.removeItem("token");
+          setCookie("token", "", { expires: -1 });
+
+          set({
+            isAuthenticated: false,
+            user: null,
+            isLoading: false,
+            error: "Session expired. Please login again.",
+          });
+
+          return false;
         }
-
+      } else {
+        console.log("Auth check - No token found in localStorage or cookies");
         set({
-          user: {
-            id: response.data.user._id,
-            username: response.data.user.username,
-            email: response.data.user.email,
-            role: response.data.user.role,
-            profileImage: response.data.user.profileImage || null,
-          },
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        });
-        return true;
-      } catch (error) {
-        console.error("API error:", error);
-
-        // If the /profile endpoint isn't working, but we still have token data
-        // Continue with limited user data from login response stored in localStorage
-        const storedUserData = localStorage.getItem("userData");
-        if (storedUserData) {
-          try {
-            const userData = JSON.parse(storedUserData);
-            set({
-              user: userData,
-              isAuthenticated: true,
-              isLoading: false,
-              error: null,
-            });
-            return true;
-          } catch (e) {
-            console.error("Error parsing stored user data:", e);
-          }
-        }
-
-        // If we can't get user data and the API call failed, we should consider
-        // the user as not authenticated
-        localStorage.removeItem("token");
-        localStorage.removeItem("userData");
-        document.cookie =
-          "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-        set({
-          user: null,
           isAuthenticated: false,
+          user: null,
           isLoading: false,
-          error: "Authentication failed. Please log in again.",
         });
         return false;
       }
     } catch (error) {
-      // Token invalid or expired
-      localStorage.removeItem("token");
-      localStorage.removeItem("userData");
-      document.cookie =
-        "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      console.error("Auth check failed:", error);
       set({
-        user: null,
         isAuthenticated: false,
+        user: null,
         isLoading: false,
-        error: "Session expired",
+        error: "Authentication check failed. Please try again.",
       });
       return false;
     }

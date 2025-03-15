@@ -102,22 +102,27 @@ export const userController = {
         { expiresIn: "48h" }
       );
 
+      // Set more permissive cookie settings for development
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "production", // Only secure in production
         sameSite: "lax", // Changed from 'strict' to 'lax'
-        maxAge: 1000 * 60 * 60 * 24 * 30,
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
       });
+
+      // Return user data without sensitive information
+      const userData = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture || null,
+      };
 
       res.status(200).json({
         message: "Login successful",
         token,
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-        },
+        user: userData,
       });
     } catch (error: any) {
       console.error("Login error:", error);
@@ -125,6 +130,7 @@ export const userController = {
     }
   },
 
+  // Logout by clearing the token cookie
   async logout(req: Request, res: Response) {
     try {
       res.clearCookie("token");
@@ -135,6 +141,7 @@ export const userController = {
     }
   },
 
+  // Get user profile
   async getProfile(req: Request, res: Response) {
     try {
       const user = await User.findById(req.user?.userId).select("-password");

@@ -11,17 +11,22 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(express.json());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true, // Important for cookies
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["set-cookie"],
   })
 );
 
+// Set cookie parser before routes
 app.use(cookieParser());
+app.use(express.json());
+
+// Check CORS preflight requests
+app.options("*", cors());
 
 const PORT = process.env.PORT || 5000;
 

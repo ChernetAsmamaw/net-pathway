@@ -54,13 +54,27 @@ const Navbar = () => {
       setShowLogoutDialog(false);
       const success = await logout();
       if (success) {
+        // Clear any client-side state
+        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
+        document.cookie =
+          "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
         router.push("/auth/login");
-        router.refresh();
       }
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
+
+  // For debugging - log user state without causing infinite renders
+  useEffect(() => {
+    if (user) {
+      console.log("Navbar - Current user:", user);
+    } else {
+      console.log("Navbar - No user data available");
+    }
+  }, [user]);
 
   return (
     <>
@@ -97,9 +111,21 @@ const Navbar = () => {
                 aria-label="Open profile menu"
                 aria-expanded={isProfileOpen}
               >
-                <div className="w-10 h-10 bg-gradient-to-r from-sky-100 to-purple-100 rounded-full flex items-center justify-center shadow-sm">
-                  <User className="w-5 h-5 text-sky-700" />
-                </div>
+                {user?.profileImage ? (
+                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                    <Image
+                      src={user.profileImage}
+                      alt="Profile"
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 bg-gradient-to-r from-sky-100 to-purple-100 rounded-full flex items-center justify-center shadow-sm">
+                    <User className="w-5 h-5 text-sky-700" />
+                  </div>
+                )}
               </button>
 
               <AnimatePresence>
@@ -125,14 +151,14 @@ const Navbar = () => {
                     </div>
 
                     <div className="py-1">
-                      {/* <Link
+                      <Link
                         href="/profile"
                         className="flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition duration-150"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <Settings className="w-4 h-4" />
                         Profile Settings
-                      </Link> */}
+                      </Link>
                       <div className="px-3 py-1">
                         <div className="border-t border-gray-100"></div>
                       </div>
