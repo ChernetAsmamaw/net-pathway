@@ -2,6 +2,10 @@ import express from "express";
 import cors from "cors";
 import { connectDatabase } from "./config/db";
 import { userRouter } from "./routes/user.routes";
+import { verificationRouter } from "./routes/email.varification.routes";
+import { adminRouter } from "./routes/admin.routes";
+import { blogRouter } from "./routes/blog.post.routes";
+import { mentorRouter } from "./routes/mentor.routes";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import passport from "passport";
@@ -38,6 +42,10 @@ app.use(passport.initialize());
 
 // Routes
 app.use("/api/users", userRouter);
+app.use("/api/verification", verificationRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/blogs", blogRouter);
+app.use("/api/mentors", mentorRouter);
 
 // Health check route
 app.get("/", (req, res) => {
