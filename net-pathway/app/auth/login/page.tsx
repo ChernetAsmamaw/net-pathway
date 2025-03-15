@@ -1,42 +1,62 @@
+// app/auth/login/page.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
-
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock } from "lucide-react";
 import Image from "next/image";
+import { Mail, Lock } from "lucide-react";
 import { FcGoogle } from "@react-icons/all-files/fc/FcGoogle";
 import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "react-hot-toast";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const { login } = useAuthStore();
+  const { login, isAuthenticated } = useAuthStore();
+
+  // Check for external login parameters
+  useEffect(() => {
+    // Handle redirect from Google auth
+    const loginSuccess = searchParams.get("login") === "success";
+    const error = searchParams.get("error");
+
+    if (loginSuccess) {
+      toast.success("Successfully logged in!");
+    }
+
+    if (error) {
+      toast.error(`Login error: ${error}`);
+    }
+
+    // Check if already authenticated
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await login(formData.email, formData.password);
-      toast.success("Login successful!");
-      router.push("/dashboard");
-      router.refresh();
+      const success = await login(formData.email, formData.password);
+
+      if (success) {
+        toast.success("Login successful!");
+        router.push("/dashboard");
+      } else {
+        toast.error("Login failed. Please check your credentials.");
+      }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : typeof error === "object" && error !== null && "response" in error
-          ? (error.response as any)?.data?.message || "Login failed"
-          : "Login failed";
-      toast.error(errorMessage);
+      toast.error("An error occurred during login.");
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }

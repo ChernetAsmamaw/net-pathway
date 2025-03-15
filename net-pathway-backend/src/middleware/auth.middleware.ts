@@ -1,54 +1,47 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-// Define the structure of the decoded JWT token
-interface DecodedToken {
+// User interface for decoded token
+interface DecodedUser {
   userId: string;
   role: string;
 }
 
-// Declare module to extend Express Request type
+// Extend Express Request to include user
 declare global {
   namespace Express {
     interface Request {
-      user?: DecodedToken;
+      user?: DecodedUser;
     }
   }
-}
-
-// You can keep this for backward compatibility and your own code consistency
-export interface AuthRequest extends Request {
-  user?: DecodedToken;
 }
 
 export const requireAuth = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  // Check for token in cookies first, then authorization header
-  const cookieToken = req.cookies?.token;
-  const authHeader = req.headers.authorization;
-  const bearerToken =
-    authHeader && authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : null;
-
-  // Use whichever token is available
-  const token = cookieToken || bearerToken;
-
-  if (!token) {
-    res.status(401).json({ message: "Authentication required" });
-    return;
-  }
-
+) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+    // Check for token in various places
+    const token =
+      req.cookies.token || // Check cookies first
+      (req.headers.authorization?.startsWith("Bearer ")
+        ? req.headers.authorization.split(" ")[1]
+        : null);
+
+    if (!token) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedUser;
+
+    // Set user info in request
     req.user = decoded;
+
     next();
   } catch (error) {
-    console.error("Token verification error:", error);
-    res.status(401).json({ message: "Invalid or expired token" });
-    return;
+    console.error("Auth middleware error:", error);
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };

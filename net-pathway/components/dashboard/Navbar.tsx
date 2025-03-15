@@ -7,19 +7,14 @@ import { Bell, User, LogOut, Settings, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 const Navbar = () => {
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const popupRef = useRef(null);
-  const dialogRef = useRef(null);
   const { user, logout } = useAuthStore();
-  const [notifications] = useState([
-    { id: 1, text: "New course recommendation available", isNew: true },
-    { id: 2, text: "Upcoming mentorship session tomorrow", isNew: true },
-    { id: 3, text: "Complete your career assessment", isNew: false },
-  ]);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -35,46 +30,17 @@ const Navbar = () => {
     };
   }, []);
 
-  // Handle escape key for dialog
-  useEffect(() => {
-    const handleEscKey = (event) => {
-      if (event.key === "Escape" && showLogoutDialog) {
-        setShowLogoutDialog(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleEscKey);
-    return () => {
-      document.removeEventListener("keydown", handleEscKey);
-    };
-  }, [showLogoutDialog]);
-
   const handleLogout = async () => {
     try {
+      await logout();
       setShowLogoutDialog(false);
-      const success = await logout();
-      if (success) {
-        // Clear any client-side state
-        localStorage.removeItem("token");
-        localStorage.removeItem("userData");
-        document.cookie =
-          "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-        router.push("/auth/login");
-      }
+      toast.success("Logged out successfully");
+      router.push("/auth/login");
     } catch (error) {
       console.error("Logout failed:", error);
+      toast.error("Failed to log out");
     }
   };
-
-  // For debugging - log user state without causing infinite renders
-  useEffect(() => {
-    if (user) {
-      console.log("Navbar - Current user:", user);
-    } else {
-      console.log("Navbar - No user data available");
-    }
-  }, [user]);
 
   return (
     <>
@@ -98,9 +64,7 @@ const Navbar = () => {
             <div className="relative">
               <button className="p-3 hover:bg-gray-50 rounded-full relative transition duration-150">
                 <Bell className="w-5 h-5 text-gray-600" />
-                {notifications.some((n) => n.isNew) && (
-                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-sky-500 rounded-full border border-white" />
-                )}
+                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-sky-500 rounded-full border border-white" />
               </button>
             </div>
 
@@ -111,10 +75,10 @@ const Navbar = () => {
                 aria-label="Open profile menu"
                 aria-expanded={isProfileOpen}
               >
-                {user?.profileImage ? (
+                {user?.profilePicture ? (
                   <div className="w-10 h-10 rounded-full overflow-hidden">
                     <Image
-                      src={user.profileImage}
+                      src={user.profilePicture}
                       alt="Profile"
                       width={40}
                       height={40}
@@ -136,10 +100,6 @@ const Navbar = () => {
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg py-1 border border-gray-100"
-                    style={{
-                      boxShadow:
-                        "0 4px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)",
-                    }}
                   >
                     <div className="px-5 py-3 border-b border-gray-100">
                       <p className="text-base font-medium text-gray-900">
@@ -185,7 +145,7 @@ const Navbar = () => {
       <AnimatePresence>
         {showLogoutDialog && (
           <>
-            {/* Backdrop with blur effect */}
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -197,7 +157,6 @@ const Navbar = () => {
 
             {/* Dialog */}
             <motion.div
-              ref={dialogRef}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}

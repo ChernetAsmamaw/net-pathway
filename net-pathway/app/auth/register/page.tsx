@@ -2,65 +2,58 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
-
 import Link from "next/link";
-import { Mail, Lock, User } from "lucide-react";
 import Image from "next/image";
+import { Mail, Lock, User } from "lucide-react";
 import { FcGoogle } from "@react-icons/all-files/fc/FcGoogle";
 import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "react-hot-toast";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: "", // Changed from name to username to match API
+    username: "",
     email: "",
     password: "",
-    confirmPassword: "", // Added confirmPassword field
+    confirmPassword: "",
   });
 
   const { register } = useAuthStore();
 
-  const handelRegistration = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Validate form
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
     setIsLoading(true);
 
-    const { username, email, password, confirmPassword } = formData;
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!username || !email || !password) {
-      toast.error("Please fill in all fields");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!username.trim()) {
-      toast.error("Username is required");
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      await register(username, email, password);
-      toast.success("Registration successful!");
-      setTimeout(() => {
-        router.push("/dashboard");
-        router.refresh();
-      }, 100);
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : typeof error === "object" && error !== null && "response" in error
-          ? (error.response as any)?.data?.message || "Registration failed"
-          : "Registration failed"
+      const success = await register(
+        formData.username,
+        formData.email,
+        formData.password
       );
+
+      if (success) {
+        toast.success("Registration successful!");
+        router.push("/dashboard");
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Registration failed";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +91,7 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300"
           >
             <FcGoogle className="w-5 h-5" />
             <span className="text-gray-700 font-medium">
@@ -116,7 +109,8 @@ export default function RegisterPage() {
               </span>
             </div>
           </div>
-          <form className="space-y-5" onSubmit={handelRegistration}>
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -154,44 +148,42 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <div className="mt-1 relative">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="password"
-                      required
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      className="pl-10 w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-sky-500 focus:ring-0"
-                    />
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <div className="mt-1 relative">
+                  <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    className="pl-10 w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-sky-500 focus:ring-0"
+                  />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Confirm Password
-                  </label>
-                  <div className="mt-1 relative">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="password"
-                      required
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          confirmPassword: e.target.value,
-                        })
-                      }
-                      className="pl-10 w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-sky-500 focus:ring-0"
-                    />
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Confirm Password
+                </label>
+                <div className="mt-1 relative">
+                  <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    type="password"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    className="pl-10 w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-sky-500 focus:ring-0"
+                  />
                 </div>
               </div>
             </div>

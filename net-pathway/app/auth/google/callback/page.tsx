@@ -1,5 +1,3 @@
-// Update /app/auth/google/callback/page.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,7 +8,7 @@ import { toast } from "react-hot-toast";
 export default function GoogleCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { checkAuthStatus } = useAuthStore();
+  const { setGoogleAuthData } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [processingStep, setProcessingStep] = useState("initializing");
@@ -29,89 +27,46 @@ export default function GoogleCallbackPage() {
           tokenStart: token ? token.substring(0, 20) + "..." : "none",
         });
 
-        if (!token) {
-          throw new Error("No token received from authentication server");
+        if (!token || !userDataParam) {
+          throw new Error("Missing authentication data from server");
         }
 
-        setProcessingStep("storing token");
-        // Store the token in both localStorage and cookies
-        localStorage.setItem("token", token);
+        setProcessingStep("processing user data");
+        try {
+          const userData = JSON.parse(decodeURIComponent(userDataParam));
 
-        // Set cookie with proper attributes
-        document.cookie = `token=${token}; path=/; max-age=2592000; SameSite=Lax`;
+          // Use the dedicated method for Google auth
+          setProcessingStep("setting auth state");
+          const success = setGoogleAuthData(token, userData);
 
-        // If we have user data in URL params, use it directly
-        if (userDataParam) {
-          setProcessingStep("processing user data");
-          try {
-            const userData = JSON.parse(decodeURIComponent(userDataParam));
-            localStorage.setItem("userData", JSON.stringify(userData));
+          setDebugInfo((prev) => ({
+            ...prev,
+            userData,
+            authStateSet: success,
+            tokenSaved: !!localStorage.getItem("token"),
+          }));
 
-            // Directly update the store state
-            setProcessingStep("setting auth state");
-            useAuthStore.setState({
-              user: userData,
-              isAuthenticated: true,
-              isLoading: false,
-              error: null,
-            });
-
-            setDebugInfo((prev) => ({
-              ...prev,
-              userData,
-              authStateSet: true,
-              tokenSaved: !!localStorage.getItem("token"),
-            }));
-
-            // Show success and redirect
+          if (success) {
+            // Show success message
             toast.success("Successfully signed in with Google!");
 
-            // Add a small delay to allow state to update
+            // Add a small delay before redirecting
             setProcessingStep("preparing redirect");
-            await new Promise((resolve) => setTimeout(resolve, 300));
+            await new Promise((resolve) => setTimeout(resolve, 500));
 
-            // Force a check for auth status to verify our setup
-            setProcessingStep("verifying auth state");
-            const authCheck = await checkAuthStatus();
-
-            setDebugInfo((prev) => ({
-              ...prev,
-              authStateCheck: authCheck,
-              storeState: useAuthStore.getState(),
-            }));
-
-            // Redirect to dashboard with a short delay
+            // Redirect to dashboard
             setProcessingStep("redirecting");
-            setTimeout(() => {
-              router.push("/dashboard");
-            }, 500);
-
-            return;
-          } catch (e) {
-            console.error("Failed to parse user data:", e);
-            setDebugInfo((prev) => ({
-              ...prev,
-              userDataParseError: e instanceof Error ? e.message : String(e),
-            }));
-            // Continue to checkAuthStatus as fallback
+            router.push("/dashboard");
+          } else {
+            throw new Error("Failed to set authentication state");
           }
-        }
-
-        // If no userData or parsing failed, check auth status to get user info
-        setProcessingStep("checking auth status");
-        const success = await checkAuthStatus();
-        setDebugInfo((prev) => ({
-          ...prev,
-          authCheckSuccess: success,
-          storeState: useAuthStore.getState(),
-        }));
-
-        if (success) {
-          toast.success("Successfully signed in with Google!");
-          setProcessingStep("redirecting after auth check");
-          router.push("/dashboard");
-        } else {
-          throw new Error("Failed to retrieve user information");
+        } catch (e) {
+          console.error("Failed to process authentication data:", e);
+          setDebugInfo((prev) => ({
+            ...prev,
+            processingError: e instanceof Error ? e.message : String(e),
+          }));
+          throw e;
         }
       } catch (error) {
         console.error("Google auth callback error:", error);
@@ -132,7 +87,7 @@ export default function GoogleCallbackPage() {
     };
 
     handleCallback();
-  }, [checkAuthStatus, router, searchParams]);
+  }, [router, searchParams, setGoogleAuthData]);
 
   // Function to check current authentication state
   const checkCurrentAuthState = () => {

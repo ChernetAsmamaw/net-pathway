@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from "express";
+import express, { Router, RequestHandler } from "express";
 import { userController } from "../controllers/user.controller";
 import { requireAuth } from "../middleware/auth.middleware";
 import passport from "passport";
@@ -10,32 +10,23 @@ configurePassport();
 
 const router: Router = express.Router();
 
+// Cast controller methods to RequestHandler type to satisfy TypeScript
+const registerHandler = userController.register as RequestHandler;
+const loginHandler = userController.login as RequestHandler;
+const logoutHandler = userController.logout as RequestHandler;
+const getProfileHandler = userController.getProfile as RequestHandler;
+const updateProfileHandler = userController.updateProfile as RequestHandler;
+const deleteAccountHandler = userController.deleteAccount as RequestHandler;
+
 // Auth routes
-router.post("/register", async (req: Request, res: Response) => {
-  await userController.register(req, res);
-});
+router.post("/register", registerHandler);
+router.post("/login", loginHandler);
+router.post("/logout", logoutHandler);
 
-router.post("/login", async (req: Request, res: Response) => {
-  await userController.login(req, res);
-});
-
-router.post("/logout", async (req: Request, res: Response) => {
-  await userController.logout(req, res);
-});
-
-// Protected routes - now using standard Request type
-router.get("/profile", requireAuth, async (req: Request, res: Response) => {
-  await userController.getProfile(req, res);
-});
-
-router.put("/profile", requireAuth, async (req: Request, res: Response) => {
-  await userController.updateProfile(req, res);
-});
-
-// Delete account route
-router.delete("/account", requireAuth, async (req: Request, res: Response) => {
-  await userController.deleteAccount(req, res);
-});
+// Protected routes
+router.get("/profile", requireAuth as RequestHandler, getProfileHandler);
+router.put("/profile", requireAuth as RequestHandler, updateProfileHandler);
+router.delete("/account", requireAuth as RequestHandler, deleteAccountHandler);
 
 // Google OAuth routes
 router.get(
@@ -101,4 +92,4 @@ router.get(
   }
 );
 
-export const userRouter = router;
+export { router as userRouter };
