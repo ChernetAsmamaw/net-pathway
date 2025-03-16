@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import BlogPost from "../models/BlogPost";
+import mongoose from "mongoose";
 
 export const blogController = {
   // Create a new blog post
@@ -21,6 +22,7 @@ export const blogController = {
         status: status || "draft",
         image: image || null,
         author: req.user?.userId,
+        comments: [], // Initialize with empty comments array
       });
 
       res.status(201).json({
@@ -41,14 +43,27 @@ export const blogController = {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const skip = (page - 1) * limit;
+      const search = (req.query.search as string) || "";
 
-      const posts = await BlogPost.find({ status: "published" })
+      // Create search filter
+      const searchFilter = search
+        ? {
+            $or: [
+              { title: { $regex: search, $options: "i" } },
+              { summary: { $regex: search, $options: "i" } },
+              { tags: { $in: [new RegExp(search, "i")] } },
+            ],
+            status: "published",
+          }
+        : { status: "published" };
+
+      const posts = await BlogPost.find(searchFilter)
         .sort({ publishedAt: -1 })
         .skip(skip)
         .limit(limit)
         .populate("author", "username profilePicture");
 
-      const total = await BlogPost.countDocuments({ status: "published" });
+      const total = await BlogPost.countDocuments(searchFilter);
 
       res.status(200).json({
         posts,
@@ -71,10 +86,13 @@ export const blogController = {
     try {
       const { postId } = req.params;
 
-      const post = await BlogPost.findById(postId).populate(
-        "author",
-        "username profilePicture"
-      );
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ message: "Invalid blog post ID format" });
+      }
+
+      const post = await BlogPost.findById(postId)
+        .populate("author", "username profilePicture")
+        .populate("comments.author", "username profilePicture");
 
       if (!post) {
         return res.status(404).json({ message: "Blog post not found" });
@@ -100,6 +118,10 @@ export const blogController = {
     try {
       const { postId } = req.params;
       const { title, content, summary, tags, status, image } = req.body;
+
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ message: "Invalid blog post ID format" });
+      }
 
       // Find post
       const post = await BlogPost.findById(postId);
@@ -150,6 +172,10 @@ export const blogController = {
     try {
       const { postId } = req.params;
 
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ message: "Invalid blog post ID format" });
+      }
+
       const post = await BlogPost.findById(postId);
 
       if (!post) {
@@ -183,14 +209,26 @@ export const blogController = {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const skip = (page - 1) * limit;
+      const search = (req.query.search as string) || "";
 
-      const posts = await BlogPost.find()
+      // Create search filter
+      const searchFilter = search
+        ? {
+            $or: [
+              { title: { $regex: search, $options: "i" } },
+              { summary: { $regex: search, $options: "i" } },
+              { tags: { $in: [new RegExp(search, "i")] } },
+            ],
+          }
+        : {};
+
+      const posts = await BlogPost.find(searchFilter)
         .sort({ updatedAt: -1 })
         .skip(skip)
         .limit(limit)
         .populate("author", "username profilePicture");
 
-      const total = await BlogPost.countDocuments();
+      const total = await BlogPost.countDocuments(searchFilter);
 
       res.status(200).json({
         posts,
@@ -205,6 +243,141 @@ export const blogController = {
       res
         .status(500)
         .json({ message: error.message || "Error retrieving blog posts" });
+    }
+  },
+
+  // Add a comment to a blog post
+  async addComment(req: Request, res: Response) {
+    try {
+      const { postId } = req.params;
+      const { content } = req.body;
+
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ message: "Invalid blog post ID format" });
+      }
+
+      if (!content || content.trim() === "") {
+        return res.status(400).json({ message: "Comment content is required" });
+      }
+
+      const post = await BlogPost.findById(postId);
+
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+
+      // Can only comment on published posts
+      if (post.status !== "published") {
+        return res
+          .status(400)
+          .json({ message: "Can only comment on published posts" });
+      }
+
+      // Add the comment
+      const comment = {
+        content,
+        author: req.user?.userId,
+        createdAt: new Date(),
+      };
+
+      post.comments.push(comment);
+      await post.save();
+
+      // Fetch the populated comment for the response
+      const updatedPost = await BlogPost.findById(postId).populate({
+        path: "comments.author",
+        select: "username profilePicture",
+      });
+
+      const newComment = updatedPost?.comments[updatedPost.comments.length - 1];
+
+      res.status(201).json({
+        message: "Comment added successfully",
+        comment: newComment,
+      });
+    } catch (error: any) {
+      console.error("Add comment error:", error);
+      res
+        .status(500)
+        .json({ message: error.message || "Error adding comment" });
+    }
+  },
+
+  // Delete a comment from a blog post
+  async deleteComment(req: Request, res: Response) {
+    try {
+      const { postId, commentId } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(postId) ||
+        !mongoose.Types.ObjectId.isValid(commentId)
+      ) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+
+      const post = await BlogPost.findById(postId);
+
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+
+      // Find the comment
+      const comment = post.comments.id(commentId);
+
+      if (!comment) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+
+      // Check if user is authorized to delete this comment
+      if (
+        comment.author.toString() !== req.user?.userId &&
+        post.author.toString() !== req.user?.userId &&
+        req.user?.role !== "admin"
+      ) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to delete this comment" });
+      }
+
+      // Remove the comment
+      comment.deleteOne();
+      await post.save();
+
+      res.status(200).json({ message: "Comment deleted successfully" });
+    } catch (error: any) {
+      console.error("Delete comment error:", error);
+      res
+        .status(500)
+        .json({ message: error.message || "Error deleting comment" });
+    }
+  },
+
+  // Get comments for a blog post
+  async getComments(req: Request, res: Response) {
+    try {
+      const { postId } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ message: "Invalid blog post ID format" });
+      }
+
+      const post = await BlogPost.findById(postId).populate({
+        path: "comments.author",
+        select: "username profilePicture",
+      });
+
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+
+      res.status(200).json({
+        comments: post.comments,
+      });
+    } catch (error: any) {
+      console.error("Get comments error:", error);
+      res
+        .status(500)
+        .json({ message: error.message || "Error retrieving comments" });
     }
   },
 };

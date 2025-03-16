@@ -1,5 +1,24 @@
 import mongoose from "mongoose";
 
+// Comment schema as a sub-document
+const commentSchema = new mongoose.Schema({
+  content: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 1000,
+  },
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const blogPostSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -40,6 +59,7 @@ const blogPostSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  comments: [commentSchema], // Add comments array
   publishedAt: {
     type: Date,
     default: null,
