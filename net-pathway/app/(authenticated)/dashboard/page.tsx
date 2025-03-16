@@ -23,7 +23,7 @@ export default function DashboardPage() {
               Your future exploration journey starts here!
             </p>
           </div>
-          <div className="flex gap-4 mt-4 md:mt-0">
+          {/* <div className="flex gap-4 mt-4 md:mt-0">
             <div className="text-center">
               <div className="text-2xl font-bold text-sky-700 pb-2">
                 <div className="w-12 h-12 flex items-center justify-center p-1.5 border rounded-full bg-sky-100 font-semibold text-md">
@@ -32,7 +32,7 @@ export default function DashboardPage() {
               </div>
               <div className="text-sm text-gray-500">Paths</div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

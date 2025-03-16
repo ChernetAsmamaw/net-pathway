@@ -19,6 +19,7 @@ interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   error: string | null;
+  authChecked: boolean;
 
   // Auth methods
   login: (email: string, password: string) => Promise<boolean>;
@@ -26,9 +27,10 @@ interface AuthState {
     username: string,
     email: string,
     password: string
-  ) => Promise<boolean>;
+  ) => Promise<{ success: boolean; isAdmin?: boolean; error?: any }>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<boolean>;
+  setGoogleAuthData: (token: string, userData: User) => boolean;
 
   // Profile methods
   updateProfile: (data: {
@@ -42,6 +44,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoading: false,
   isAuthenticated: false,
   error: null,
+  authChecked: false,
 
   // Email/Password Login
   login: async (email: string, password: string) => {
@@ -59,10 +62,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           user: response.data.user,
           isAuthenticated: true,
           isLoading: false,
+          authChecked: true,
         });
         return true;
       }
 
+      set({ isLoading: false });
       return false;
     } catch (error: any) {
       const message = error.response?.data?.message || "Login failed";
@@ -92,11 +97,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           user: response.data.user,
           isAuthenticated: true,
           isLoading: false,
+          authChecked: true,
         });
-        return true;
+
+        return {
+          success: true,
+          isAdmin: response.data.user.role === "admin",
+        };
       }
 
-      return false;
+      set({ isLoading: false });
+      return { success: false };
     } catch (error: any) {
       const message = error.response?.data?.message || "Registration failed";
       set({
@@ -104,6 +115,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: message,
         isAuthenticated: false,
       });
+      return {
+        success: false,
+        error: message,
+      };
+    }
+  },
+
+  // Google Auth Data Setter
+  setGoogleAuthData: (token: string, userData: User) => {
+    try {
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      set({
+        user: userData,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        authChecked: true,
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Failed to set Google auth data:", error);
       return false;
     }
   },
@@ -116,7 +150,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log("Logout API error - continuing anyway");
     }
 
-    // Always clear local state regardless of API response
     localStorage.removeItem("user");
     set({
       user: null,
@@ -126,51 +159,114 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
   },
 
-  // Check Authentication Status
+  // Check Authentication Status - Complete rewrite to fix infinite loop issues
   checkAuth: async () => {
-    try {
-      set({ isLoading: true });
+    const currentState = get();
 
-      // First try to use stored user data for immediate UI rendering
+    // If we're already authenticated and have a user, no need to recheck
+    if (
+      currentState.authChecked &&
+      currentState.isAuthenticated &&
+      currentState.user
+    ) {
+      return true;
+    }
+
+    // Don't run multiple checks simultaneously
+    if (currentState.isLoading) {
+      return currentState.isAuthenticated;
+    }
+
+    set({ isLoading: true });
+
+    try {
+      // First try to use stored user data for immediate UI
+      let foundUserLocally = false;
       const storedUser = localStorage.getItem("user");
+
       if (storedUser) {
-        set({
-          user: JSON.parse(storedUser),
-          isAuthenticated: true,
-          isLoading: false,
-        });
+        try {
+          const userData = JSON.parse(storedUser);
+          if (userData && userData.id) {
+            set({
+              user: userData,
+              isAuthenticated: true,
+            });
+            foundUserLocally = true;
+          }
+        } catch (e) {
+          console.error("Error parsing stored user data:", e);
+          localStorage.removeItem("user");
+        }
       }
 
       // Then validate with the server
-      const response = await axios.get(`${API_URL}/users/profile`);
+      let serverValidationSuccessful = false;
+      try {
+        const response = await axios.get(`${API_URL}/users/profile`);
 
-      if (response.data.user) {
-        // Update with fresh data from server
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+        if (response.data.user) {
+          const serverUser = response.data.user;
+
+          // Check if user data has changed
+          const needsUpdate =
+            !currentState.user ||
+            currentState.user.id !== serverUser.id ||
+            currentState.user.role !== serverUser.role;
+
+          if (needsUpdate) {
+            localStorage.setItem("user", JSON.stringify(serverUser));
+            set({
+              user: serverUser,
+              isAuthenticated: true,
+            });
+          }
+
+          serverValidationSuccessful = true;
+        }
+      } catch (error) {
+        console.error("Server validation failed:", error);
+        // If server validation fails but we have local data, we'll still consider the user authenticated
+        // This prevents flickering during temporary network issues
+      }
+
+      // Final auth state determination
+      if (serverValidationSuccessful) {
+        // Server validation succeeded - user is authenticated
         set({
-          user: response.data.user,
-          isAuthenticated: true,
           isLoading: false,
+          authChecked: true,
+        });
+        return true;
+      } else if (foundUserLocally) {
+        // Server validation failed but we have local data - assume user is still authenticated
+        // but mark that there was an error
+        set({
+          isLoading: false,
+          authChecked: true,
+          error: "Could not validate session with server",
         });
         return true;
       } else {
-        // Clear auth if server doesn't recognize user
+        // Neither server validation nor local data - user is not authenticated
         localStorage.removeItem("user");
         set({
           user: null,
           isAuthenticated: false,
           isLoading: false,
+          authChecked: true,
         });
         return false;
       }
     } catch (error) {
-      // On error, clear auth
+      console.error("Authentication check error:", error);
       localStorage.removeItem("user");
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: "Authentication failed",
+        authChecked: true,
+        error: "Authentication check failed",
       });
       return false;
     }

@@ -14,18 +14,33 @@ import {
   Target,
   ChevronLeft,
   ChevronRight,
+  Shield,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuthStore } from "@/store/useAuthStore";
 
-// Updated navigation with consistent paths
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Generated Paths", href: "/paths", icon: BookOpen },
-  { name: "Assessment", href: "/assessment", icon: Target },
-  { name: "Mentorship", href: "/mentorship", icon: Users },
-  { name: "Discussion Board", href: "/discussions", icon: MessagesSquare },
-  { name: "Profile Settings", href: "/profile", icon: Settings },
-];
+// Updated navigation with consistent paths and admin route
+const getNavigation = (isAdmin: boolean) => {
+  const baseNavigation = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Generated Paths", href: "/paths", icon: BookOpen },
+    { name: "Assessment", href: "/assessment", icon: Target },
+    { name: "Mentorship", href: "/mentorship", icon: Users },
+    { name: "Discussion Board", href: "/discussions", icon: MessagesSquare },
+    { name: "Profile Settings", href: "/profile", icon: Settings },
+  ];
+
+  // Add admin dashboard link for admin users
+  if (isAdmin) {
+    baseNavigation.push({
+      name: "Admin Dashboard",
+      href: "/admin",
+      icon: Shield,
+    });
+  }
+
+  return baseNavigation;
+};
 
 interface SidebarProps {
   onCollapse: (collapsed: boolean) => void;
@@ -34,6 +49,10 @@ interface SidebarProps {
 export default function Sidebar({ onCollapse }: SidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
+
+  const navigation = getNavigation(isAdmin);
 
   useEffect(() => {
     if (onCollapse) {
@@ -44,7 +63,7 @@ export default function Sidebar({ onCollapse }: SidebarProps) {
   return (
     <motion.aside
       animate={{ width: isCollapsed ? "5rem" : "16rem" }}
-      className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-100 shadow-sm"
+      className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-100 shadow-sm z-30"
     >
       <div className="flex flex-col h-full">
         <div className="flex-1 py-6 px-4">

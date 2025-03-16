@@ -38,17 +38,23 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const success = await register(
+      const result = await register(
         formData.username,
         formData.email,
         formData.password
       );
 
-      if (success) {
-        toast.success("Registration successful!");
+      if (result.success) {
+        if (result.isAdmin) {
+          toast.success(
+            "Registration successful! You've been granted admin privileges."
+          );
+        } else {
+          toast.success("Registration successful!");
+        }
         router.push("/dashboard");
       } else {
-        toast.error("Registration failed. Please try again.");
+        toast.error(result.error || "Registration failed. Please try again.");
       }
     } catch (error: any) {
       const errorMessage =
