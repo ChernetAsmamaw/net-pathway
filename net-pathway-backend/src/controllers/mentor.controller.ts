@@ -1,6 +1,30 @@
+// src/controllers/mentor.controller.ts
+
 import { Request, Response } from "express";
 import Mentor from "../models/Mentor";
 import User from "../models/User";
+import mongoose from "mongoose";
+
+// Define interface for the mentor data to fix type errors
+interface MentorData {
+  _id?: mongoose.Types.ObjectId | string; // Accept both ObjectId and string
+  user: mongoose.Types.ObjectId | string;
+  title: string;
+  company: string;
+  location: string;
+  bio: string;
+  expertise?: string[];
+  experience: string;
+  education: string;
+  languages?: string[];
+  achievements?: string[];
+  availability?: string;
+  isActive?: boolean;
+  rating?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  [key: string]: any; // Allow for additional properties
+}
 
 export const mentorController = {
   // Create a new mentor profile
@@ -12,11 +36,11 @@ export const mentorController = {
         company,
         location,
         bio,
-        expertise,
+        expertise, // Array of strings
         experience,
         education,
-        languages,
-        achievements,
+        languages, // Array of strings
+        achievements, // Array of strings
         availability,
       } = req.body;
 
@@ -63,17 +87,18 @@ export const mentorController = {
       }
 
       // Create mentor profile
+      // Ensure arrays are properly initialized even if they come in as null or undefined
       const newMentor = await Mentor.create({
         user: targetUserId,
         title,
         company,
         location,
         bio,
-        expertise: expertise || [],
+        expertise: Array.isArray(expertise) ? expertise : [], // Ensure it's an array
         experience,
         education,
-        languages: languages || ["English"],
-        achievements: achievements || [],
+        languages: Array.isArray(languages) ? languages : [], // Ensure it's an array
+        achievements: Array.isArray(achievements) ? achievements : [], // Ensure it's an array
         availability: availability || "available",
       });
 
@@ -117,8 +142,26 @@ export const mentorController = {
 
       const total = await Mentor.countDocuments(filterOptions);
 
+      // For each mentor, ensure arrays are properly formatted before sending to client
+      const formattedMentors = mentors.map((mentor) => {
+        // First convert to unknown, then to our interface to bypass type checking
+        const mentorObj = mentor.toObject() as unknown as MentorData;
+        return {
+          ...mentorObj,
+          expertise: Array.isArray(mentorObj.expertise)
+            ? mentorObj.expertise
+            : [],
+          languages: Array.isArray(mentorObj.languages)
+            ? mentorObj.languages
+            : [],
+          achievements: Array.isArray(mentorObj.achievements)
+            ? mentorObj.achievements
+            : [],
+        };
+      });
+
       res.status(200).json({
-        mentors,
+        mentors: formattedMentors,
         pagination: {
           total,
           page,
@@ -147,7 +190,23 @@ export const mentorController = {
         return res.status(404).json({ message: "Mentor not found" });
       }
 
-      res.status(200).json({ mentor });
+      // Ensure arrays are properly formatted before sending to client
+      // First convert to unknown, then to our interface to bypass type checking
+      const mentorData = mentor.toObject() as unknown as MentorData;
+      const formattedMentor = {
+        ...mentorData,
+        expertise: Array.isArray(mentorData.expertise)
+          ? mentorData.expertise
+          : [],
+        languages: Array.isArray(mentorData.languages)
+          ? mentorData.languages
+          : [],
+        achievements: Array.isArray(mentorData.achievements)
+          ? mentorData.achievements
+          : [],
+      };
+
+      res.status(200).json({ mentor: formattedMentor });
     } catch (error: any) {
       console.error("Get mentor error:", error);
       res
@@ -156,7 +215,8 @@ export const mentorController = {
     }
   },
 
-  // Update mentor profile
+  // Updated updateMentor method that properly persists arrays to the database
+
   async updateMentor(req: Request, res: Response) {
     try {
       const { mentorId } = req.params;
@@ -182,15 +242,79 @@ export const mentorController = {
       // Update fields (excluding user field)
       delete updateData.user;
 
-      const updatedMentor = await Mentor.findByIdAndUpdate(
-        mentorId,
-        { $set: updateData },
-        { new: true, runValidators: true }
-      ).populate("user", "username email profilePicture isEmailVerified");
+      // IMPORTANT: Directly set array fields to ensure they persist
+      // This is crucial for arrays to be properly saved
+
+      // Handle expertise array
+      if (updateData.expertise !== undefined) {
+        // Ensure it's an array
+        const expertiseArray = Array.isArray(updateData.expertise)
+          ? updateData.expertise
+          : [];
+
+        // Set it directly - this is important!
+        mentor.expertise = expertiseArray;
+      }
+
+      // Handle languages array
+      if (updateData.languages !== undefined) {
+        // Ensure it's an array
+        const languagesArray = Array.isArray(updateData.languages)
+          ? updateData.languages
+          : [];
+
+        // Set it directly - this is important!
+        mentor.languages = languagesArray;
+      }
+
+      // Handle achievements array
+      if (updateData.achievements !== undefined) {
+        // Ensure it's an array
+        const achievementsArray = Array.isArray(updateData.achievements)
+          ? updateData.achievements
+          : [];
+
+        // Set it directly - this is important!
+        mentor.achievements = achievementsArray;
+      }
+
+      // Update other non-array fields
+      if (updateData.title) mentor.title = updateData.title;
+      if (updateData.company) mentor.company = updateData.company;
+      if (updateData.location) mentor.location = updateData.location;
+      if (updateData.bio) mentor.bio = updateData.bio;
+      if (updateData.experience) mentor.experience = updateData.experience;
+      if (updateData.education) mentor.education = updateData.education;
+      if (updateData.availability)
+        mentor.availability = updateData.availability;
+
+      // Save the updated mentor
+      await mentor.save();
+
+      // Populate user data
+      await mentor.populate(
+        "user",
+        "username email profilePicture isEmailVerified"
+      );
+
+      // Format the response to ensure arrays are properly handled
+      const mentorData = mentor.toObject() as unknown as MentorData;
+      const formattedMentor = {
+        ...mentorData,
+        expertise: Array.isArray(mentorData.expertise)
+          ? mentorData.expertise
+          : [],
+        languages: Array.isArray(mentorData.languages)
+          ? mentorData.languages
+          : [],
+        achievements: Array.isArray(mentorData.achievements)
+          ? mentorData.achievements
+          : [],
+      };
 
       res.status(200).json({
         message: "Mentor profile updated successfully",
-        mentor: updatedMentor,
+        mentor: formattedMentor,
       });
     } catch (error: any) {
       console.error("Update mentor error:", error);
@@ -291,7 +415,23 @@ export const mentorController = {
         return res.status(404).json({ message: "Mentor profile not found" });
       }
 
-      res.status(200).json({ mentor });
+      // Ensure arrays are properly formatted before sending to client
+      // First convert to unknown, then to our interface to bypass type checking
+      const mentorData = mentor.toObject() as unknown as MentorData;
+      const formattedMentor = {
+        ...mentorData,
+        expertise: Array.isArray(mentorData.expertise)
+          ? mentorData.expertise
+          : [],
+        languages: Array.isArray(mentorData.languages)
+          ? mentorData.languages
+          : [],
+        achievements: Array.isArray(mentorData.achievements)
+          ? mentorData.achievements
+          : [],
+      };
+
+      res.status(200).json({ mentor: formattedMentor });
     } catch (error: any) {
       console.error("Get current mentor profile error:", error);
       res
