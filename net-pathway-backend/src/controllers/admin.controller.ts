@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import User from "../models/User";
 import bcrypt from "bcryptjs";
 
+// Allowed email domains for admin creation
+const ALLOWED_ADMIN_DOMAINS =
+  process.env.ALLOWED_ADMIN_DOMAINS?.split(",") || [];
+
 export const adminController = {
   // Get all users
   async getAllUsers(req: Request, res: Response) {
@@ -16,13 +20,21 @@ export const adminController = {
     }
   },
 
-  // Create admin user
+  // Create admin user with domain restriction
   async createAdmin(req: Request, res: Response) {
     try {
       const { username, email, password } = req.body;
 
       if (!username || !email || !password) {
         return res.status(400).json({ message: "All fields are required" });
+      }
+
+      // Check email domain
+      const emailDomain = email.split("@")[1]?.toLowerCase();
+      if (!emailDomain || !ALLOWED_ADMIN_DOMAINS.includes(emailDomain)) {
+        return res.status(403).json({
+          message: "Only authorized email domains can create admin accounts",
+        });
       }
 
       // Check if user exists
