@@ -1,5 +1,7 @@
+// components/admin/BlogForm.tsx
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import {
   ArrowLeft,
   Save,
@@ -19,6 +21,8 @@ interface BlogFormProps {
 
 export default function BlogForm({ blogId, onCancel }: BlogFormProps) {
   const router = useRouter();
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const {
     isLoading,
     fetchBlogById,
@@ -47,20 +51,45 @@ export default function BlogForm({ blogId, onCancel }: BlogFormProps) {
 
       setIsFetching(true);
       try {
-        const blogData = await fetchBlogById(blogId);
+        console.log("Fetching blog with ID:", blogId);
 
-        if (blogData) {
-          setFormData({
-            title: blogData.title || "",
-            content: blogData.content || "",
-            summary: blogData.summary || "",
-            tags: blogData.tags || [],
-            status: blogData.status || "draft",
-            image: blogData.image || null,
+        try {
+          // Try direct API call first
+          const response = await axios.get(`${API_URL}/blogs/${blogId}`, {
+            withCredentials: true,
           });
+
+          if (response.data.post) {
+            const blogData = response.data.post;
+            console.log("Successfully fetched blog data:", blogData);
+            setFormData({
+              title: blogData.title || "",
+              content: blogData.content || "",
+              summary: blogData.summary || "",
+              tags: blogData.tags || [],
+              status: blogData.status || "draft",
+              image: blogData.image || null,
+            });
+          } else {
+            // Fallback to store method
+            const blogData = await fetchBlogById(blogId);
+            if (blogData) {
+              setFormData({
+                title: blogData.title || "",
+                content: blogData.content || "",
+                summary: blogData.summary || "",
+                tags: blogData.tags || [],
+                status: blogData.status || "draft",
+                image: blogData.image || null,
+              });
+            } else {
+              toast.error("Blog post not found");
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching blog:", error);
+          toast.error("Failed to load blog post");
         }
-      } catch (error) {
-        console.error("Error fetching blog:", error);
       } finally {
         setIsFetching(false);
       }
@@ -158,13 +187,49 @@ export default function BlogForm({ blogId, onCancel }: BlogFormProps) {
       let success = false;
 
       if (blogId) {
-        // Update existing blog
-        const updatedBlog = await updateBlog(blogId, formData);
-        success = !!updatedBlog;
+        // Update existing blog - try direct API call first
+        try {
+          const response = await axios.put(
+            `${API_URL}/blogs/${blogId}`,
+            formData,
+            {
+              withCredentials: true,
+            }
+          );
+
+          if (response.data.post) {
+            success = true;
+            toast.success("Blog post updated successfully");
+          }
+        } catch (apiError) {
+          console.error(
+            "Direct API update failed, trying store method:",
+            apiError
+          );
+          // Fallback to store method
+          const updatedBlog = await updateBlog(blogId, formData);
+          success = !!updatedBlog;
+        }
       } else {
         // Create new blog
-        const newBlog = await createBlog(formData);
-        success = !!newBlog;
+        try {
+          const response = await axios.post(`${API_URL}/blogs`, formData, {
+            withCredentials: true,
+          });
+
+          if (response.data.post) {
+            success = true;
+            toast.success("Blog post created successfully");
+          }
+        } catch (apiError) {
+          console.error(
+            "Direct API create failed, trying store method:",
+            apiError
+          );
+          // Fallback to store method
+          const newBlog = await createBlog(formData);
+          success = !!newBlog;
+        }
       }
 
       if (success) {
@@ -173,6 +238,7 @@ export default function BlogForm({ blogId, onCancel }: BlogFormProps) {
       }
     } catch (error) {
       console.error("Error saving blog post:", error);
+      toast.error("Failed to save blog post");
     }
   };
 

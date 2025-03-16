@@ -1,23 +1,22 @@
+// app/(authenticated)/admin/blog/[blogId]/page.tsx
 "use client";
 
 import { useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-
-import MentorForm from "@/components/admin/MentorForm";
+import BlogForm from "@/components/admin/BlogForm";
 import { toast } from "react-hot-toast";
 
-export default function EditMentorPage() {
+export default function EditBlogPage() {
   const router = useRouter();
   const params = useParams();
-  const { user, isAuthenticated, checkAuthStatus } = useAuthStore();
+  const { user, isAuthenticated, checkAuth } = useAuthStore();
+  const blogId = params?.blogId as string;
 
-  const mentorId = params?.mentorId as string;
-
-  // Check admin access
+  // Check if user is authenticated and is an admin
   useEffect(() => {
     const checkAdminAccess = async () => {
-      await checkAuthStatus();
+      await checkAuth();
 
       if (!isAuthenticated) {
         router.push("/auth/login");
@@ -25,20 +24,14 @@ export default function EditMentorPage() {
       }
 
       if (user?.role !== "admin") {
-        toast.error("You don't have permission to access this page");
+        toast.error("Access denied. Admin privileges required.");
         router.push("/dashboard");
-        return;
-      }
-
-      if (!mentorId) {
-        toast.error("Invalid mentor");
-        router.push("/admin");
         return;
       }
     };
 
     checkAdminAccess();
-  }, [checkAuthStatus, isAuthenticated, router, user, mentorId]);
+  }, [checkAuth, isAuthenticated, router, user]);
 
   if (!user || user.role !== "admin") {
     return (
@@ -53,11 +46,10 @@ export default function EditMentorPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="pt-16 ml-64 transition-all duration-300">
-        <MentorForm
-          mentorId={mentorId}
-          onCancel={() => router.push("/admin")}
-        />
+      <main>
+        <div className="p-6 md:p-8">
+          <BlogForm blogId={blogId} onCancel={() => router.push("/admin")} />
+        </div>
       </main>
     </div>
   );

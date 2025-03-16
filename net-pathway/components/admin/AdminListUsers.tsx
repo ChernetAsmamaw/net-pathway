@@ -49,11 +49,15 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
         }
       );
 
-      setUsers(response.data.users);
-      setTotalPages(response.data.pagination.pages);
+      // Add null check and default values for pagination
+      setUsers(response.data.users || []);
+      setTotalPages(response.data.pagination?.pages || 1);
     } catch (error) {
       console.error("Failed to fetch users:", error);
       toast.error("Failed to load users");
+      // Set default values on error
+      setUsers([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -130,7 +134,7 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
           <UserCog className="w-5 h-5 text-sky-700" />
           User Management
         </h2>
-        <button
+        {/* <button
           onClick={() => {
             // Navigate to create admin page or open modal
             setSelectedUser(null);
@@ -140,7 +144,7 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
         >
           <Shield className="w-4 h-4" />
           Create Admin User
-        </button>
+        </button> */}
       </div>
 
       {users.length === 0 ? (
@@ -264,6 +268,7 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
         <div className="flex justify-center mt-6">
           <div className="flex space-x-1">
             <button
+              key="prev"
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className="px-4 py-2 border rounded-lg disabled:opacity-50"
@@ -272,7 +277,7 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
-                key={page}
+                key={`page-${page}`}
                 onClick={() => setCurrentPage(page)}
                 className={`px-4 py-2 border rounded-lg ${
                   currentPage === page
@@ -284,6 +289,7 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
               </button>
             ))}
             <button
+              key="next"
               onClick={() =>
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }

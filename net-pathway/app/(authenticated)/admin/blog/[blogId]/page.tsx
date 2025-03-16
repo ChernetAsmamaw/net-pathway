@@ -4,17 +4,44 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import axios from "axios";
-import { ArrowLeft, User, CalendarIcon, Clock, Eye, Tag } from "lucide-react";
+import {
+  ArrowLeft,
+  User,
+  CalendarIcon,
+  Clock,
+  Eye,
+  Tag,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+interface BlogPost {
+  _id: string;
+  title: string;
+  content: string;
+  summary: string;
+  author: {
+    _id: string;
+    username: string;
+    profilePicture?: string;
+  };
+  publishedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  tags: string[];
+  views: number;
+  image?: string;
+}
 
 export default function BlogDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { user, isAuthenticated, checkAuth } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [blog, setBlog] = useState(null);
+  const [blog, setBlog] = useState<BlogPost | null>(null);
 
   const blogId = params?.blogId as string;
 
@@ -70,6 +97,22 @@ export default function BlogDetailPage() {
     });
   };
 
+  // Add delete blog functionality
+  const handleDeleteBlog = async () => {
+    if (!confirm("Are you sure you want to delete this blog post?")) return;
+
+    try {
+      await axios.delete(`${API_URL}/blogs/${blogId}`, {
+        withCredentials: true,
+      });
+      toast.success("Blog post deleted successfully");
+      router.push("/admin/blog");
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+      toast.error("Failed to delete blog post");
+    }
+  };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -85,7 +128,7 @@ export default function BlogDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <main className="transition-all duration-300">
         <div className="p-6 md:p-8">
-          <div className="mb-6">
+          <div className="flex justify-between items-center mb-6">
             <button
               onClick={() => router.back()}
               className="flex items-center gap-2 text-sky-700 hover:text-sky-800 group"
@@ -93,6 +136,25 @@ export default function BlogDetailPage() {
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span>Back to All Blogs</span>
             </button>
+
+            {blog && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => router.push(`/admin/blog/edit/${blogId}`)}
+                  className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span>Edit</span>
+                </button>
+                <button
+                  onClick={handleDeleteBlog}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {isLoading ? (
@@ -102,12 +164,12 @@ export default function BlogDetailPage() {
           ) : blog ? (
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               {/* Debug info */}
-              <div className="bg-gray-100 p-2 text-xs font-mono">
+              {/* <div className="bg-gray-100 p-2 text-xs font-mono">
                 <div>Blog ID: {blogId}</div>
                 <div>Title: {blog.title}</div>
                 <div>Status: {blog.status}</div>
                 <div>Tags: {blog.tags?.join(", ")}</div>
-              </div>
+              </div> */}
 
               {/* Featured Image */}
               {blog.image && (
@@ -206,3 +268,7 @@ export default function BlogDetailPage() {
     </div>
   );
 }
+
+// Remove the following code that was accidentally copied:
+// const statCards = [ ... ];
+// export default AdminStatistics;
