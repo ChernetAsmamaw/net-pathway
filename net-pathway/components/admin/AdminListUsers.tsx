@@ -11,7 +11,7 @@ import {
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import Image from "next/image";
-import VerificationBadge from "@/components/VerificationBadge";
+import VerificationBadge from "@/components/varification/VerificationBadge";
 
 interface User {
   id: string;

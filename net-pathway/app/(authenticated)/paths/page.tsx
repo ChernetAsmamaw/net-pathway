@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
+
 import Image from "next/image";
 import { ArrowRight, Building2, GraduationCap, Search } from "lucide-react";
 import Link from "next/link";
@@ -199,7 +198,7 @@ export const pathsData = [
 
 export default function Paths() {
   const router = useRouter();
-  const { user, isAuthenticated, checkAuthStatus } = useAuthStore();
+  const { user, isAuthenticated, checkAuth } = useAuthStore();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPaths, setFilteredPaths] = useState([]);
@@ -207,13 +206,13 @@ export default function Paths() {
 
   useEffect(() => {
     const initAuth = async () => {
-      await checkAuthStatus();
+      await checkAuth();
       if (!isAuthenticated) {
         router.push("/auth/login");
       }
     };
     initAuth();
-  }, [checkAuthStatus, isAuthenticated, router]);
+  }, [checkAuth, isAuthenticated, router]);
 
   // Filter and sort paths
   useEffect(() => {
@@ -260,13 +259,7 @@ export default function Paths() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <Sidebar onCollapse={setIsSidebarCollapsed} />
-      <main
-        className={`pt-16 ${
-          isSidebarCollapsed ? "ml-20" : "ml-64"
-        } transition-all duration-300`}
-      >
+      <main>
         <div className="p-6 md:p-8">
           {/* Header Section with Search */}
           <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700">

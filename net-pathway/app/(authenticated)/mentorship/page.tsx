@@ -7,8 +7,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
+
 import { Search, Briefcase, MapPin, Filter, Star } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
@@ -38,7 +37,7 @@ interface Mentor {
 
 export default function MentorshipPage() {
   const router = useRouter();
-  const { user, isAuthenticated, checkAuthStatus } = useAuthStore();
+  const { user, isAuthenticated, checkAuth } = useAuthStore();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mentors, setMentors] = useState<Mentor[]>([]);
@@ -55,13 +54,13 @@ export default function MentorshipPage() {
 
   useEffect(() => {
     const initAuth = async () => {
-      await checkAuthStatus();
+      await checkAuth();
       if (!isAuthenticated) {
         router.push("/auth/login");
       }
     };
     initAuth();
-  }, [checkAuthStatus, isAuthenticated, router]);
+  }, [checkAuth, isAuthenticated, router]);
 
   useEffect(() => {
     const fetchMentors = async () => {
@@ -129,13 +128,7 @@ export default function MentorshipPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <Sidebar onCollapse={setIsSidebarCollapsed} />
-      <main
-        className={`pt-16 ${
-          isSidebarCollapsed ? "ml-20" : "ml-64"
-        } transition-all duration-300`}
-      >
+      <main>
         <div className="p-6 md:p-8">
           {/* Header Section */}
           <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700">

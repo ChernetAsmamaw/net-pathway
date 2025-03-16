@@ -1,202 +1,333 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/useAuthStore";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
-import { Search, CalendarIcon, Clock, Eye } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { FileText, Edit, Trash2, Plus, Eye, Clock } from "lucide-react";
+import { toast } from "react-hot-toast";
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import axios from "axios";
-import { toast } from "react-hot-toast";
 
 interface BlogPost {
   _id: string;
   title: string;
   summary: string;
+  status: "draft" | "published" | "archived";
   author: {
+    _id: string;
     username: string;
     profilePicture?: string;
   };
-  publishedAt: string;
-  tags: string[];
-  views: number;
   image?: string;
+  views: number;
+  publishedAt?: string;
+  createdAt: string;
+  tags: string[];
 }
 
-export default function BlogListPage() {
-  const router = useRouter();
-  const { user, isAuthenticated, checkAuthStatus } = useAuthStore();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+interface AdminBlogsListProps {
+  searchQuery: string;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+const AdminBlogsList: React.FC<AdminBlogsListProps> = ({ searchQuery }) => {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    const initAuth = async () => {
-      await checkAuthStatus();
-      if (!isAuthenticated) {
-        router.push("/auth/login");
-      }
-    };
-    initAuth();
-  }, [checkAuthStatus, isAuthenticated, router]);
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get("http://localhost:5000/api/blogs/published", {
-          withCredentials: true
-        });
-        
-        if (response.data.posts) {
-          setBlogs(response.data.posts);
+  // Fetch blogs with admin access (showing all blog posts including drafts)
+  const fetchBlogs = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${API_URL}/blogs/admin/all?page=${currentPage}&search=${searchQuery}`,
+        {
+          withCredentials: true,
         }
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
-        toast.error("Failed to load blog posts");
-      } finally {
-        setIsLoading(false);
+      );
+
+      if (response.data.posts) {
+        setBlogs(response.data.posts);
+        setTotalPages(response.data.pagination.pages || 1);
       }
-    };
-
-    if (isAuthenticated) {
-      fetchBlogs();
+    } catch (error) {
+      console.error("Failed to fetch blog posts:", error);
+      toast.error("Failed to load blog posts");
+    } finally {
+      setLoading(false);
     }
-  }, [isAuthenticated]);
-
-  const filteredBlogs = blogs.filter(blog => 
-    blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    blog.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    blog.summary.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
   };
 
-  if (!user) {
+  useEffect(() => {
+    fetchBlogs();
+  }, [currentPage, searchQuery]);
+
+  // Handle blog deletion
+  const handleDeleteBlog = async (blogId: string) => {
+    try {
+      await axios.delete(`${API_URL}/blogs/${blogId}`, {
+        withCredentials: true,
+      });
+
+      // Remove the deleted blog from the state
+      setBlogs(blogs.filter((blog) => blog._id !== blogId));
+      toast.success("Blog post deleted successfully");
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Failed to delete blog post:", error);
+      toast.error("Failed to delete blog post");
+    }
+  };
+
+  // Status badge color based on status
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case "published":
+        return "bg-green-100 text-green-800";
+      case "draft":
+        return "bg-amber-100 text-amber-800";
+      case "archived":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  // Format date for display
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Not published";
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  if (loading && blogs.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-sky-700 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
+      <div className="flex justify-center py-8">
+        <div className="w-10 h-10 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <Sidebar onCollapse={setIsSidebarCollapsed} />
-      <main className={`pt-16 ${isSidebarCollapsed ? "ml-20" : "ml-64"} transition-all duration-300`}>
-        <div className="p-6 md:p-8">
-          {/* Header Section */}
-          <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-sky-800 mb-2">Blog Posts</h1>
-                <p className="text-slate-600">Stay updated with the latest insights and articles</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mb-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search blog posts by title, content, or tags..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          {/* Blog Posts Grid */}
-          {isLoading ? (
-            <div className="flex justify-center py-20">
-              <div className="w-12 h-12 border-4 border-sky-700 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          ) : filteredBlogs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBlogs.map((blog) => (
-                <Link key={blog._id} href={`/blogs/${blog._id}`}>
-                  <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 h-full flex flex-col overflow-hidden">
-                    {blog.image ? (
-                      <div className="h-48 relative">
-                        <Image
-                          src={blog.image}
-                          alt={blog.title}
-                          layout="fill"
-                          objectFit="cover"
-                          className="transition-transform duration-300 hover:scale-105"
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-48 bg-gradient-to-r from-sky-100 to-purple-100 flex items-center justify-center">
-                        <span className="text-3xl">📝</span>
-                      </div>
-                    )}
-                    
-                    <div className="p-6 flex-grow flex flex-col">
-                      <h2 className="text-xl font-semibold text-gray-900 mb-2 hover:text-sky-700 transition-colors">
-                        {blog.title}
-                      </h2>
-                      <p className="text-gray-600 mb-4 flex-grow">{blog.summary}</p>
-                      
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {blog.tags.slice(0, 3).map((tag, index) => (
-                          <span key={index} className="px-2 py-1 bg-sky-50 text-sky-700 rounded-full text-xs">
-                            {tag}
-                          </span>
-                        ))}
-                        {blog.tags.length > 3 && (
-                          <span className="px-2 py-1 bg-gray-50 text-gray-700 rounded-full text-xs">
-                            +{blog.tags.length - 3} more
-                          </span>
+    <div>
+      {blogs.length === 0 ? (
+        <div className="text-center py-8 bg-gray-50 rounded-lg">
+          <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+          <p className="text-gray-500 mb-4">No blog posts found</p>
+          <Link
+            href="/admin/blog/new"
+            className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors text-sm inline-flex items-center gap-1"
+          >
+            <Plus className="w-4 h-4" />
+            Create First Post
+          </Link>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white rounded-lg overflow-hidden">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">
+                  Post
+                </th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">
+                  Author
+                </th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">
+                  Status
+                </th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">
+                  Published
+                </th>
+                <th className="py-3 px-4 text-left text-sm font-medium text-gray-500">
+                  Views
+                </th>
+                <th className="py-3 px-4 text-right text-sm font-medium text-gray-500">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {blogs.map((blog) => (
+                <tr key={blog._id} className="hover:bg-gray-50">
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-md bg-gray-200 relative overflow-hidden flex-shrink-0">
+                        {blog.image ? (
+                          <Image
+                            src={blog.image}
+                            alt={blog.title}
+                            width={48}
+                            height={48}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-500">
+                            <FileText className="w-6 h-6" />
+                          </div>
                         )}
                       </div>
-                      
-                      <div className="flex justify-between items-center text-sm text-gray-500 mt-auto">
-                        <div className="flex items-center gap-1">
-                          <CalendarIcon className="h-4 w-4" />
-                          <span>{formatDate(blog.publishedAt)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-4 w-4" />
-                          <span>{blog.views} views</span>
-                        </div>
+                      <div>
+                        <p className="font-medium text-gray-900 line-clamp-1">
+                          {blog.title}
+                        </p>
+                        <p className="text-xs text-gray-500 line-clamp-1">
+                          {blog.summary}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                </Link>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-gray-200 relative overflow-hidden">
+                        {blog.author?.profilePicture ? (
+                          <Image
+                            src={blog.author.profilePicture}
+                            alt={blog.author.username}
+                            width={24}
+                            height={24}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                            {blog.author?.username.charAt(0).toUpperCase() ||
+                              "U"}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-sm text-gray-700">
+                        {blog.author?.username || "Unknown"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
+                        blog.status
+                      )}`}
+                    >
+                      {blog.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-sm text-gray-500">
+                    {blog.publishedAt ? (
+                      formatDate(blog.publishedAt)
+                    ) : (
+                      <span className="flex items-center gap-1 text-amber-600">
+                        <Clock className="w-3 h-3" />
+                        Not published
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-4 px-4 text-gray-700">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4 text-gray-400" />
+                      {blog.views || 0}
+                    </div>
+                  </td>
+                  <td className="py-4 px-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/blog/${blog._id}`}
+                        className="p-1 text-sky-600 hover:text-sky-800 hover:bg-sky-50 rounded"
+                        title="Edit Post"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setSelectedBlog(blog);
+                          setShowDeleteModal(true);
+                        }}
+                        className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
+                        title="Delete Post"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <Link
+                        href={`/blogs/${blog._id}`}
+                        className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded"
+                        title="View Post"
+                        target="_blank"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <div className="flex space-x-1">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-4 py-2 border rounded-lg ${
+                  currentPage === page
+                    ? "bg-sky-600 text-white"
+                    : "hover:bg-gray-50"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 border rounded-lg disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedBlog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-bold mb-4">Delete Blog Post</h3>
+            <p>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold">{selectedBlog.title}</span>? This
+              action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteBlog(selectedBlog._id)}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete
+              </button>
             </div>
-          ) : (
-            <div className="text-center py-16 bg-white rounded-xl shadow-md">
-              <div className="mb-4 text-5xl">📝</div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No blog posts found</h3>
-              <p className="text-gray-600 mb-8">
-                {searchQuery ? 'Try adjusting your search' : 'Check back later for new content'}
-              </p>
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
-                >
-                  Clear Search
-                </button>
-              )}
-            </div>
-          )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AdminBlogsList;

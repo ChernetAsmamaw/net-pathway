@@ -9,7 +9,7 @@ import {
   Briefcase,
   Users,
   MessagesSquare,
-  GraduationCap,
+  // GraduationCap,
   Settings,
   Target,
   ChevronLeft,
@@ -26,6 +26,7 @@ const getNavigation = (isAdmin: boolean) => {
     { name: "Generated Paths", href: "/paths", icon: BookOpen },
     { name: "Assessment", href: "/assessment", icon: Target },
     { name: "Mentorship", href: "/mentorship", icon: Users },
+    { name: "Blogs", href: "/blogs", icon: Briefcase },
     { name: "Discussion Board", href: "/discussions", icon: MessagesSquare },
     { name: "Profile Settings", href: "/profile", icon: Settings },
   ];
