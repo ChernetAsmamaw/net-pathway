@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 
 export const userController = {
+  // Check for admin domain during regular signup
   async register(req: Request, res: Response) {
     try {
       const { username, email, password } = req.body;
@@ -32,14 +33,26 @@ export const userController = {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      // Check if email domain is in the allowed admin domains
+      const emailDomain = email.split("@")[1]?.toLowerCase();
+      const ALLOWED_ADMIN_DOMAINS =
+        process.env.ALLOWED_ADMIN_DOMAINS?.split(",") || [];
+      const isAdminDomain =
+        emailDomain && ALLOWED_ADMIN_DOMAINS.includes(emailDomain);
+
+      // Assign role based on email domain
+      const role = isAdminDomain ? "admin" : "user";
+
       const user = await User.create({
         username,
         email: email.toLowerCase(),
         password: hashedPassword,
-        role: "user",
+        role,
         isActive: true,
+        isEmailVerified: isAdminDomain, // Auto-verify admin emails
       });
 
+      // Generate JWT token
       const token = jwt.sign(
         { userId: user._id, role: user.role },
         process.env.JWT_SECRET!,
@@ -54,7 +67,9 @@ export const userController = {
       });
 
       res.status(201).json({
-        message: "User created successfully",
+        message: `User created successfully${
+          isAdminDomain ? " with admin privileges" : ""
+        }`,
         token,
         user: {
           id: user._id,
