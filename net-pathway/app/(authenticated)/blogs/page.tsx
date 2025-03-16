@@ -3,32 +3,19 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-
-import { Search, Calendar, User, Eye } from "lucide-react";
-import axios from "axios";
-import { toast } from "react-hot-toast";
-
-interface BlogPost {
-  _id: string;
-  title: string;
-  summary: string;
-  author: {
-    username: string;
-    profilePicture?: string;
-  };
-  publishedAt: string;
-  views: number;
-  tags: string[];
-  image?: string;
-}
+import { useBlogStore } from "@/store/useBlogStore";
+import { Search, Calendar, User, Eye, Tag } from "lucide-react";
+import Image from "next/image";
 
 export default function BlogsPage() {
   const router = useRouter();
   const { user, isAuthenticated, checkAuth } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { blogs, isLoading, fetchPublishedBlogs, pagination, setCurrentPage } =
+    useBlogStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
+  // Check authentication
   useEffect(() => {
     const initAuth = async () => {
       await checkAuth();
@@ -39,28 +26,28 @@ export default function BlogsPage() {
     initAuth();
   }, [checkAuth, isAuthenticated, router]);
 
+  // Set up search debounce
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setIsLoading(true);
-        const API_URL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-        const response = await axios.get(`${API_URL}/blogs/published`, {
-          withCredentials: true,
-        });
-        setBlogs(response.data.posts);
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
-        toast.error("Failed to load blog posts");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
 
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
+
+  // Fetch blogs when authentication is confirmed
+  useEffect(() => {
     if (isAuthenticated) {
-      fetchBlogs();
+      fetchPublishedBlogs(pagination.currentPage, 10, debouncedSearch);
     }
-  }, [isAuthenticated]);
+  }, [
+    isAuthenticated,
+    pagination.currentPage,
+    debouncedSearch,
+    fetchPublishedBlogs,
+  ]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -69,14 +56,6 @@ export default function BlogsPage() {
       day: "numeric",
     });
   };
-
-  const filteredBlogs = blogs.filter(
-    (blog) =>
-      blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      blog.tags.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-  );
 
   if (!user) {
     return (
@@ -91,11 +70,7 @@ export default function BlogsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main
-      // className={`pt-16 ${
-      //   isSidebarCollapsed ? "ml-20" : "ml-64"
-      // } transition-all duration-300`}
-      >
+      <main>
         <div className="p-6 md:p-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
@@ -113,16 +88,16 @@ export default function BlogsPage() {
           </div>
 
           {/* Blog Grid */}
-          {isLoading ? (
+          {isLoading && blogs.length === 0 ? (
             <div className="flex justify-center py-12">
               <div className="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBlogs.map((blog) => (
+              {blogs.map((blog) => (
                 <div
                   key={blog._id}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden cursor-pointer"
+                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden cursor-pointer h-full flex flex-col"
                   onClick={() => router.push(`/blogs/${blog._id}`)}
                 >
                   {blog.image && (
@@ -134,36 +109,39 @@ export default function BlogsPage() {
                       />
                     </div>
                   )}
-                  <div className="p-5">
+                  <div className="p-5 flex-1 flex flex-col">
                     <h2 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
                       {blog.title}
                     </h2>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
+                    <p className="text-gray-600 mb-4 line-clamp-2 flex-grow">
                       {blog.summary}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {blog.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-1 bg-sky-50 text-sky-700 rounded-full text-sm"
+                          className="px-2 py-1 bg-sky-50 text-sky-700 rounded-full text-sm flex items-center gap-1"
                         >
+                          <Tag className="w-3 h-3" />
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center justify-between text-sm text-gray-500 mt-auto">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4" />
-                        <span>{blog.author.username}</span>
+                        <span>{blog.author?.username || "Unknown"}</span>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          <span>{formatDate(blog.publishedAt)}</span>
+                          <span>
+                            {formatDate(blog.publishedAt || blog.createdAt)}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Eye className="w-4 h-4" />
-                          <span>{blog.views}</span>
+                          <span>{blog.views || 0}</span>
                         </div>
                       </div>
                     </div>
@@ -173,9 +151,79 @@ export default function BlogsPage() {
             </div>
           )}
 
-          {!isLoading && filteredBlogs.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No blog posts found.</p>
+          {!isLoading && blogs.length === 0 && (
+            <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+              <div className="w-16 h-16 mx-auto mb-4 text-gray-300">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <p className="text-gray-500 mb-4">No blog posts found.</p>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {pagination.totalPages > 1 && (
+            <div className="flex justify-center mt-6">
+              <div className="flex space-x-1">
+                <button
+                  onClick={() =>
+                    setCurrentPage(Math.max(pagination.currentPage - 1, 1))
+                  }
+                  disabled={pagination.currentPage === 1}
+                  className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                {Array.from(
+                  { length: pagination.totalPages },
+                  (_, i) => i + 1
+                ).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-4 py-2 border rounded-lg ${
+                      pagination.currentPage === page
+                        ? "bg-sky-600 text-white"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() =>
+                    setCurrentPage(
+                      Math.min(
+                        pagination.currentPage + 1,
+                        pagination.totalPages
+                      )
+                    )
+                  }
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>

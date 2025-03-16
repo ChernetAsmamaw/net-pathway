@@ -3,85 +3,67 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
-import { ArrowLeft, User, CalendarIcon, Clock, Eye, Tag } from "lucide-react";
-import Image from "next/image";
 import axios from "axios";
+import { ArrowLeft, User, CalendarIcon, Clock, Eye, Tag } from "lucide-react";
 import { toast } from "react-hot-toast";
+import CommentSection from "@/components/admin/BlogCommentSection";
 
-interface BlogPost {
-  _id: string;
-  title: string;
-  content: string;
-  summary: string;
-  author: {
-    _id: string;
-    username: string;
-    profilePicture?: string;
-  };
-  publishedAt: string;
-  createdAt: string;
-  updatedAt: string;
-  tags: string[];
-  views: number;
-  image?: string;
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function BlogDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { user, isAuthenticated, checkAuthStatus } = useAuthStore();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const { user, isAuthenticated, checkAuth } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [blog, setBlog] = useState<BlogPost | null>(null);
+  const [blog, setBlog] = useState(null);
 
+  // Extract the blog ID from the URL params
   const blogId = params?.blogId as string;
 
+  // Check authentication
   useEffect(() => {
     const initAuth = async () => {
-      await checkAuthStatus();
+      await checkAuth();
       if (!isAuthenticated) {
         router.push("/auth/login");
       }
     };
     initAuth();
-  }, [checkAuthStatus, isAuthenticated, router]);
+  }, [checkAuth, isAuthenticated, router]);
 
+  // Fetch blog data directly without using the store
   useEffect(() => {
     const fetchBlog = async () => {
-      if (!blogId) return;
+      if (!blogId || !isAuthenticated) return;
 
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/blogs/${blogId}`,
-          {
-            withCredentials: true,
-          }
-        );
+        console.log("Direct fetch - blogId:", blogId);
+        const response = await axios.get(`${API_URL}/blogs/${blogId}`, {
+          withCredentials: true,
+        });
+
+        console.log("Direct fetch - API response:", response.data);
 
         if (response.data.post) {
           setBlog(response.data.post);
         } else {
-          router.push("/blogs");
           toast.error("Blog post not found");
         }
       } catch (error) {
         console.error("Error fetching blog:", error);
         toast.error("Failed to load blog post");
-        router.push("/blogs");
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (isAuthenticated && blogId) {
+    if (isAuthenticated) {
       fetchBlog();
     }
-  }, [isAuthenticated, blogId, router]);
+  }, [blogId, isAuthenticated]);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -103,13 +85,7 @@ export default function BlogDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <Sidebar onCollapse={setIsSidebarCollapsed} />
-      <main
-        className={`pt-16 ${
-          isSidebarCollapsed ? "ml-20" : "ml-64"
-        } transition-all duration-300`}
-      >
+      <main className="transition-all duration-300">
         <div className="p-6 md:p-8">
           <div className="mb-6">
             <button
@@ -126,82 +102,86 @@ export default function BlogDetailPage() {
               <div className="w-12 h-12 border-4 border-sky-700 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : blog ? (
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              {/* Featured Image */}
-              {blog.image && (
-                <div className="h-64 md:h-96 relative w-full">
-                  <Image
-                    src={blog.image}
-                    alt={blog.title}
-                    layout="fill"
-                    objectFit="cover"
-                  />
-                </div>
-              )}
+            <>
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                {/* Featured Image */}
+                {blog.image && (
+                  <div className="h-64 md:h-96 relative w-full">
+                    <img
+                      src={blog.image}
+                      alt={blog.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
 
-              {/* Content Container */}
-              <div className="p-6 md:p-8">
-                {/* Title and Meta */}
-                <div className="mb-8">
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                    {blog.title}
-                  </h1>
+                {/* Content Container */}
+                <div className="p-6 md:p-8">
+                  {/* Title and Meta */}
+                  <div className="mb-8">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                      {blog.title}
+                    </h1>
 
-                  <div className="flex flex-wrap gap-4 text-gray-500 text-sm mb-6">
-                    <div className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      <span>{blog.author?.username || "Unknown Author"}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CalendarIcon className="h-4 w-4" />
-                      <span>
-                        Published{" "}
-                        {formatDate(blog.publishedAt || blog.createdAt)}
-                      </span>
-                    </div>
-                    {blog.updatedAt && blog.updatedAt !== blog.createdAt && (
+                    <div className="flex flex-wrap gap-4 text-gray-500 text-sm mb-6">
                       <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>Updated {formatDate(blog.updatedAt)}</span>
+                        <User className="h-4 w-4" />
+                        <span>{blog.author?.username || "Unknown Author"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CalendarIcon className="h-4 w-4" />
+                        <span>
+                          Published{" "}
+                          {formatDate(blog.publishedAt || blog.createdAt)}
+                        </span>
+                      </div>
+                      {blog.updatedAt && blog.updatedAt !== blog.createdAt && (
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          <span>Updated {formatDate(blog.updatedAt)}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        <span>{blog.views} views</span>
+                      </div>
+                    </div>
+
+                    {/* Tags */}
+                    {blog.tags && blog.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {blog.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full text-sm flex items-center gap-1"
+                          >
+                            <Tag className="h-3 w-3" />
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     )}
-                    <div className="flex items-center gap-1">
-                      <Eye className="h-4 w-4" />
-                      <span>{blog.views} views</span>
+
+                    {/* Summary */}
+                    <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-sky-500">
+                      <p className="text-gray-700 italic">{blog.summary}</p>
                     </div>
                   </div>
 
-                  {/* Tags */}
-                  {blog.tags && blog.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {blog.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full text-sm flex items-center gap-1"
-                        >
-                          <Tag className="h-3 w-3" />
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Summary */}
-                  <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-sky-500">
-                    <p className="text-gray-700 italic">{blog.summary}</p>
+                  {/* Main Content */}
+                  <div className="prose prose-lg max-w-none">
+                    {blog.content.split("\n").map((paragraph, index) => (
+                      <p key={index} className="mb-4 text-gray-800">
+                        {paragraph}
+                      </p>
+                    ))}
                   </div>
-                </div>
-
-                {/* Main Content */}
-                <div className="prose prose-lg max-w-none">
-                  {blog.content.split("\n").map((paragraph, index) => (
-                    <p key={index} className="mb-4 text-gray-800">
-                      {paragraph}
-                    </p>
-                  ))}
                 </div>
               </div>
-            </div>
+
+              {/* Comments Section */}
+              <CommentSection blogId={blogId} />
+            </>
           ) : (
             <div className="text-center py-16 bg-white rounded-xl shadow-md">
               <div className="mb-4 text-5xl">🔍</div>

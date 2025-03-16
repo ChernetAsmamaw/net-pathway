@@ -9,7 +9,7 @@ export default function NewBlogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="pt-16 ml-64 transition-all duration-300">
+      <main>
         <BlogEdit onCancel={() => router.push("/admin")} />
       </main>
     </div>
