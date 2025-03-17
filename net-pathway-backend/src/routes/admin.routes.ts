@@ -7,6 +7,7 @@ const router: Router = express.Router();
 
 // Cast controller methods to RequestHandler type
 const getAllUsersHandler = adminController.getAllUsers as RequestHandler;
+const getUserByIdHandler = adminController.getUserById as RequestHandler;
 const createAdminHandler = adminController.createAdmin as RequestHandler;
 const updateUserRoleHandler = adminController.updateUserRole as RequestHandler;
 const deleteUserHandler = adminController.deleteUser as RequestHandler;
@@ -17,6 +18,13 @@ router.get(
   requireAuth as RequestHandler,
   requireAdmin as RequestHandler,
   getAllUsersHandler
+);
+
+router.get(
+  "/users/:userId",
+  requireAuth as RequestHandler,
+  requireAdmin as RequestHandler,
+  getUserByIdHandler
 );
 
 router.post(

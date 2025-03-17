@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/User";
+import Mentor from "../models/Mentor";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 // Allowed email domains for admin creation
 const ALLOWED_ADMIN_DOMAINS =
@@ -10,13 +12,66 @@ export const adminController = {
   // Get all users
   async getAllUsers(req: Request, res: Response) {
     try {
-      const users = await User.find().select("-password");
-      res.status(200).json({ users });
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const skip = (page - 1) * limit;
+      const search = (req.query.search as string) || "";
+
+      // Create search filter
+      const searchFilter = search
+        ? {
+            $or: [
+              { username: { $regex: search, $options: "i" } },
+              { email: { $regex: search, $options: "i" } },
+            ],
+          }
+        : {};
+
+      const users = await User.find(searchFilter)
+        .select("-password")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+
+      const total = await User.countDocuments(searchFilter);
+
+      res.status(200).json({
+        users,
+        pagination: {
+          total,
+          page,
+          pages: Math.ceil(total / limit),
+        },
+      });
     } catch (error: any) {
       console.error("Get all users error:", error);
       res
         .status(500)
         .json({ message: error.message || "Error retrieving users" });
+    }
+  },
+
+  // Get single user by ID
+  async getUserById(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: "Invalid user ID format" });
+      }
+
+      const user = await User.findById(userId).select("-password");
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json({ user });
+    } catch (error: any) {
+      console.error("Get user error:", error);
+      res
+        .status(500)
+        .json({ message: error.message || "Error retrieving user" });
     }
   },
 
@@ -92,6 +147,10 @@ export const adminController = {
           .json({ message: "User ID and role are required" });
       }
 
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: "Invalid user ID format" });
+      }
+
       // Validate role
       if (!["user", "admin", "mentor"].includes(role)) {
         return res.status(400).json({ message: "Invalid role" });
@@ -120,15 +179,32 @@ export const adminController = {
     }
   },
 
-  // Delete user (hard delete)
+  // Delete user
   async deleteUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
 
-      const user = await User.findByIdAndDelete(userId);
+      // Validate userId
+      if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // First check if user exists
+      const user = await User.findById(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+
+      // If user is a mentor, delete mentor profile first
+      if (user.role === "mentor") {
+        const mentorProfile = await Mentor.findOne({ user: userId });
+        if (mentorProfile) {
+          await Mentor.findByIdAndDelete(mentorProfile._id);
+        }
+      }
+
+      // Now delete the user
+      await User.findByIdAndDelete(userId);
 
       res.status(200).json({ message: "User deleted successfully" });
     } catch (error: any) {

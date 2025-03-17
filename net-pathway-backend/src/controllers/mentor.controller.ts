@@ -30,6 +30,8 @@ export const mentorController = {
         return res.status(400).json({ message: "User ID is required" });
       }
 
+      console.log("Creating mentor for userId:", targetUserId);
+
       // Check required fields
       if (
         !title ||
@@ -82,9 +84,15 @@ export const mentorController = {
         phone: phone || "",
       });
 
+      // Populate the user data in the response
+      const populatedMentor = await Mentor.findById(newMentor._id).populate(
+        "user",
+        "username email profilePicture isEmailVerified"
+      );
+
       res.status(201).json({
         message: "Mentor profile created successfully",
-        mentor: newMentor,
+        mentor: populatedMentor,
       });
     } catch (error: any) {
       console.error("Create mentor error:", error);
@@ -149,6 +157,10 @@ export const mentorController = {
     try {
       const { mentorId } = req.params;
 
+      if (!mongoose.Types.ObjectId.isValid(mentorId)) {
+        return res.status(400).json({ message: "Invalid mentor ID format" });
+      }
+
       const mentor = await Mentor.findById(mentorId).populate(
         "user",
         "username email profilePicture isEmailVerified"
@@ -171,6 +183,11 @@ export const mentorController = {
   async updateMentor(req: Request, res: Response) {
     try {
       const { mentorId } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(mentorId)) {
+        return res.status(400).json({ message: "Invalid mentor ID format" });
+      }
+
       const updateData = req.body;
 
       // Exclude user field for security
@@ -221,6 +238,10 @@ export const mentorController = {
     try {
       const { mentorId } = req.params;
 
+      if (!mongoose.Types.ObjectId.isValid(mentorId)) {
+        return res.status(400).json({ message: "Invalid mentor ID format" });
+      }
+
       const mentor = await Mentor.findById(mentorId);
 
       if (!mentor) {
@@ -239,7 +260,7 @@ export const mentorController = {
         await user.save();
       }
 
-      await Mentor.deleteOne({ _id: mentorId });
+      await Mentor.findByIdAndDelete(mentorId);
 
       res.status(200).json({ message: "Mentor profile deleted successfully" });
     } catch (error: any) {
@@ -254,6 +275,10 @@ export const mentorController = {
   async toggleMentorStatus(req: Request, res: Response) {
     try {
       const { mentorId } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(mentorId)) {
+        return res.status(400).json({ message: "Invalid mentor ID format" });
+      }
 
       const mentor = await Mentor.findById(mentorId);
 

@@ -1,20 +1,23 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
   UserCog,
   Edit,
   Trash2,
-  Check,
-  X,
-  MoreHorizontal,
-  Shield,
+  // Check,
+  // X,
+  // Shield,
+  Briefcase,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import Image from "next/image";
 import VerificationBadge from "@/components/varification/VerificationBadge";
+import { useRouter } from "next/navigation";
 
 interface User {
-  id: string;
+  _id: string; // Changed from id to _id to match the actual data structure
   username: string;
   email: string;
   role: string;
@@ -29,6 +32,7 @@ interface AdminUsersListProps {
 }
 
 const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -37,11 +41,12 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const API_URL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
       const response = await axios.get(
         `${API_URL}/admin/users?page=${currentPage}&search=${searchQuery}`,
         {
@@ -69,8 +74,6 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
 
   const handleUpdateRole = async (userId: string, newRole: string) => {
     try {
-      const API_URL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
       await axios.put(
         `${API_URL}/admin/user-role`,
         { userId, role: newRole },
@@ -79,7 +82,7 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
 
       setUsers(
         users.map((user) =>
-          user.id === userId ? { ...user, role: newRole } : user
+          user._id === userId ? { ...user, role: newRole } : user
         )
       );
 
@@ -91,15 +94,22 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
     }
   };
 
+  const handleCreateMentorProfile = (userId: string) => {
+    router.push(`/admin/mentor/new?userId=${userId}`);
+  };
+
   const handleDeleteUser = async (userId: string) => {
+    if (!userId) {
+      toast.error("Invalid user ID");
+      return;
+    }
+
     try {
-      const API_URL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
       await axios.delete(`${API_URL}/admin/users/${userId}`, {
         withCredentials: true,
       });
 
-      setUsers(users.filter((user) => user.id !== userId));
+      setUsers(users.filter((user) => user._id !== userId));
       toast.success("User deleted successfully");
       setShowDeleteModal(false);
     } catch (error) {
@@ -134,17 +144,6 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
           <UserCog className="w-5 h-5 text-sky-700" />
           User Management
         </h2>
-        {/* <button
-          onClick={() => {
-            // Navigate to create admin page or open modal
-            setSelectedUser(null);
-            setShowRoleModal(true);
-          }}
-          className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors text-sm flex items-center gap-1"
-        >
-          <Shield className="w-4 h-4" />
-          Create Admin User
-        </button> */}
       </div>
 
       {users.length === 0 ? (
@@ -178,7 +177,7 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
+                <tr key={user._id} className="hover:bg-gray-50">
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gray-200 relative overflow-hidden">
@@ -244,6 +243,18 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
                       >
                         <Edit className="w-4 h-4" />
                       </button>
+
+                      {/* Add Make Mentor button if user is not already a mentor */}
+                      {user.role !== "mentor" && (
+                        <button
+                          onClick={() => handleCreateMentorProfile(user._id)}
+                          className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
+                          title="Make Mentor"
+                        >
+                          <Briefcase className="w-4 h-4" />
+                        </button>
+                      )}
+
                       <button
                         onClick={() => {
                           setSelectedUser(user);
@@ -303,88 +314,49 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
       )}
 
       {/* Role Change Modal */}
-      {showRoleModal && (
+      {showRoleModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-bold mb-4">
-              {selectedUser ? "Change User Role" : "Create Admin User"}
-            </h3>
+            <h3 className="text-lg font-bold mb-4">Change User Role</h3>
 
-            {selectedUser ? (
-              <div className="space-y-4">
-                <p>
-                  Change role for{" "}
-                  <span className="font-semibold">{selectedUser.username}</span>
-                  :
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleUpdateRole(selectedUser.id, "user")}
-                    className={`flex-1 py-2 px-3 rounded-lg border ${
-                      selectedUser.role === "user"
-                        ? "bg-gray-100 border-gray-300"
-                        : "hover:bg-gray-50"
-                    }`}
-                  >
-                    User
-                  </button>
-                  <button
-                    onClick={() => handleUpdateRole(selectedUser.id, "mentor")}
-                    className={`flex-1 py-2 px-3 rounded-lg border ${
-                      selectedUser.role === "mentor"
-                        ? "bg-sky-100 border-sky-300"
-                        : "hover:bg-sky-50"
-                    }`}
-                  >
-                    Mentor
-                  </button>
-                  <button
-                    onClick={() => handleUpdateRole(selectedUser.id, "admin")}
-                    className={`flex-1 py-2 px-3 rounded-lg border ${
-                      selectedUser.role === "admin"
-                        ? "bg-purple-100 border-purple-300"
-                        : "hover:bg-purple-50"
-                    }`}
-                  >
-                    Admin
-                  </button>
-                </div>
+            <div className="space-y-4">
+              <p>
+                Change role for{" "}
+                <span className="font-semibold">{selectedUser.username}</span>:
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleUpdateRole(selectedUser._id, "user")}
+                  className={`flex-1 py-2 px-3 rounded-lg border ${
+                    selectedUser.role === "user"
+                      ? "bg-gray-100 border-gray-300"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  User
+                </button>
+                <button
+                  onClick={() => handleUpdateRole(selectedUser._id, "mentor")}
+                  className={`flex-1 py-2 px-3 rounded-lg border ${
+                    selectedUser.role === "mentor"
+                      ? "bg-sky-100 border-sky-300"
+                      : "hover:bg-sky-50"
+                  }`}
+                >
+                  Mentor
+                </button>
+                <button
+                  onClick={() => handleUpdateRole(selectedUser._id, "admin")}
+                  className={`flex-1 py-2 px-3 rounded-lg border ${
+                    selectedUser.role === "admin"
+                      ? "bg-purple-100 border-purple-300"
+                      : "hover:bg-purple-50"
+                  }`}
+                >
+                  Admin
+                </button>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Form to create admin user */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                    placeholder="Enter username"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                    placeholder="Enter email"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                    placeholder="Enter password"
-                  />
-                </div>
-              </div>
-            )}
+            </div>
 
             <div className="flex justify-end gap-2 mt-6">
               <button
@@ -393,14 +365,6 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
               >
                 Cancel
               </button>
-              {!selectedUser && (
-                <button
-                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700"
-                  // Add create admin function here
-                >
-                  Create Admin
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -425,7 +389,7 @@ const AdminUsersList: React.FC<AdminUsersListProps> = ({ searchQuery }) => {
                 Cancel
               </button>
               <button
-                onClick={() => handleDeleteUser(selectedUser.id)}
+                onClick={() => handleDeleteUser(selectedUser._id)}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
                 Delete

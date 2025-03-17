@@ -53,11 +53,13 @@ export default function EditMentorPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="pt-16 ml-64 transition-all duration-300">
-        <MentorForm
-          mentorId={mentorId}
-          onCancel={() => router.push("/admin")}
-        />
+      <main>
+        <div className="p-6 md:p-8">
+          <MentorForm
+            mentorId={mentorId}
+            onCancel={() => router.push("/admin")}
+          />
+        </div>
       </main>
     </div>
   );
