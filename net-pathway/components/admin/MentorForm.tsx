@@ -1,4 +1,6 @@
+// Modified version of components/admin/MentorForm.tsx
 import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Save,
@@ -11,9 +13,9 @@ import {
   Tag,
   Mail,
   Phone,
+  User,
 } from "lucide-react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -23,10 +25,21 @@ interface MentorFormProps {
   onCancel?: () => void;
 }
 
+// Update the component name to match the export
 const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId"); // Get userId from URL query params
+
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{
+    _id?: string;
+    id?: string;
+    username: string;
+    email: string;
+    profilePicture?: string;
+  } | null>(null);
 
   // Form state with simple array handling
   const [formData, setFormData] = useState({
@@ -49,12 +62,53 @@ const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
   const [languageInput, setLanguageInput] = useState("");
   const [achievementInput, setAchievementInput] = useState("");
 
+  // Fetch user data if userId is provided
+  useEffect(() => {
+    if (userId && !mentorId) {
+      fetchUserData(userId);
+    }
+  }, [userId, mentorId]);
+
   // Fetch mentor data if editing
   useEffect(() => {
     if (mentorId) {
       fetchMentor();
     }
   }, [mentorId]);
+
+  const fetchUserData = async (userId: string) => {
+    setIsFetching(true);
+    try {
+      const response = await axios.get(`${API_URL}/admin/users/${userId}`, {
+        withCredentials: true,
+      });
+
+      if (response.data.user) {
+        const userData = response.data.user;
+        setSelectedUser({
+          _id: userData._id || userData.id,
+          id: userData.id || userData._id,
+          username: userData.username,
+          email: userData.email,
+          profilePicture: userData.profilePicture,
+        });
+
+        // Pre-fill email from user data
+        setFormData((prev) => ({
+          ...prev,
+          email: userData.email || "",
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      toast.error("Failed to load user data");
+      // Go back if user data can't be loaded
+      if (onCancel) onCancel();
+      else router.back();
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const fetchMentor = async () => {
     setIsFetching(true);
@@ -65,6 +119,18 @@ const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
 
       if (response.data.mentor) {
         const mentorData = response.data.mentor;
+
+        // Set user data from the mentor's user information
+        if (mentorData.user) {
+          setSelectedUser({
+            _id: mentorData.user._id || mentorData.user.id,
+            id: mentorData.user.id || mentorData.user._id,
+            username: mentorData.user.username,
+            email: mentorData.user.email,
+            profilePicture: mentorData.user.profilePicture,
+          });
+        }
+
         setFormData({
           title: mentorData.title || "",
           company: mentorData.company || "",
@@ -166,6 +232,12 @@ const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
       return;
     }
 
+    // Make sure we have a user ID
+    if (!userId && !mentorId && !selectedUser?._id) {
+      toast.error("No user selected for mentor creation");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -177,8 +249,13 @@ const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
           withCredentials: true,
         });
       } else {
-        // Create new mentor
-        response = await axios.post(`${API_URL}/mentors`, formData, {
+        // Create new mentor with the selected user's ID
+        const mentorData = {
+          ...formData,
+          userId: userId || selectedUser?._id || selectedUser?.id,
+        };
+
+        response = await axios.post(`${API_URL}/mentors`, mentorData, {
           withCredentials: true,
         });
       }
@@ -228,6 +305,38 @@ const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
         </h2>
         <div></div> {/* Spacer for flex alignment */}
       </div>
+
+      {/* Selected User Information */}
+      {selectedUser && (
+        <div className="mb-6 p-4 bg-sky-50 rounded-lg flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-gray-200 relative overflow-hidden flex-shrink-0">
+            {selectedUser.profilePicture ? (
+              <img
+                src={selectedUser.profilePicture}
+                alt={selectedUser.username}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center">
+                <User className="h-6 w-6 text-gray-600" />
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="text-sky-800 font-medium">
+              {mentorId
+                ? "Mentor profile for:"
+                : "Creating mentor profile for:"}
+            </p>
+            <p className="font-bold">
+              {selectedUser.username}{" "}
+              <span className="font-normal text-gray-500">
+                ({selectedUser.email})
+              </span>
+            </p>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
@@ -630,4 +739,5 @@ const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
   );
 };
 
+// Make sure to use default export
 export default MentorForm;

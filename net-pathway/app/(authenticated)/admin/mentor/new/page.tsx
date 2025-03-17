@@ -1,18 +1,22 @@
-// New Mentor Route
-// This file handles creating a new mentor
-// Path: /admin/mentor/new
-
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import MentorForm from "@/components/admin/MentorForm";
+import UserSelectionModal from "@/components/admin/UserSelectionModal";
 import { toast } from "react-hot-toast";
 
 export default function NewMentorPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isAuthenticated, checkAuth } = useAuthStore();
+
+  // Check if userId was passed in URL
+  const userId = searchParams.get("userId");
+
+  // If no userId was provided, we need to show the user selection modal first
+  const [showUserSelection, setShowUserSelection] = useState(!userId);
 
   // Check admin access
   useEffect(() => {
@@ -29,10 +33,25 @@ export default function NewMentorPage() {
         router.push("/dashboard");
         return;
       }
+
+      // If no userId was provided, we'll show the user selection modal
+      if (!userId) {
+        setShowUserSelection(true);
+      }
     };
 
     checkAdminAccess();
-  }, [checkAuth, isAuthenticated, router, user]);
+  }, [checkAuth, isAuthenticated, router, user, userId]);
+
+  // Handle user selection from the modal
+  const handleUserSelect = (selectedUser) => {
+    if (selectedUser) {
+      // Redirect to the same page but with the userId parameter
+      router.push(
+        `/admin/mentor/new?userId=${selectedUser._id || selectedUser.id}`
+      );
+    }
+  };
 
   if (!user || user.role !== "admin") {
     return (
@@ -45,6 +64,20 @@ export default function NewMentorPage() {
     );
   }
 
+  // If we need to select a user first and no user ID was provided, show the embedded selection modal
+  if (showUserSelection && !userId) {
+    // Import and use the UserSelectionModal component (same as in AdminDashboard)
+    return (
+      <div className="p-6 md:p-8">
+        <UserSelectionModal
+          onSelect={handleUserSelect}
+          onCancel={() => router.push("/admin")}
+        />
+      </div>
+    );
+  }
+
+  // If we have a userId, show the mentor form
   return (
     <div className="min-h-screen bg-gray-50">
       <main>
