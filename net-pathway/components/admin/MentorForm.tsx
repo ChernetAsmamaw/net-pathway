@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import {
   ArrowLeft,
@@ -11,35 +9,39 @@ import {
   Globe,
   Award,
   Tag,
+  Mail,
+  Phone,
 } from "lucide-react";
-import { useMentorStore } from "../../store/useMentorStore";
-import { useRouter } from "next/navigation"; // Change from 'next/router' to 'next/navigation'
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-const MentorFormComponent = ({ mentorId }) => {
-  const router = useRouter();
-  const {
-    currentMentor,
-    isLoading,
-    error,
-    fetchMentorById,
-    createMentor,
-    updateMentor,
-    clearCurrentMentor,
-  } = useMentorStore();
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-  // Form state
+interface MentorFormProps {
+  mentorId?: string;
+  onCancel?: () => void;
+}
+
+const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
+  // Form state with simple array handling
   const [formData, setFormData] = useState({
     title: "",
     company: "",
     location: "",
     bio: "",
-    expertise: [], // Initialize as empty array
+    expertise: [] as string[],
     experience: "",
     education: "",
-    languages: [], // Initialize as empty array
-    achievements: [], // Initialize as empty array
-    availability: "available",
+    languages: [] as string[],
+    achievements: [] as string[],
+    email: "",
+    phone: "",
+    availability: "available" as "available" | "limited" | "unavailable",
   });
 
   // Input state for array fields
@@ -50,223 +52,173 @@ const MentorFormComponent = ({ mentorId }) => {
   // Fetch mentor data if editing
   useEffect(() => {
     if (mentorId) {
-      fetchMentorById(mentorId);
-    } else {
-      clearCurrentMentor();
+      fetchMentor();
     }
+  }, [mentorId]);
 
-    // Cleanup function
-    return () => {
-      clearCurrentMentor();
-    };
-  }, [mentorId, fetchMentorById, clearCurrentMentor]);
-
-  // Update form when mentor data is loaded
-  useEffect(() => {
-    if (currentMentor) {
-      setFormData({
-        title: currentMentor.title || "",
-        company: currentMentor.company || "",
-        location: currentMentor.location || "",
-        bio: currentMentor.bio || "",
-        expertise: Array.isArray(currentMentor.expertise)
-          ? currentMentor.expertise
-          : [],
-        experience: currentMentor.experience || "",
-        education: currentMentor.education || "",
-        languages: Array.isArray(currentMentor.languages)
-          ? currentMentor.languages
-          : [],
-        achievements: Array.isArray(currentMentor.achievements)
-          ? currentMentor.achievements
-          : [],
-        availability: currentMentor.availability || "available",
+  const fetchMentor = async () => {
+    setIsFetching(true);
+    try {
+      const response = await axios.get(`${API_URL}/mentors/${mentorId}`, {
+        withCredentials: true,
       });
-    }
-  }, [currentMentor]);
 
-  // Display errors from the store
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
+      if (response.data.mentor) {
+        const mentorData = response.data.mentor;
+        setFormData({
+          title: mentorData.title || "",
+          company: mentorData.company || "",
+          location: mentorData.location || "",
+          bio: mentorData.bio || "",
+          expertise: Array.isArray(mentorData.expertise)
+            ? mentorData.expertise
+            : [],
+          experience: mentorData.experience || "",
+          education: mentorData.education || "",
+          languages: Array.isArray(mentorData.languages)
+            ? mentorData.languages
+            : [],
+          achievements: Array.isArray(mentorData.achievements)
+            ? mentorData.achievements
+            : [],
+          email: mentorData.email || mentorData.user?.email || "",
+          phone: mentorData.phone || "",
+          availability: mentorData.availability || "available",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching mentor:", error);
+      toast.error("Failed to load mentor data");
+    } finally {
+      setIsFetching(false);
     }
-  }, [error]);
+  };
 
   // Handle form input changes
-  const handleChange = (e) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle expertise array
-  const handleAddExpertise = (e) => {
-    if (e.key === "Enter" && expertiseInput.trim()) {
-      e.preventDefault();
+  // Add item to an array field
+  const handleAddItem = (
+    field: "expertise" | "languages" | "achievements",
+    value: string
+  ) => {
+    if (!value.trim()) return;
 
-      // Don't add duplicates
-      if (!formData.expertise.includes(expertiseInput.trim())) {
-        setFormData({
-          ...formData,
-          expertise: [...formData.expertise, expertiseInput.trim()],
-        });
-      }
-      setExpertiseInput("");
+    if (!formData[field].includes(value.trim())) {
+      setFormData({
+        ...formData,
+        [field]: [...formData[field], value.trim()],
+      });
     }
   };
 
-  const handleRemoveExpertise = (item) => {
+  // Remove item from an array field
+  const handleRemoveItem = (
+    field: "expertise" | "languages" | "achievements",
+    item: string
+  ) => {
     setFormData({
       ...formData,
-      expertise: formData.expertise.filter((expertise) => expertise !== item),
+      [field]: formData[field].filter((i) => i !== item),
     });
   };
 
-  // Handle languages array
-  const handleAddLanguage = (e) => {
-    if (e.key === "Enter" && languageInput.trim()) {
+  // Handle keypresses (Enter) in array input fields
+  const handleKeypress = (
+    e: React.KeyboardEvent,
+    field: "expertise" | "languages" | "achievements",
+    value: string
+  ) => {
+    if (e.key === "Enter") {
       e.preventDefault();
+      if (value.trim()) {
+        handleAddItem(field, value);
 
-      if (!formData.languages.includes(languageInput.trim())) {
-        setFormData({
-          ...formData,
-          languages: [...formData.languages, languageInput.trim()],
-        });
+        // Clear the corresponding input
+        if (field === "expertise") setExpertiseInput("");
+        if (field === "languages") setLanguageInput("");
+        if (field === "achievements") setAchievementInput("");
       }
-      setLanguageInput("");
     }
   };
 
-  const handleRemoveLanguage = (item) => {
-    setFormData({
-      ...formData,
-      languages: formData.languages.filter((language) => language !== item),
-    });
-  };
-
-  // Handle achievements array
-  const handleAddAchievement = (e) => {
-    if (e.key === "Enter" && achievementInput.trim()) {
-      e.preventDefault();
-
-      if (!formData.achievements.includes(achievementInput.trim())) {
-        setFormData({
-          ...formData,
-          achievements: [...formData.achievements, achievementInput.trim()],
-        });
-      }
-      setAchievementInput("");
-    }
-  };
-
-  const handleRemoveAchievement = (item) => {
-    setFormData({
-      ...formData,
-      achievements: formData.achievements.filter(
-        (achievement) => achievement !== item
-      ),
-    });
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  // Submit the form
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate required fields
     if (
-      !formData.title.trim() ||
-      !formData.company.trim() ||
-      !formData.location.trim() ||
-      !formData.bio.trim() ||
-      !formData.experience.trim() ||
-      !formData.education.trim()
+      !formData.title ||
+      !formData.company ||
+      !formData.location ||
+      !formData.bio ||
+      !formData.experience ||
+      !formData.education
     ) {
       toast.error("Please fill all required fields");
       return;
     }
 
-    try {
-      // Ensure arrays are properly passed
-      const mentorData = {
-        ...formData,
-        expertise: Array.isArray(formData.expertise) ? formData.expertise : [],
-        languages: Array.isArray(formData.languages) ? formData.languages : [],
-        achievements: Array.isArray(formData.achievements)
-          ? formData.achievements
-          : [],
-      };
+    setIsLoading(true);
 
-      let success;
+    try {
+      let response;
 
       if (mentorId) {
         // Update existing mentor
-        success = await updateMentor(mentorId, mentorData);
+        response = await axios.put(`${API_URL}/mentors/${mentorId}`, formData, {
+          withCredentials: true,
+        });
       } else {
         // Create new mentor
-        success = await createMentor(mentorData);
+        response = await axios.post(`${API_URL}/mentors`, formData, {
+          withCredentials: true,
+        });
       }
 
-      if (success) {
+      if (response.data) {
         toast.success(
           mentorId
             ? "Mentor updated successfully"
             : "Mentor created successfully"
         );
-        router.push("/mentorship");
-      } else {
-        toast.error("Failed to save mentor profile");
+        if (onCancel) {
+          onCancel();
+        } else {
+          router.push("/admin");
+        }
       }
-    } catch (err) {
-      console.error("Error submitting form:", err);
-      toast.error("An error occurred while saving the mentor profile");
+    } catch (error: any) {
+      console.error("Error saving mentor:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to save mentor profile"
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Button-click handlers for array inputs
-  const handleButtonAddExpertise = () => {
-    if (
-      expertiseInput.trim() &&
-      !formData.expertise.includes(expertiseInput.trim())
-    ) {
-      setFormData({
-        ...formData,
-        expertise: [...formData.expertise, expertiseInput.trim()],
-      });
-      setExpertiseInput("");
-    }
-  };
-
-  const handleButtonAddLanguage = () => {
-    if (
-      languageInput.trim() &&
-      !formData.languages.includes(languageInput.trim())
-    ) {
-      setFormData({
-        ...formData,
-        languages: [...formData.languages, languageInput.trim()],
-      });
-      setLanguageInput("");
-    }
-  };
-
-  const handleButtonAddAchievement = () => {
-    if (
-      achievementInput.trim() &&
-      !formData.achievements.includes(achievementInput.trim())
-    ) {
-      setFormData({
-        ...formData,
-        achievements: [...formData.achievements, achievementInput.trim()],
-      });
-      setAchievementInput("");
-    }
-  };
+  if (isFetching) {
+    return (
+      <div className="flex justify-center py-10">
+        <div className="w-12 h-12 border-4 border-sky-700 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <div className="flex justify-between items-center mb-6">
         <button
+          onClick={() => (onCancel ? onCancel() : router.back())}
           className="flex items-center gap-2 text-sky-700 hover:text-sky-800 group"
-          onClick={() => router.back()}
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span>Back</span>
@@ -274,75 +226,28 @@ const MentorFormComponent = ({ mentorId }) => {
         <h2 className="text-2xl font-bold text-gray-900">
           {mentorId ? "Edit Mentor Profile" : "Create Mentor Profile"}
         </h2>
-        <div></div> {/* Empty div for flex spacing */}
+        <div></div> {/* Spacer for flex alignment */}
       </div>
 
-      {isLoading && !currentMentor && mentorId ? (
-        <div className="flex justify-center py-10">
-          <div className="w-10 h-10 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Form fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label
-                htmlFor="title"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Job Title *
-              </label>
-              <div className="relative">
-                <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="Senior Software Engineer"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="company"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Company *
-              </label>
-              <input
-                type="text"
-                id="company"
-                name="company"
-                value={formData.company}
-                onChange={handleChange}
-                placeholder="Company Name"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                required
-              />
-            </div>
-          </div>
-
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Basic Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label
-              htmlFor="location"
+              htmlFor="title"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Location *
+              Job Title *
             </label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                id="location"
-                name="location"
-                value={formData.location}
+                id="title"
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
-                placeholder="City, Country"
+                placeholder="Senior Software Engineer"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 required
               />
@@ -351,271 +256,378 @@ const MentorFormComponent = ({ mentorId }) => {
 
           <div>
             <label
-              htmlFor="bio"
+              htmlFor="company"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Bio *
+              Company *
             </label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={formData.bio}
+            <input
+              type="text"
+              id="company"
+              name="company"
+              value={formData.company}
               onChange={handleChange}
-              placeholder="Your professional bio and experience summary"
-              rows={4}
+              placeholder="Company Name"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="location"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Location *
+          </label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="City, Country"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="contact@example.com"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Phone Number
+            </label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+1 123 456 7890"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="bio"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Bio *
+          </label>
+          <textarea
+            id="bio"
+            name="bio"
+            value={formData.bio}
+            onChange={handleChange}
+            placeholder="Your professional bio and experience summary"
+            rows={4}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              htmlFor="experience"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Experience *
+            </label>
+            <input
+              type="text"
+              id="experience"
+              name="experience"
+              value={formData.experience}
+              onChange={handleChange}
+              placeholder="10+ years in Software Development"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               required
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label
-                htmlFor="experience"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Experience *
-              </label>
+          <div>
+            <label
+              htmlFor="education"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Education *
+            </label>
+            <div className="relative">
+              <GraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                id="experience"
-                name="experience"
-                value={formData.experience}
+                id="education"
+                name="education"
+                value={formData.education}
                 onChange={handleChange}
-                placeholder="10+ years in Software Development"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                placeholder="Master's in Computer Science"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 required
               />
             </div>
+          </div>
+        </div>
 
-            <div>
-              <label
-                htmlFor="education"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Education *
-              </label>
-              <div className="relative">
-                <GraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        {/* Expertise Array Field */}
+        <div>
+          <label
+            htmlFor="expertise"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Areas of Expertise
+          </label>
+          <div className="flex">
+            <div className="flex-grow">
+              <div className="relative flex">
+                <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  id="education"
-                  name="education"
-                  value={formData.education}
-                  onChange={handleChange}
-                  placeholder="Master's in Computer Science"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  required
+                  id="expertise"
+                  value={expertiseInput}
+                  onChange={(e) => setExpertiseInput(e.target.value)}
+                  onKeyDown={(e) =>
+                    handleKeypress(e, "expertise", expertiseInput)
+                  }
+                  placeholder="Add a skill and press Enter"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleAddItem("expertise", expertiseInput);
+                    setExpertiseInput("");
+                  }}
+                  className="px-4 py-2 bg-sky-50 border border-gray-300 rounded-r-lg text-sky-700 hover:bg-sky-100"
+                >
+                  Add
+                </button>
               </div>
             </div>
           </div>
-
-          {/* Expertise Array Field */}
-          <div>
-            <label
-              htmlFor="expertise"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Areas of Expertise
-            </label>
-            <div className="relative flex">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Tag className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                id="expertise"
-                value={expertiseInput}
-                onChange={(e) => setExpertiseInput(e.target.value)}
-                onKeyDown={handleAddExpertise}
-                placeholder="Add a skill and press Enter"
-                className="flex-grow pl-10 pr-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-              />
-              <button
-                type="button"
-                onClick={handleButtonAddExpertise}
-                className="px-4 py-2 bg-sky-50 border-y border-r border-gray-300 rounded-r-lg text-sky-700 hover:bg-sky-100 transition-colors"
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.expertise.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-1 px-3 py-1 bg-sky-50 text-sky-700 rounded-full"
               >
-                Add
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {Array.isArray(formData.expertise) &&
-                formData.expertise.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-1 px-3 py-1 bg-sky-50 text-sky-700 rounded-full"
-                  >
-                    <span className="text-sm">{item}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveExpertise(item)}
-                      className="text-sky-700 hover:text-sky-900"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-              {(!formData.expertise || formData.expertise.length === 0) && (
-                <span className="text-sm text-gray-500">
-                  No expertise areas added yet
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Languages Array Field */}
-          <div>
-            <label
-              htmlFor="languages"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Languages
-            </label>
-            <div className="relative flex">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Globe className="h-5 w-5 text-gray-400" />
+                <span>{item}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveItem("expertise", item)}
+                  className="text-sky-700 hover:text-sky-900"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
-              <input
-                type="text"
-                id="languages"
-                value={languageInput}
-                onChange={(e) => setLanguageInput(e.target.value)}
-                onKeyDown={handleAddLanguage}
-                placeholder="Add a language and press Enter"
-                className="flex-grow pl-10 pr-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-              />
-              <button
-                type="button"
-                onClick={handleButtonAddLanguage}
-                className="px-4 py-2 bg-purple-50 border-y border-r border-gray-300 rounded-r-lg text-purple-700 hover:bg-purple-100 transition-colors"
-              >
-                Add
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {Array.isArray(formData.languages) &&
-                formData.languages.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-full"
-                  >
-                    <span className="text-sm">{item}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveLanguage(item)}
-                      className="text-purple-700 hover:text-purple-900"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-              {(!formData.languages || formData.languages.length === 0) && (
-                <span className="text-sm text-gray-500">
-                  No languages added yet
-                </span>
-              )}
-            </div>
+            ))}
+            {formData.expertise.length === 0 && (
+              <p className="text-sm text-gray-500">No expertise added yet</p>
+            )}
           </div>
+        </div>
 
-          {/* Achievements Array Field */}
-          <div>
-            <label
-              htmlFor="achievements"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Achievements
-            </label>
-            <div className="relative flex">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Award className="h-5 w-5 text-gray-400" />
+        {/* Languages Array Field */}
+        <div>
+          <label
+            htmlFor="languages"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Languages
+          </label>
+          <div className="flex">
+            <div className="flex-grow">
+              <div className="relative flex">
+                <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  id="languages"
+                  value={languageInput}
+                  onChange={(e) => setLanguageInput(e.target.value)}
+                  onKeyDown={(e) =>
+                    handleKeypress(e, "languages", languageInput)
+                  }
+                  placeholder="Add a language and press Enter"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleAddItem("languages", languageInput);
+                    setLanguageInput("");
+                  }}
+                  className="px-4 py-2 bg-purple-50 border border-gray-300 rounded-r-lg text-purple-700 hover:bg-purple-100"
+                >
+                  Add
+                </button>
               </div>
-              <input
-                type="text"
-                id="achievements"
-                value={achievementInput}
-                onChange={(e) => setAchievementInput(e.target.value)}
-                onKeyDown={handleAddAchievement}
-                placeholder="Add an achievement and press Enter"
-                className="flex-grow pl-10 pr-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-              />
-              <button
-                type="button"
-                onClick={handleButtonAddAchievement}
-                className="px-4 py-2 bg-amber-50 border-y border-r border-gray-300 rounded-r-lg text-amber-700 hover:bg-amber-100 transition-colors"
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.languages.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-full"
               >
-                Add
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {Array.isArray(formData.achievements) &&
-                formData.achievements.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 rounded-full"
-                  >
-                    <span className="text-sm">{item}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveAchievement(item)}
-                      className="text-amber-700 hover:text-amber-900"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-              {(!formData.achievements ||
-                formData.achievements.length === 0) && (
-                <span className="text-sm text-gray-500">
-                  No achievements added yet
-                </span>
-              )}
-            </div>
+                <span>{item}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveItem("languages", item)}
+                  className="text-purple-700 hover:text-purple-900"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            {formData.languages.length === 0 && (
+              <p className="text-sm text-gray-500">No languages added yet</p>
+            )}
           </div>
+        </div>
 
-          <div>
-            <label
-              htmlFor="availability"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Availability
-            </label>
-            <select
-              id="availability"
-              name="availability"
-              value={formData.availability}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-            >
-              <option value="available">Available</option>
-              <option value="limited">Limited Availability</option>
-              <option value="unavailable">Currently Unavailable</option>
-            </select>
+        {/* Achievements Array Field */}
+        <div>
+          <label
+            htmlFor="achievements"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Achievements
+          </label>
+          <div className="flex">
+            <div className="flex-grow">
+              <div className="relative flex">
+                <Award className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  id="achievements"
+                  value={achievementInput}
+                  onChange={(e) => setAchievementInput(e.target.value)}
+                  onKeyDown={(e) =>
+                    handleKeypress(e, "achievements", achievementInput)
+                  }
+                  placeholder="Add an achievement and press Enter"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleAddItem("achievements", achievementInput);
+                    setAchievementInput("");
+                  }}
+                  className="px-4 py-2 bg-amber-50 border border-gray-300 rounded-r-lg text-amber-700 hover:bg-amber-100"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
           </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.achievements.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 rounded-full"
+              >
+                <span>{item}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveItem("achievements", item)}
+                  className="text-amber-700 hover:text-amber-900"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            {formData.achievements.length === 0 && (
+              <p className="text-sm text-gray-500">No achievements added yet</p>
+            )}
+          </div>
+        </div>
 
-          <div className="flex justify-end space-x-4 pt-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors flex items-center gap-2"
-              disabled={isLoading}
-            >
-              <Save className="h-4 w-4" />
-              {isLoading ? "Saving..." : "Save Profile"}
-            </button>
-          </div>
-        </form>
-      )}
+        {/* Availability */}
+        <div>
+          <label
+            htmlFor="availability"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Availability
+          </label>
+          <select
+            id="availability"
+            name="availability"
+            value={formData.availability}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+          >
+            <option value="available">Available</option>
+            <option value="limited">Limited Availability</option>
+            <option value="unavailable">Currently Unavailable</option>
+          </select>
+        </div>
+
+        {/* Form Actions */}
+        <div className="flex justify-end gap-4 pt-4">
+          <button
+            type="button"
+            onClick={() => (onCancel ? onCancel() : router.back())}
+            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 flex items-center gap-2"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>Save Profile</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
 
-export default MentorFormComponent;
+export default MentorForm;

@@ -10,14 +10,14 @@ import { toast } from "react-hot-toast";
 export default function EditMentorPage() {
   const router = useRouter();
   const params = useParams();
-  const { user, isAuthenticated, checkAuthStatus } = useAuthStore();
+  const { user, isAuthenticated, checkAuth } = useAuthStore();
 
   const mentorId = params?.mentorId as string;
 
   // Check admin access
   useEffect(() => {
     const checkAdminAccess = async () => {
-      await checkAuthStatus();
+      await checkAuth();
 
       if (!isAuthenticated) {
         router.push("/auth/login");
@@ -38,7 +38,7 @@ export default function EditMentorPage() {
     };
 
     checkAdminAccess();
-  }, [checkAuthStatus, isAuthenticated, router, user, mentorId]);
+  }, [checkAuth, isAuthenticated, router, user, mentorId]);
 
   if (!user || user.role !== "admin") {
     return (

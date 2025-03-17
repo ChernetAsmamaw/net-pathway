@@ -1,18 +1,16 @@
-// Mentorship Route for Users
-// This file displays the list of available mentors for users
-// Path: /mentorship
-
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-
-import { Search, Briefcase, MapPin, Filter, Star } from "lucide-react";
-import Image from "next/image";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import MentorDetails from "@/components/mentorship/MentorDetails";
+
+import { Search, Filter } from "lucide-react";
+import MentorCard from "@/components/mentorship/MentorCard"; // Use our simplified component
+import MentorDetails from "@/components/mentorship/MentorDetails"; // Use our simplified component
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 interface Mentor {
   _id: string;
@@ -25,9 +23,11 @@ interface Mentor {
   education: string;
   languages: string[];
   achievements: string[];
-  availability: "available" | "limited" | "unavailable";
+  availability: string;
   rating: number;
   isActive: boolean;
+  email?: string;
+  phone?: string;
   user: {
     _id: string;
     username: string;
@@ -38,20 +38,20 @@ interface Mentor {
 export default function MentorshipPage() {
   const router = useRouter();
   const { user, isAuthenticated, checkAuth } = useAuthStore();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+
+  // Filter states
   const [filterExpertise, setFilterExpertise] = useState("all");
   const [filterAvailability, setFilterAvailability] = useState("all");
 
-  // Extract unique expertise areas for filter dropdown
-  const expertiseAreas = [
-    "all",
-    ...new Set(mentors.flatMap((mentor) => mentor.expertise)),
-  ];
+  // For pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
+  // Authentication check
   useEffect(() => {
     const initAuth = async () => {
       await checkAuth();
@@ -62,20 +62,31 @@ export default function MentorshipPage() {
     initAuth();
   }, [checkAuth, isAuthenticated, router]);
 
+  // Fetch mentors
   useEffect(() => {
     const fetchMentors = async () => {
+      if (!isAuthenticated) return;
+
       setIsLoading(true);
       try {
-        const response = await axios.get("http://localhost:5000/api/mentors", {
+        // Build query with filters
+        let query = `${API_URL}/mentors?page=${currentPage}`;
+
+        if (filterExpertise !== "all") {
+          query += `&expertise=${encodeURIComponent(filterExpertise)}`;
+        }
+
+        if (filterAvailability !== "all") {
+          query += `&availability=${filterAvailability}`;
+        }
+
+        const response = await axios.get(query, {
           withCredentials: true,
         });
 
         if (response.data.mentors) {
-          // Filter only active mentors for regular users
-          const activeMentors = response.data.mentors.filter(
-            (mentor: Mentor) => mentor.isActive
-          );
-          setMentors(activeMentors);
+          setMentors(response.data.mentors);
+          setTotalPages(response.data.pagination.pages || 1);
         }
       } catch (error) {
         console.error("Error fetching mentors:", error);
@@ -85,36 +96,49 @@ export default function MentorshipPage() {
       }
     };
 
-    if (isAuthenticated) {
-      fetchMentors();
-    }
-  }, [isAuthenticated]);
+    fetchMentors();
+  }, [isAuthenticated, currentPage, filterExpertise, filterAvailability]);
 
-  const filteredMentors = mentors.filter((mentor) => {
-    // Text search
-    const textMatch =
-      mentor.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mentor.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mentor.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mentor.user?.username
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      mentor.expertise.some((skill) =>
-        skill.toLowerCase().includes(searchQuery.toLowerCase())
+  // Extract unique expertise areas for filter dropdown
+  const expertiseAreas = React.useMemo(() => {
+    const areas = new Set<string>();
+    areas.add("all");
+
+    mentors.forEach((mentor) => {
+      if (mentor.expertise && Array.isArray(mentor.expertise)) {
+        mentor.expertise.forEach((area) => areas.add(area));
+      }
+    });
+
+    return Array.from(areas);
+  }, [mentors]);
+
+  // Filter mentors based on search query
+  const filteredMentors = React.useMemo(() => {
+    if (!searchQuery.trim()) return mentors;
+
+    return mentors.filter((mentor) => {
+      const searchLower = searchQuery.toLowerCase();
+
+      return (
+        mentor.title.toLowerCase().includes(searchLower) ||
+        mentor.company.toLowerCase().includes(searchLower) ||
+        mentor.location.toLowerCase().includes(searchLower) ||
+        mentor.user?.username.toLowerCase().includes(searchLower) ||
+        (mentor.expertise &&
+          mentor.expertise.some((skill) =>
+            skill.toLowerCase().includes(searchLower)
+          ))
       );
+    });
+  }, [mentors, searchQuery]);
 
-    // Expertise filter
-    const expertiseMatch =
-      filterExpertise === "all" || mentor.expertise.includes(filterExpertise);
+  // Reset to first page when changing filters
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterExpertise, filterAvailability]);
 
-    // Availability filter
-    const availabilityMatch =
-      filterAvailability === "all" ||
-      mentor.availability === filterAvailability;
-
-    return textMatch && expertiseMatch && availabilityMatch;
-  });
-
+  // Loading state
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -132,17 +156,12 @@ export default function MentorshipPage() {
         <div className="p-6 md:p-8">
           {/* Header Section */}
           <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-sky-800 mb-2">
-                  Find a Mentor
-                </h1>
-                <p className="text-slate-600">
-                  Connect with industry experts who can guide your career
-                  journey
-                </p>
-              </div>
-            </div>
+            <h1 className="text-3xl font-bold text-sky-800 mb-2">
+              Find a Mentor
+            </h1>
+            <p className="text-slate-600">
+              Connect with industry experts who can guide your career journey
+            </p>
           </div>
 
           {/* Search and Filters */}
@@ -201,106 +220,72 @@ export default function MentorshipPage() {
               <div className="w-12 h-12 border-4 border-sky-700 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : filteredMentors.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredMentors.map((mentor) => (
-                <div
-                  key={mentor._id}
-                  onClick={() => setSelectedMentor(mentor)}
-                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
-                >
-                  <div className="p-6">
-                    <div className="flex flex-col items-center text-center">
-                      {mentor.user?.profilePicture ? (
-                        <div className="relative w-24 h-24 mb-4 rounded-full overflow-hidden ring-4 ring-white shadow-lg group-hover:scale-105 transition-transform duration-300">
-                          <Image
-                            src={mentor.user.profilePicture}
-                            alt={mentor.user.username}
-                            layout="fill"
-                            objectFit="cover"
-                            className="rounded-full"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-24 h-24 mb-4 rounded-full bg-gradient-to-r from-sky-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold ring-4 ring-white shadow-lg group-hover:scale-105 transition-transform duration-300">
-                          {mentor.user?.username?.charAt(0).toUpperCase() ||
-                            "M"}
-                        </div>
-                      )}
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredMentors.map((mentor) => (
+                  <MentorCard
+                    key={mentor._id}
+                    mentor={mentor}
+                    onClick={() => setSelectedMentor(mentor)}
+                  />
+                ))}
+              </div>
 
-                      <h3 className="text-xl font-semibold text-gray-900 group-hover:text-sky-700 transition-colors">
-                        {mentor.user?.username || "Unnamed Mentor"}
-                      </h3>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-8">
+                  <div className="flex space-x-1">
+                    <button
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
 
-                      <div className="flex items-center gap-2 text-gray-600 mt-1">
-                        <Briefcase className="w-4 h-4" />
-                        <span>{mentor.title}</span>
-                      </div>
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      // Show pages around current page for better UX
+                      let pageNum = currentPage;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
 
-                      <div className="flex items-center gap-2 text-gray-600 mt-1">
-                        <MapPin className="w-4 h-4" />
-                        <span>{mentor.location}</span>
-                      </div>
-
-                      {mentor.rating > 0 && (
-                        <div className="flex items-center gap-1 mt-2">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${
-                                i < Math.floor(mentor.rating)
-                                  ? "text-yellow-400 fill-yellow-400"
-                                  : i < mentor.rating
-                                  ? "text-yellow-400 fill-yellow-400 opacity-50"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
-                          <span className="text-sm text-gray-600 ml-1">
-                            {mentor.rating.toFixed(1)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mt-4 space-y-4">
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        {mentor.expertise.slice(0, 3).map((skill, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 bg-sky-50 text-sky-700 rounded-full text-xs"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                        {mentor.expertise.length > 3 && (
-                          <span className="px-2 py-1 bg-gray-50 text-gray-700 rounded-full text-xs">
-                            +{mentor.expertise.length - 3} more
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="text-center">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            mentor.availability === "available"
-                              ? "bg-green-100 text-green-800"
-                              : mentor.availability === "limited"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={`px-4 py-2 border rounded-lg ${
+                            currentPage === pageNum
+                              ? "bg-sky-600 text-white"
+                              : "hover:bg-gray-50"
                           }`}
                         >
-                          {mentor.availability === "available"
-                            ? "Available"
-                            : mentor.availability === "limited"
-                            ? "Limited Availability"
-                            : "Currently Unavailable"}
-                        </span>
-                      </div>
-                    </div>
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                    >
+                      Next
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-16 bg-white rounded-xl shadow-md">
               <div className="mb-4 text-5xl">👨‍🏫</div>

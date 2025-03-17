@@ -66,17 +66,18 @@ export default function AdminDashboard() {
           Create New Blog Post
         </button>
       );
-    } else if (activeTab === "mentors") {
+    } else if (activeTab === "users") {
       return (
         <button
-          onClick={() => router.push("/admin/mentor/new")}
+          onClick={() => router.push("/admin/user/new")}
           className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors text-sm flex items-center gap-1"
         >
           <Plus className="w-4 h-4" />
-          Create New Mentor
+          Create New User
         </button>
       );
     }
+    // Remove the direct mentor creation button since mentors should be created from user selection
     return null;
   };
 
@@ -84,25 +85,29 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* Remove Navbar and Sidebar components */}
       <main className="pt-6 px-6">
-        {/* Tab navigation */}
-        <div className="bg-white rounded-lg shadow-sm p-1 mb-6 flex space-x-1 overflow-x-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                setSearchQuery(""); // Reset search when changing tabs
-              }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? "bg-sky-100 text-sky-800"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.name}
-            </button>
-          ))}
+        {/* Header with tab navigation and create button */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="bg-white rounded-lg shadow-sm p-1 flex space-x-1 overflow-x-auto">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setSearchQuery("");
+                }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? "bg-sky-100 text-sky-800"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.name}
+              </button>
+            ))}
+          </div>
+          {/* Add the create button here */}
+          {renderCreateButton()}
         </div>
 
         {/* Search input for list views */}
@@ -146,9 +151,7 @@ export default function AdminDashboard() {
           {activeTab === "users" && (
             <AdminListUsers searchQuery={searchQuery} />
           )}
-          {activeTab === "blogs" && (
-            <AdminBlogList searchQuery={searchQuery} />
-          )}
+          {activeTab === "blogs" && <AdminBlogList searchQuery={searchQuery} />}
           {activeTab === "mentors" && (
             <AdminMentorList searchQuery={searchQuery} />
           )}

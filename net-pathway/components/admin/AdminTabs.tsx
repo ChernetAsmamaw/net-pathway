@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { UserCog, FileText, Briefcase, BarChart3 } from "lucide-react";
 import AdminStatistics from "./AdminStatistics";
 import AdminListUsers from "./AdminListUsers";
-import AdminBlogList from "./AdminBlogList";
+import AdminBlogList from "./BlogList";
 import AdminMentorList from "./MentorList";
 import { useRouter } from "next/navigation";
 
