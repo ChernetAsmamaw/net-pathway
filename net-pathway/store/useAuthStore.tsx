@@ -1,7 +1,9 @@
+// store/useAuthStore.tsx with profile image support
 import { create } from "zustand";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // Set default axios config
 axios.defaults.withCredentials = true;
@@ -12,6 +14,7 @@ interface User {
   email: string;
   role: string;
   profilePicture?: string;
+  isEmailVerified: boolean;
 }
 
 interface AuthState {
@@ -37,6 +40,13 @@ interface AuthState {
     username?: string;
     email?: string;
   }) => Promise<boolean>;
+  uploadProfileImage: (file: File) => Promise<string | null>;
+  uploadProfileImageBase64: (base64Image: string) => Promise<string | null>;
+  deleteProfileImage: () => Promise<boolean>;
+
+  // Email verification methods
+  sendVerificationEmail: () => Promise<boolean>;
+  refreshUserData: () => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -45,6 +55,61 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   error: null,
   authChecked: false,
+
+  // Send verification email
+  sendVerificationEmail: async () => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await axios.post(
+        `${API_URL}/verification/send`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Verification email sent successfully!");
+        return true;
+      }
+
+      set({ isLoading: false });
+      return false;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to send verification email";
+      set({
+        isLoading: false,
+        error: message,
+      });
+      toast.error(message);
+      return false;
+    }
+  },
+
+  // Refresh user data
+  refreshUserData: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/users/profile`, {
+        withCredentials: true,
+      });
+
+      if (response.data.user) {
+        const userData = response.data.user;
+        // Update local storage and state with the fresh user data
+        localStorage.setItem("user", JSON.stringify(userData));
+        set({
+          user: userData,
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
+      return false;
+    }
+  },
 
   // Email/Password Login
   login: async (email: string, password: string) => {
@@ -99,6 +164,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoading: false,
           authChecked: true,
         });
+
+        // Show verification notification if not auto-verified (like for admins)
+        if (!response.data.user.isEmailVerified) {
+          // Send verification email automatically after registration
+          try {
+            await axios.post(
+              `${API_URL}/verification/send`,
+              {},
+              {
+                withCredentials: true,
+              }
+            );
+            toast.success(
+              "Verification email sent! Please check your inbox to verify your account."
+            );
+          } catch (verificationError) {
+            console.error(
+              "Failed to send initial verification email:",
+              verificationError
+            );
+            toast.info("Please verify your email through your profile page.");
+          }
+        }
 
         return {
           success: true,
@@ -159,7 +247,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
   },
 
-  // Check Authentication Status - Complete rewrite to fix infinite loop issues
+  // Check Authentication Status
   checkAuth: async () => {
     const currentState = get();
 
@@ -208,11 +296,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (response.data.user) {
           const serverUser = response.data.user;
 
-          // Check if user data has changed
+          // Check if user data has changed, including verification status
           const needsUpdate =
             !currentState.user ||
             currentState.user.id !== serverUser.id ||
-            currentState.user.role !== serverUser.role;
+            currentState.user.role !== serverUser.role ||
+            currentState.user.isEmailVerified !== serverUser.isEmailVerified ||
+            currentState.user.profilePicture !== serverUser.profilePicture;
 
           if (needsUpdate) {
             localStorage.setItem("user", JSON.stringify(serverUser));
@@ -277,7 +367,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
 
-      const response = await axios.put(`${API_URL}/users/profile`, data);
+      const response = await axios.put(`${API_URL}/users/profile`, data, {
+        withCredentials: true,
+      });
 
       if (response.data.user) {
         // Update stored user
@@ -297,6 +389,106 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         isLoading: false,
         error: error.response?.data?.message || "Profile update failed",
+      });
+      return false;
+    }
+  },
+
+  // Upload profile image using File object
+  uploadProfileImage: async (file: File) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      // Create form data
+      const formData = new FormData();
+      formData.append("image", file);
+
+      // Upload image
+      const response = await axios.post(
+        `${API_URL}/profile/image/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.imageUrl) {
+        // Refresh user data to get updated profile image
+        await get().refreshUserData();
+
+        set({ isLoading: false });
+        return response.data.imageUrl;
+      }
+
+      set({ isLoading: false });
+      return null;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to upload profile image";
+      set({
+        isLoading: false,
+        error: message,
+      });
+      return null;
+    }
+  },
+
+  // Upload profile image using base64 string
+  uploadProfileImageBase64: async (base64Image: string) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      // Upload image
+      const response = await axios.post(
+        `${API_URL}/profile/image/upload`,
+        { image: base64Image },
+        { withCredentials: true }
+      );
+
+      if (response.data.imageUrl) {
+        // Refresh user data to get updated profile image
+        await get().refreshUserData();
+
+        set({ isLoading: false });
+        return response.data.imageUrl;
+      }
+
+      set({ isLoading: false });
+      return null;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to upload profile image";
+      set({
+        isLoading: false,
+        error: message,
+      });
+      return null;
+    }
+  },
+
+  // Delete profile image
+  deleteProfileImage: async () => {
+    try {
+      set({ isLoading: true, error: null });
+
+      await axios.delete(`${API_URL}/profile/image`, {
+        withCredentials: true,
+      });
+
+      // Refresh user data to update profile image
+      await get().refreshUserData();
+
+      set({ isLoading: false });
+      return true;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to delete profile image";
+      set({
+        isLoading: false,
+        error: message,
       });
       return false;
     }

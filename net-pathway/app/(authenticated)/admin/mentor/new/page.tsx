@@ -1,15 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import MentorForm from "@/components/admin/MentorForm";
+import UserSelectionComponent from "@/components/admin/UserSelectionComponent";
 import { toast } from "react-hot-toast";
 
 export default function NewMentorPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated, checkAuth } = useAuthStore();
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+
+  // Check if userId is provided in URL
+  const userId = searchParams.get("userId");
+
+  // If userId is provided, we'll skip the user selection step
+  const [userSelectionStep, setUserSelectionStep] = useState<boolean>(!userId);
 
   // Check admin access
   useEffect(() => {
@@ -26,10 +34,20 @@ export default function NewMentorPage() {
         router.push("/dashboard");
         return;
       }
+
+      // If userId is provided, we'll use that directly
+      if (userId) {
+        setUserSelectionStep(false);
+      }
     };
 
     checkAdminAccess();
-  }, [checkAuth, isAuthenticated, router, user]);
+  }, [checkAuth, isAuthenticated, router, user, userId]);
+
+  const handleUserSelected = (selectedUserData: any) => {
+    setSelectedUser(selectedUserData);
+    setUserSelectionStep(false);
+  };
 
   if (!user || user.role !== "admin") {
     return (
@@ -46,7 +64,17 @@ export default function NewMentorPage() {
     <div className="min-h-screen bg-gray-50">
       <main>
         <div className="p-6 md:p-8">
-          <MentorForm onCancel={() => router.push("/admin")} />
+          {userSelectionStep ? (
+            <UserSelectionComponent
+              onUserSelected={handleUserSelected}
+              onCancel={() => router.push("/admin")}
+            />
+          ) : (
+            <MentorForm
+              onCancel={() => router.push("/admin")}
+              initialUserId={userId || selectedUser?._id}
+            />
+          )}
         </div>
       </main>
     </div>

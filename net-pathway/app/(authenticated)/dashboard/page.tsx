@@ -2,13 +2,21 @@
 
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import VerificationNotice from "@/components/notification/VerificationNotice";
+import { useState } from "react";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuthStore();
+  const [hideVerificationNotice, setHideVerificationNotice] = useState(false);
 
   return (
     <div>
+      {/* Verification Notice - Only show if user is not verified */}
+      {!user?.isEmailVerified && !hideVerificationNotice && (
+        <VerificationNotice onDismiss={() => setHideVerificationNotice(true)} />
+      )}
+
       {/* Welcome Section */}
       <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center">
@@ -35,41 +43,6 @@ export default function DashboardPage() {
           </div> */}
         </div>
       </div>
-
-      {/* Career Assessment Banner
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="relative h-48">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-sky-500"></div>
-          <div className="absolute inset-0 p-6 flex flex-col justify-center">
-            <h2 className="text-md md:text-xl font-bold text-white mb-3">
-              Discover Your Ideal Career Path
-            </h2>
-            <p className="text-white/90 mb-4 text-sm">
-              Take our AI-powered career assessment to uncover careers that
-              match your interests, strengths, and personality. Get personalized
-              university recommendations.
-            </p>
-            <button
-              onClick={() => router.push("/assessment")}
-              className="bg-white text-purple-700 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-colors w-max flex items-center gap-2"
-            >
-              Take an Assessment
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div> */}
 
       {/* Quick Actions Section */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">

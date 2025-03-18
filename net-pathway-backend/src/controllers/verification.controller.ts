@@ -25,6 +25,9 @@ export const verificationController = {
         return res.status(400).json({ message: "Email already verified" });
       }
 
+      // Delete any existing tokens for this user
+      await VerificationToken.deleteMany({ userId });
+
       // Generate token
       const token = crypto.randomBytes(32).toString("hex");
 
@@ -74,12 +77,47 @@ export const verificationController = {
       // Delete the token
       await VerificationToken.deleteOne({ _id: verificationToken._id });
 
-      res.status(200).json({ message: "Email verified successfully" });
+      res.status(200).json({
+        message: "Email verified successfully",
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          isEmailVerified: true,
+          profilePicture: user.profilePicture || null,
+        },
+      });
     } catch (error: any) {
       console.error("Email verification error:", error);
       res
         .status(500)
         .json({ message: error.message || "Error verifying email" });
+    }
+  },
+
+  // Check verification status (useful for polling)
+  async checkVerificationStatus(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json({
+        isVerified: user.isEmailVerified,
+      });
+    } catch (error: any) {
+      console.error("Check verification status error:", error);
+      res.status(500).json({
+        message: error.message || "Error checking verification status",
+      });
     }
   },
 };

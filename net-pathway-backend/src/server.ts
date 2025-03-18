@@ -7,6 +7,7 @@ import { adminRouter } from "./routes/admin.routes";
 import { blogRouter } from "./routes/blog.post.routes";
 import { mentorRouter } from "./routes/mentor.routes";
 import { adminStatisticsRouter } from "./routes/admin.statistics.routes";
+import { profileImageRouter } from "./routes/profile.image.routes";
 
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -29,7 +30,10 @@ app.use(
 
 // Set cookie parser before routes
 app.use(cookieParser());
-app.use(express.json());
+// app.use(express.json());
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Check CORS preflight requests
 app.options("*", cors());
@@ -49,6 +53,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/blogs", blogRouter);
 app.use("/api/mentors", mentorRouter);
 app.use("/api/admin/statistics", adminStatisticsRouter);
+app.use("/api/profile/image", profileImageRouter);
 
 // Health check route
 app.get("/", (req, res) => {

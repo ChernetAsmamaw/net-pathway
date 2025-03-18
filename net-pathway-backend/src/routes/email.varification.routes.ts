@@ -8,6 +8,8 @@ const router: Router = express.Router();
 const sendVerificationEmailHandler =
   verificationController.sendVerificationEmail as RequestHandler;
 const verifyEmailHandler = verificationController.verifyEmail as RequestHandler;
+const checkVerificationStatusHandler =
+  verificationController.checkVerificationStatus as RequestHandler;
 
 // Routes
 router.post(
@@ -16,5 +18,10 @@ router.post(
   sendVerificationEmailHandler
 );
 router.get("/verify/:token", verifyEmailHandler);
+router.get(
+  "/status",
+  requireAuth as RequestHandler,
+  checkVerificationStatusHandler
+);
 
 export { router as verificationRouter };

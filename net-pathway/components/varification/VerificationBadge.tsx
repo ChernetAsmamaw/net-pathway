@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { CheckCircle, XCircle, Mail } from "lucide-react";
 import { toast } from "react-hot-toast";
 import axios from "axios";
@@ -10,16 +10,19 @@ interface VerificationBadgeProps {
   className?: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 const VerificationBadge: React.FC<VerificationBadgeProps> = ({
   isVerified,
   showSendButton = false,
   size = "md",
   className = "",
 }) => {
+  const [isSending, setIsSending] = useState(false);
+
   const handleSendVerification = async () => {
     try {
-      const API_URL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+      setIsSending(true);
       await axios.post(
         `${API_URL}/verification/send`,
         {},
@@ -32,6 +35,8 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({
     } catch (error) {
       console.error("Failed to send verification email:", error);
       toast.error("Failed to send verification email. Please try again later.");
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -73,10 +78,11 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({
       {!isVerified && showSendButton && (
         <button
           onClick={handleSendVerification}
-          className="text-sky-600 hover:text-sky-800 text-sm flex items-center gap-1"
+          disabled={isSending}
+          className="text-sky-600 hover:text-sky-800 text-sm flex items-center gap-1 disabled:opacity-50"
         >
           <Mail size={iconSizes[size]} />
-          <span>Send verification</span>
+          <span>{isSending ? "Sending..." : "Send verification"}</span>
         </button>
       )}
     </div>

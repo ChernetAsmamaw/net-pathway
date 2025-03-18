@@ -1,4 +1,5 @@
-// Modified version of components/admin/MentorForm.tsx
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -22,14 +23,22 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 interface MentorFormProps {
   mentorId?: string;
+  initialUserId?: string; // Added prop for initial user ID
   onCancel?: () => void;
 }
 
 // Update the component name to match the export
-const MentorForm: React.FC<MentorFormProps> = ({ mentorId, onCancel }) => {
+const MentorForm: React.FC<MentorFormProps> = ({
+  mentorId,
+  initialUserId,
+  onCancel,
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = searchParams.get("userId"); // Get userId from URL query params
+  const urlUserId = searchParams.get("userId"); // Still check URL for backward compatibility
+
+  // Use initialUserId prop if provided, otherwise check URL
+  const userId = initialUserId || urlUserId;
 
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);

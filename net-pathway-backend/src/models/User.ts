@@ -1,3 +1,4 @@
+// net-pathway-backend/src/models/User.ts
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -73,6 +74,7 @@ userSchema.pre("save", function (next) {
 userSchema.index({ email: 1 });
 userSchema.index({ username: 1 });
 userSchema.index({ googleId: 1 }, { sparse: true });
+userSchema.index({ isEmailVerified: 1 }); // Add index for verification status
 
 // Method to safely return user data without sensitive information
 userSchema.methods.toJSON = function () {
