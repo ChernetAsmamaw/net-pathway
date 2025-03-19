@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Net Pathway",
-  description: "Empowering Africa's youth towads purposeful careers",
+  description: "Empowering Africa's youth towards purposeful careers",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
         <Toaster position="top-right" />
       </body>

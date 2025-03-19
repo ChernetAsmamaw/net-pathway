@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import VerificationNotice from "@/components/notification/VerificationNotice";
+import VerificationNotice from "@/components/notifications/VerificationNotice";
 import { useState } from "react";
 
 export default function DashboardPage() {

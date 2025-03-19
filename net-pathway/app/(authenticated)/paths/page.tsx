@@ -89,46 +89,7 @@ export const pathsData = [
       },
     ],
   },
-  {
-    id: "medicine",
-    title: "Medicine",
-    description: "Discover medical and healthcare career paths",
-    image: "/ph-2.jpg",
-    matchPercentage: 85,
-    requirements: [
-      "High school diploma with excellent grades in biology and chemistry",
-      "Minimum GPA of 3.5 in science subjects",
-      "Entrance examination qualification",
-      "Interview process",
-    ],
-    universities: [
-      {
-        id: 3,
-        name: "Addis Ababa University",
-        location: "Addis Ababa, Ethiopia",
-        logo: "/placeholder-logo.png",
-        description:
-          "Ethiopia's premier institution for medical education and research.",
-        admissionDeadline: "April 30, 2025",
-        programs: [
-          {
-            id: 4,
-            name: "Doctor of Medicine",
-            duration: "6 years",
-            studyMode: "Full-time",
-            tuitionFee: "60,000 ETB per year",
-            description:
-              "Comprehensive medical training including basic sciences, clinical rotations, and specialization options.",
-            highlights: [
-              "Hospital-based training",
-              "Research opportunities",
-              "International partnerships",
-            ],
-          },
-        ],
-      },
-    ],
-  },
+
   {
     id: "business",
     title: "Business Administration",

@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
 import PathCard from "@/components/paths/PathCard";
 import { pathsData } from "../page";
 
@@ -50,13 +48,7 @@ export default function PathDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <Sidebar onCollapse={setIsSidebarCollapsed} />
-      <main
-        className={`pt-16 ${
-          isSidebarCollapsed ? "ml-20" : "ml-64"
-        } transition-all duration-300`}
-      >
+      <main>
         <PathCard
           pathData={pathData}
           activeUniversity={activeUniversity}

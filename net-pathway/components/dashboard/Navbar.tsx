@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, User, LogOut, Settings, X } from "lucide-react";
+import { User, LogOut, Settings, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import NotificationDropdown from "../../components/notifications/NotificationDropdown";
 
 const Navbar = () => {
   const router = useRouter();
@@ -61,12 +62,8 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <button className="p-3 hover:bg-gray-50 rounded-full relative transition duration-150">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-sky-500 rounded-full border border-white" />
-              </button>
-            </div>
+            {/* Notification Dropdown */}
+            <NotificationDropdown />
 
             <div className="relative" ref={popupRef}>
               <button
