@@ -4,8 +4,8 @@ import { UploadApiResponse, UploadApiOptions } from "cloudinary";
 
 // Configure Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "datqh1mc9",
-  api_key: process.env.CLOUDINARY_API_KEY || "956295877921126",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "",
+  api_key: process.env.CLOUDINARY_API_KEY || "",
   api_secret: process.env.CLOUDINARY_API_SECRET || "",
 });
 

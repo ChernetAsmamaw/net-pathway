@@ -8,6 +8,7 @@ import { blogRouter } from "./routes/blog.post.routes";
 import { mentorRouter } from "./routes/mentor.routes";
 import { adminStatisticsRouter } from "./routes/admin.statistics.routes";
 import { profileImageRouter } from "./routes/profile.image.routes";
+import { discussionRouter } from "./routes/discussion.routes";
 
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -54,6 +55,7 @@ app.use("/api/blogs", blogRouter);
 app.use("/api/mentors", mentorRouter);
 app.use("/api/admin/statistics", adminStatisticsRouter);
 app.use("/api/profile/image", profileImageRouter);
+app.use("/api/discussions", discussionRouter);
 
 // Health check route
 app.get("/", (req, res) => {

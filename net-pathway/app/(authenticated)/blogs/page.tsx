@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useBlogStore } from "@/store/useBlogStore";
-import { Search, Calendar, User, Eye, Tag } from "lucide-react";
+import { Search, Calendar, User, Eye, Tag, Filter, Book } from "lucide-react";
 import Image from "next/image";
 
 export default function BlogsPage() {
@@ -14,6 +14,7 @@ export default function BlogsPage() {
     useBlogStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   // Check authentication
   useEffect(() => {
@@ -72,24 +73,53 @@ export default function BlogsPage() {
     <div className="min-h-screen bg-gray-50">
       <main>
         <div className="p-6 md:p-8">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Blog Posts</h1>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search blogs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-sky-500"
-              />
+          {/* Header Section */}
+          <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-sky-700">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-sky-800 mb-2">
+                  Blog Posts
+                </h1>
+                <p className="text-slate-600">
+                  Explore articles, guides, and industry insights
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Search and Filters */}
+          <div className="mb-8 flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 group-hover:text-sky-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search blogs..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-white/50 backdrop-blur-sm hover:bg-white transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                  showFilters
+                    ? "bg-sky-100 text-sky-700"
+                    : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Filter className="w-4 h-4" />
+                <span>Filters</span>
+              </button>
             </div>
           </div>
 
           {/* Blog Grid */}
           {isLoading && blogs.length === 0 ? (
-            <div className="flex justify-center py-12">
+            <div className="flex justify-center py-20">
               <div className="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : (
@@ -152,27 +182,20 @@ export default function BlogsPage() {
           )}
 
           {!isLoading && blogs.length === 0 && (
-            <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-              <div className="w-16 h-16 mx-auto mb-4 text-gray-300">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              </div>
-              <p className="text-gray-500 mb-4">No blog posts found.</p>
+            <div className="text-center py-16 bg-white rounded-xl shadow-md">
+              <Book className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-medium text-gray-900 mb-2">
+                No blog posts found
+              </h3>
+              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                {searchQuery
+                  ? "Try adjusting your search to find more articles"
+                  : "Check back later for new content"}
+              </p>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
+                  className="px-6 py-3 bg-sky-600 text-white rounded-xl hover:bg-sky-700 transition-colors"
                 >
                   Clear search
                 </button>
@@ -182,33 +205,52 @@ export default function BlogsPage() {
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="flex justify-center mt-6">
-              <div className="flex space-x-1">
+            <div className="flex justify-center mt-8">
+              <div className="flex space-x-2">
                 <button
                   onClick={() =>
                     setCurrentPage(Math.max(pagination.currentPage - 1, 1))
                   }
                   disabled={pagination.currentPage === 1}
-                  className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
+
                 {Array.from(
-                  { length: pagination.totalPages },
-                  (_, i) => i + 1
-                ).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-4 py-2 border rounded-lg ${
-                      pagination.currentPage === page
-                        ? "bg-sky-600 text-white"
-                        : "hover:bg-gray-50"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                  { length: Math.min(5, pagination.totalPages) },
+                  (_, i) => {
+                    let pageNumber = pagination.currentPage;
+
+                    if (pagination.totalPages <= 5) {
+                      pageNumber = i + 1;
+                    } else if (pagination.currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (
+                      pagination.currentPage >=
+                      pagination.totalPages - 2
+                    ) {
+                      pageNumber = pagination.totalPages - 4 + i;
+                    } else {
+                      pageNumber = pagination.currentPage - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => setCurrentPage(pageNumber)}
+                        className={`px-4 py-2 rounded-lg border ${
+                          pagination.currentPage === pageNumber
+                            ? "bg-sky-600 text-white border-sky-600"
+                            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  }
+                )}
+
                 <button
                   onClick={() =>
                     setCurrentPage(
@@ -219,7 +261,7 @@ export default function BlogsPage() {
                     )
                   }
                   disabled={pagination.currentPage === pagination.totalPages}
-                  className="px-4 py-2 border rounded-lg disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>
