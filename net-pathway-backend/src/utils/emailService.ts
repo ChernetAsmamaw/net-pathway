@@ -21,7 +21,7 @@ export const emailService = {
       // Verification link
       const verificationLink = `${
         process.env.FRONTEND_URL || "http://localhost:3000"
-      }/verify-email?token=${token}`;
+      }/verify-email/${token}`;
 
       // Email content
       const mailOptions = {
@@ -31,9 +31,7 @@ export const emailService = {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
             <div style="text-align: center; margin-bottom: 20px;">
-              <img src="${
-                process.env.FRONTEND_URL || "http://localhost:3000"
-              }/logo-large.png" alt="Net Pathway" style="max-width: 200px;">
+              <img src="https://res.cloudinary.com/datqh1mc9/image/upload/v1742629780/net-pathway/ifjj5fgmufgleyxfh4uk.png" alt="Net Pathway" style="max-width: 200px;">
             </div>
             <h1 style="color: #0369a1; font-size: 24px; margin-bottom: 20px;">Verify Your Email Address</h1>
             <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Hello ${username},</p>
@@ -46,7 +44,7 @@ export const emailService = {
             <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">This link will expire in 1 hour for security reasons.</p>
             <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">If you didn't create an account with Net Pathway, please ignore this email.</p>
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #9ca3af; font-size: 14px; text-align: center;">
-              <p>The Net Pathway Team</p>
+              <p>Net Pathway 2025</p>
             </div>
           </div>
         `,

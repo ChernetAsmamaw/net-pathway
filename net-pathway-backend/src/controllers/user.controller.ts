@@ -49,7 +49,7 @@ export const userController = {
         password: hashedPassword,
         role,
         isActive: true,
-        isEmailVerified: isAdminDomain, // Auto-verify admin emails
+        isEmailVerified: false,
       });
 
       // Generate JWT token

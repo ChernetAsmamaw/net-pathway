@@ -3,16 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import Navbar from "@/components/dashboard/Navbar";
-import Sidebar from "@/components/dashboard/Sidebar";
-import { Upload, FileText, BrainCircuit } from "lucide-react";
+import { Upload, FileText, BrainCircuit, Navigation } from "lucide-react";
 import TranscriptUpload from "@/components/assessment/TranscriptUpload";
 import AptitudeTest from "@/components/assessment/AptitudeTest";
 
 export default function AssessmentPage() {
   const router = useRouter();
   const { user, isAuthenticated, checkAuth } = useAuthStore();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState<
     "intro" | "transcript" | "aptitude"
   >("intro");
@@ -44,12 +41,23 @@ export default function AssessmentPage() {
         <div className="p-6 md:p-8">
           {/* Header Section */}
           <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700">
-            <h1 className="text-3xl font-bold text-sky-800 mb-2">
-              Career Assessment
-            </h1>
-            <p className="text-slate-600">
-              Complete your assessment to discover personalized career paths
-            </p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-sky-800 mb-2">
+                  Career Assessment
+                </h1>
+                <p className="text-slate-600">
+                  Complete your assessment to discover personalized career paths
+                </p>
+              </div>
+              <button
+                onClick={() => router.push("/pathway/generate")}
+                className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors flex items-center gap-2"
+              >
+                <Navigation className="w-5 h-5" />
+                <span>Generate Path</span>
+              </button>
+            </div>
           </div>
 
           {activeSection === "intro" && (

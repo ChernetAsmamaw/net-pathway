@@ -56,23 +56,37 @@ export const verificationController = {
   // Verify email with token
   async verifyEmail(req: Request, res: Response) {
     try {
-      const { token } = req.params;
+      // Get token from query parameters
+      const token = req.query.token as string;
+
+      console.log("Verification request received with token:", token);
+
+      if (!token) {
+        console.log("Token missing in request");
+        return res.status(400).json({ message: "Token is required" });
+      }
 
       // Find token in database
       const verificationToken = await VerificationToken.findOne({ token });
+
       if (!verificationToken) {
+        console.log("Token not found in database:", token);
         return res.status(400).json({ message: "Invalid or expired token" });
       }
+
+      console.log("Token found, user ID:", verificationToken.userId);
 
       // Find and update user
       const user = await User.findById(verificationToken.userId);
       if (!user) {
+        console.log("User not found for token:", token);
         return res.status(404).json({ message: "User not found" });
       }
 
       // Mark email as verified
       user.isEmailVerified = true;
       await user.save();
+      console.log("User email verified successfully:", user.email);
 
       // Delete the token
       await VerificationToken.deleteOne({ _id: verificationToken._id });

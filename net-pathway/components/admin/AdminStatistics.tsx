@@ -107,7 +107,7 @@ const AdminStatistics: React.FC = () => {
       setTimeout(() => {
         setStatistics({
           users: {
-            total: 124,
+            total: 12,
             verified: 98,
             growth: 12.5,
             byRole: [
@@ -126,8 +126,8 @@ const AdminStatistics: React.FC = () => {
             ],
           },
           blogs: {
-            total: 45,
-            published: 32,
+            total: 1,
+            published: 2,
             byStatus: [
               { name: "Published", value: 32 },
               { name: "Draft", value: 8 },
@@ -135,8 +135,8 @@ const AdminStatistics: React.FC = () => {
             ],
           },
           mentors: {
-            total: 15,
-            active: 12,
+            total: 1,
+            active: 1,
             byExpertise: [
               { name: "Software Development", value: 8 },
               { name: "Data Science", value: 6 },

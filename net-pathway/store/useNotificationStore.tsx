@@ -31,9 +31,14 @@ interface NotificationState {
   initializeSystemNotifications: () => void;
 }
 
+// Check if window is defined (browser) or not (server)
+const isBrowser = typeof window !== "undefined";
+
 export const useNotificationStore = create<NotificationState>((set, get) => {
   // Helper function to get notifications from localStorage
   const getStoredNotifications = (): Notification[] => {
+    if (!isBrowser) return [];
+
     try {
       const stored = localStorage.getItem("netPathway_notifications");
       if (stored) {
@@ -45,13 +50,17 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
       }
     } catch (error) {
       console.error("Failed to parse stored notifications:", error);
-      localStorage.removeItem("netPathway_notifications");
+      if (isBrowser) {
+        localStorage.removeItem("netPathway_notifications");
+      }
     }
     return [];
   };
 
   // Helper function to save notifications to localStorage
   const saveNotificationsToStorage = (notifications: Notification[]) => {
+    if (!isBrowser) return;
+
     localStorage.setItem(
       "netPathway_notifications",
       JSON.stringify(notifications)
@@ -142,12 +151,16 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
 
     // Clear all notifications
     clearAll: () => {
-      localStorage.removeItem("netPathway_notifications");
+      if (isBrowser) {
+        localStorage.removeItem("netPathway_notifications");
+      }
       set({ notifications: [], unreadCount: 0 });
     },
 
     // Initialize system notifications (email verification, etc.)
     initializeSystemNotifications: () => {
+      if (!isBrowser) return;
+
       const { user } = useAuthStore.getState();
 
       if (user && !user.isEmailVerified) {
@@ -196,14 +209,16 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
   };
 });
 
-// Subscribe to auth store changes to update notifications based on user status
-useAuthStore.subscribe(
-  (state) => state.user,
-  (user) => {
-    if (user) {
-      useNotificationStore.getState().initializeSystemNotifications();
+// Only subscribe to auth store changes in the browser
+if (isBrowser) {
+  useAuthStore.subscribe(
+    (state) => state.user,
+    (user) => {
+      if (user) {
+        useNotificationStore.getState().initializeSystemNotifications();
+      }
     }
-  }
-);
+  );
+}
 
 export default useNotificationStore;

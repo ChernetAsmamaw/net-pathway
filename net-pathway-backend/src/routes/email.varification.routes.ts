@@ -17,7 +17,7 @@ router.post(
   requireAuth as RequestHandler,
   sendVerificationEmailHandler
 );
-router.get("/verify/:token", verifyEmailHandler);
+router.get("/verify", verifyEmailHandler);
 router.get(
   "/status",
   requireAuth as RequestHandler,
