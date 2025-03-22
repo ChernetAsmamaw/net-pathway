@@ -1,31 +1,86 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useBlogStore } from "@/store/useBlogStore";
+import { useDiscussionStore } from "@/store/useDiscussionStore";
 import VerificationNotice from "@/components/notifications/VerificationNotice";
-import { useState } from "react";
-import { ChevronRight, Book, Users, MessageCircle } from "lucide-react";
+import {
+  ChevronRight,
+  Book,
+  Users,
+  MessageCircle,
+  ArrowRight,
+  Eye,
+  User,
+  Tag,
+  Clock,
+  CalendarDays,
+  MessageSquare,
+} from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const [hideVerificationNotice, setHideVerificationNotice] = useState(false);
 
-  // Mock data for demonstration
-  const recentPaths = [
-    { title: "Full Stack Development", progress: 60 },
-    { title: "Cloud Architecture", progress: 30 },
-  ];
+  // Blog store
+  const {
+    blogs,
+    isLoading: isBlogsLoading,
+    error: blogsError,
+    fetchPublishedBlogs,
+  } = useBlogStore();
 
-  const recentPosts = [
-    { title: "How I landed my first tech job", author: "Jane Doe", views: 24 },
-    { title: "Tips for learning React", author: "John Smith", views: 18 },
-  ];
+  // Discussion store
+  const {
+    discussions,
+    isLoading: isDiscussionsLoading,
+    error: discussionsError,
+    fetchDiscussions,
+    setFilters,
+  } = useDiscussionStore();
 
-  const popularDiscussions = [
-    { title: "Career Switch Success Stories", replies: 45, active: true },
-    { title: "Best Resources for Beginners", replies: 32, active: false },
-  ];
+  // Fetch data when component mounts
+  useEffect(() => {
+    // Fetch recent posts (limit to 3)
+    fetchPublishedBlogs(1, 3);
+
+    // Set filters for recent discussions and fetch
+    setFilters({ sort: "activity" });
+    fetchDiscussions();
+  }, [fetchPublishedBlogs, fetchDiscussions, setFilters]);
+
+  // User stats data (could come from an API call)
+  const userStats = {
+    completionPercentage: 65,
+    assessmentsCompleted: 2,
+    totalAssessments: 3,
+  };
+
+  // Helper functions
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now - date;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHours < 1) return "Just now";
+    if (diffHours < 24) return `${diffHours}h ago`;
+
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
 
   return (
     <div className="mx-auto px-4 py-6">
@@ -48,144 +103,231 @@ export default function DashboardPage() {
               Ready to continue your journey with us?
             </p>
           </div>
-          <div className="flex gap-6 mt-6 md:mt-0">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-sky-700">
-                <div className="w-16 h-16 flex items-center justify-center border-2 rounded-full bg-sky-50 font-semibold text-xl">
-                  {recentPaths.length}
-                </div>
+          {/* Progress Stats
+          <div className="mt-6 md:mt-0 bg-gray-50 p-4 rounded-xl">
+            <div className="flex items-center mb-2">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-sky-600 h-2.5 rounded-full"
+                  style={{ width: `${userStats.completionPercentage}%` }}
+                ></div>
               </div>
-              <div className="text-sm font-medium text-gray-500 mt-2">
-                Active Paths
-              </div>
+              <span className="text-sm font-medium text-gray-700 ml-4">
+                {userStats.completionPercentage}%
+              </span>
             </div>
-          </div>
+            <p className="text-sm text-gray-600">
+              {userStats.assessmentsCompleted} of {userStats.totalAssessments}{" "}
+              assessments completed
+            </p>
+          </div> */}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content Section */}
-        <div className="lg:col-span-2">
-          {/* Explore Paths Section - Single Card */}
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Your Recent Path
-          </h2>
-
-          <div
-            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all cursor-pointer hover:translate-y-[-5px] border border-gray-100"
-            onClick={() => router.push("/paths")}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center">
-                  <div className="bg-gradient-to-r from-sky-600 to-indigo-600 text-white p-3 rounded-lg mr-4">
-                    <Book size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">
-                      Engineering
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Software Engineering
-                    </p>
-                  </div>
-                </div>
-
-                <p className="mt-4 text-gray-600">
-                  Explore various engineering disciplines and opportunities with
-                  personalized match percentage, recommended universities and
-                  program suggestions.
-                </p>
-
-                <div className="mt-4 flex items-center">
-                  <div className="mr-4">
-                    <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                      92% Match
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    2 universities • 4 programs
-                  </div>
-                </div>
-              </div>
-
-              <div className="ml-4 flex-shrink-0">
-                <ChevronRight className="h-6 w-6 text-gray-400" />
-              </div>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
-              <button className="text-sky-600 font-medium text-sm flex items-center hover:text-sky-800 transition-colors">
-                Explore all paths
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </button>
-            </div>
+      {/* Quick Links/Cards Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div
+          className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-all flex items-center gap-4 group"
+          onClick={() => router.push("/assessment")}
+        >
+          <div className="p-3 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors">
+            <Book className="w-6 h-6" />
           </div>
+          <div>
+            <h3 className="font-semibold text-gray-900">Continue Assessment</h3>
+            <p className="text-sm text-gray-500">
+              Complete your career profile
+            </p>
+          </div>
+          <ChevronRight className="ml-auto w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" />
         </div>
 
-        {/* Right Sidebar */}
-        <div className="space-y-8">
-          {/* Recent Posts */}
+        <div
+          className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-all flex items-center gap-4 group"
+          onClick={() => router.push("/mentorship")}
+        >
+          <div className="p-3 rounded-full bg-purple-50 text-purple-600 group-hover:bg-purple-100 transition-colors">
+            <Users className="w-6 h-6" />
+          </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            <h3 className="font-semibold text-gray-900">Find a Mentor</h3>
+            <p className="text-sm text-gray-500">Connect with professionals</p>
+          </div>
+          <ChevronRight className="ml-auto w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" />
+        </div>
+
+        <div
+          className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-all flex items-center gap-4 group"
+          onClick={() => router.push("/discussions")}
+        >
+          <div className="p-3 rounded-full bg-green-50 text-green-600 group-hover:bg-green-100 transition-colors">
+            <MessageCircle className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900">Join Discussions</h3>
+            <p className="text-sm text-gray-500">Engage with the community</p>
+          </div>
+          <ChevronRight className="ml-auto w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" />
+        </div>
+      </div>
+
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Posts */}
+        <div className="bg-white rounded-xl shadow-md p-6 h-full">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">
               Recent Posts
             </h2>
-            <div className="space-y-4">
-              {recentPosts.map((post, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-xl shadow p-4 hover:shadow-md transition-all"
-                >
-                  <h3 className="font-semibold text-gray-800">{post.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1">By {post.author}</p>
-                  <div className="flex items-center mt-2 text-sm text-gray-500">
-                    <svg
-                      className="w-4 h-4 mr-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {post.views} Views
-                  </div>
-                </div>
-              ))}
-            </div>
+            <button
+              onClick={() => router.push("/blogs")}
+              className="text-sky-600 text-sm font-medium flex items-center hover:text-sky-800 transition-colors"
+            >
+              View all
+              <ArrowRight className="ml-1 w-4 h-4" />
+            </button>
           </div>
 
-          {/* Popular Discussions */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              Popular Discussions
-            </h2>
-            <div className="space-y-4">
-              {popularDiscussions.map((discussion, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-xl shadow p-4 hover:shadow-md transition-all"
-                >
-                  <h3 className="font-semibold text-gray-800">
-                    {discussion.title}
-                  </h3>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm text-gray-600">
-                      {discussion.replies} replies
-                    </span>
-                    {discussion.active && (
-                      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                        Active
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+          {isBlogsLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
+          ) : blogsError ? (
+            <p className="text-gray-500 text-center py-8">
+              Unable to load recent posts
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {blogs.length > 0 ? (
+                blogs.slice(0, 3).map((post) => (
+                  <div
+                    key={post._id}
+                    className="border-b border-gray-100 last:border-0 pb-4 last:pb-0 cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2"
+                    onClick={() => router.push(`/blogs/${post._id}`)}
+                  >
+                    <h3 className="font-medium text-gray-900 line-clamp-1">
+                      {post.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                      {post.summary}
+                    </p>
+                    <div className="flex items-center mt-2 text-xs text-gray-500 gap-4">
+                      <div className="flex items-center">
+                        <User className="w-3 h-3 mr-1" />
+                        <span>{post.author?.username || "Unknown"}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <CalendarDays className="w-3 h-3 mr-1" />
+                        <span>
+                          {formatDate(post.publishedAt || post.createdAt)}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <Eye className="w-3 h-3 mr-1" />
+                        <span>{post.views || 0} views</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-6">
+                  No recent posts available
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Discussions */}
+        <div className="bg-white rounded-xl shadow-md p-6 h-full">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Recent Discussions
+            </h2>
+            <button
+              onClick={() => router.push("/discussions")}
+              className="text-sky-600 text-sm font-medium flex items-center hover:text-sky-800 transition-colors"
+            >
+              View all
+              <ArrowRight className="ml-1 w-4 h-4" />
+            </button>
           </div>
+
+          {isDiscussionsLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : discussionsError ? (
+            <p className="text-gray-500 text-center py-8">
+              Unable to load recent discussions
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {discussions.length > 0 ? (
+                discussions.slice(0, 3).map((discussion) => (
+                  <div
+                    key={discussion._id}
+                    className="border-b border-gray-100 last:border-0 pb-4 last:pb-0 cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-2"
+                    onClick={() =>
+                      router.push(`/discussions/${discussion._id}`)
+                    }
+                  >
+                    <h3 className="font-medium text-gray-900 line-clamp-1">
+                      {discussion.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                      {discussion.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {discussion.tags &&
+                        discussion.tags.slice(0, 2).map((tag, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-2 py-1 bg-sky-50 text-sky-700 rounded-full text-xs"
+                          >
+                            <Tag className="w-3 h-3 mr-1" />
+                            {tag}
+                          </span>
+                        ))}
+                      {discussion.tags && discussion.tags.length > 2 && (
+                        <span className="text-xs text-gray-500">
+                          +{discussion.tags.length - 2} more
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                      <div className="flex items-center">
+                        <User className="w-3 h-3 mr-1" />
+                        <span>{discussion.creator?.username || "Unknown"}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center">
+                          <MessageSquare className="w-3 h-3 mr-1" />
+                          <span>
+                            {discussion.messages?.length || 0} replies
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
+                          <span>
+                            {formatTimeAgo(
+                              discussion.lastActivity || discussion.createdAt
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-6">
+                  No recent discussions available
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

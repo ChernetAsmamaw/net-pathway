@@ -13,7 +13,7 @@ import {
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import Image from "next/image";
-import VerificationBadge from "@/components/varification/VerificationBadge";
+import VerificationBadge from "@/components/verification/VerificationBadge";
 import { useRouter } from "next/navigation";
 
 interface User {

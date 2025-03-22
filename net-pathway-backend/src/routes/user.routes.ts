@@ -1,3 +1,4 @@
+// net-pathway-backend/src/routes/user.routes.ts
 import express, { Router, RequestHandler } from "express";
 import { userController } from "../controllers/user.controller";
 import { requireAuth } from "../middleware/auth.middleware";
@@ -22,6 +23,11 @@ const deleteAccountHandler = userController.deleteAccount as RequestHandler;
 router.post("/register", registerHandler);
 router.post("/login", loginHandler);
 router.post("/logout", logoutHandler);
+
+// Use a direct function for refresh token route
+router.post("/refresh-token", (req, res) => {
+  userController.refreshToken(req, res);
+});
 
 // Protected routes
 router.get("/profile", requireAuth as RequestHandler, getProfileHandler);

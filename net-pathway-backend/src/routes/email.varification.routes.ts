@@ -5,19 +5,19 @@ import { requireAuth } from "../middleware/auth.middleware";
 const router: Router = express.Router();
 
 // Cast controller methods to RequestHandler type
-const sendVerificationEmailHandler =
-  verificationController.sendVerificationEmail as RequestHandler;
-const verifyEmailHandler = verificationController.verifyEmail as RequestHandler;
+const sendVerificationCodeHandler =
+  verificationController.sendVerificationCode as RequestHandler;
+const verifyCodeHandler = verificationController.verifyCode as RequestHandler;
 const checkVerificationStatusHandler =
   verificationController.checkVerificationStatus as RequestHandler;
 
 // Routes
 router.post(
-  "/send",
+  "/send-code",
   requireAuth as RequestHandler,
-  sendVerificationEmailHandler
+  sendVerificationCodeHandler
 );
-router.get("/verify", verifyEmailHandler);
+router.post("/verify-code", requireAuth as RequestHandler, verifyCodeHandler);
 router.get(
   "/status",
   requireAuth as RequestHandler,

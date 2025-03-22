@@ -1,12 +1,12 @@
-// app/(authenticated)/profile/page.tsx
 "use client";
 
+import VerificationCodeInput from "@/components/verification/VerificationCodeInput";
 import { useState, useRef } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "react-hot-toast";
 import { User, Mail, Camera, Loader } from "lucide-react";
 import axios from "axios";
-import VerificationBadge from "@/components/varification/VerificationBadge";
+import VerificationBadge from "@/components/verification/VerificationBadge";
 import ImageCropper from "@/components/profile/ImageCropper";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -29,6 +29,7 @@ export default function ProfilePage() {
     email: user?.email || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showVerificationInput, setShowVerificationInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle profile update
@@ -60,24 +61,6 @@ export default function ProfilePage() {
       email: user?.email || "",
     });
     setIsEditing(false);
-  };
-
-  // Send verification email
-  const handleSendVerificationEmail = async () => {
-    try {
-      setIsSendingVerification(true);
-      await axios.post(
-        `${API_URL}/verification/send`,
-        {},
-        { withCredentials: true }
-      );
-      toast.success("Verification email sent! Please check your inbox.");
-    } catch (error) {
-      console.error("Failed to send verification email:", error);
-      toast.error("Failed to send verification email. Please try again later.");
-    } finally {
-      setIsSendingVerification(false);
-    }
   };
 
   // Image upload functions
@@ -404,15 +387,51 @@ export default function ProfilePage() {
                   Please verify your email address to access all features of Net
                   Pathway.
                 </p>
-                <button
-                  onClick={handleSendVerificationEmail}
-                  disabled={isSendingVerification}
-                  className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
-                >
-                  {isSendingVerification
-                    ? "Sending..."
-                    : "Send Verification Email"}
-                </button>
+                {showVerificationInput ? (
+                  <VerificationCodeInput
+                    onSuccess={() => {
+                      refreshUserData();
+                      setShowVerificationInput(false);
+                    }}
+                    onCancel={() => setShowVerificationInput(false)}
+                  />
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsSendingVerification(true);
+                      axios
+                        .post(
+                          `${API_URL}/verification/send-code`,
+                          {},
+                          { withCredentials: true }
+                        )
+                        .then(() => {
+                          toast.success(
+                            "Verification code sent! Please check your inbox."
+                          );
+                          setShowVerificationInput(true);
+                        })
+                        .catch((error) => {
+                          console.error(
+                            "Failed to send verification code:",
+                            error
+                          );
+                          toast.error(
+                            "Failed to send verification code. Please try again later."
+                          );
+                        })
+                        .finally(() => {
+                          setIsSendingVerification(false);
+                        });
+                    }}
+                    disabled={isSendingVerification}
+                    className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
+                  >
+                    {isSendingVerification
+                      ? "Sending..."
+                      : "Send Verification Code"}
+                  </button>
+                )}
               </div>
             )}
 

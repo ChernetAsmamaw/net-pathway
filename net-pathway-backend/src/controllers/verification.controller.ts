@@ -2,11 +2,10 @@ import { Request, Response } from "express";
 import User from "../models/User";
 import VerificationToken from "../models/VerificationToken";
 import { emailService } from "../utils/emailService";
-import crypto from "crypto";
 
 export const verificationController = {
-  // Send verification email
-  async sendVerificationEmail(req: Request, res: Response) {
+  // Send verification code
+  async sendVerificationCode(req: Request, res: Response) {
     try {
       const userId = req.user?.userId;
 
@@ -28,65 +27,67 @@ export const verificationController = {
       // Delete any existing tokens for this user
       await VerificationToken.deleteMany({ userId });
 
-      // Generate token
-      const token = crypto.randomBytes(32).toString("hex");
+      // Generate 6-digit code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-      // Save token to database
+      // Save code to database
       await VerificationToken.create({
         userId,
-        token,
+        token: code,
       });
 
-      // Send email
-      await emailService.sendVerificationEmail(
+      // Send email with code
+      await emailService.sendVerificationCode(
         userId,
         user.email,
-        user.username
+        user.username,
+        code
       );
 
-      res.status(200).json({ message: "Verification email sent" });
+      res.status(200).json({ message: "Verification code sent" });
     } catch (error: any) {
-      console.error("Send verification email error:", error);
+      console.error("Send verification code error:", error);
       res
         .status(500)
-        .json({ message: error.message || "Error sending verification email" });
+        .json({ message: error.message || "Error sending verification code" });
     }
   },
 
-  // Verify email with token
-  async verifyEmail(req: Request, res: Response) {
+  // Verify email with code
+  async verifyCode(req: Request, res: Response) {
     try {
-      // Get token from query parameters
-      const token = req.query.token as string;
+      const { code } = req.body;
+      const userId = req.user?.userId;
 
-      console.log("Verification request received with token:", token);
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
 
-      if (!token) {
-        console.log("Token missing in request");
-        return res.status(400).json({ message: "Token is required" });
+      if (!code) {
+        return res
+          .status(400)
+          .json({ message: "Verification code is required" });
       }
 
       // Find token in database
-      const verificationToken = await VerificationToken.findOne({ token });
+      const verificationToken = await VerificationToken.findOne({
+        userId,
+        token: code,
+      });
 
       if (!verificationToken) {
-        console.log("Token not found in database:", token);
-        return res.status(400).json({ message: "Invalid or expired token" });
+        return res.status(400).json({ message: "Invalid or expired code" });
       }
 
-      console.log("Token found, user ID:", verificationToken.userId);
-
       // Find and update user
-      const user = await User.findById(verificationToken.userId);
+      const user = await User.findById(userId);
       if (!user) {
-        console.log("User not found for token:", token);
         return res.status(404).json({ message: "User not found" });
       }
 
       // Mark email as verified
       user.isEmailVerified = true;
       await user.save();
-      console.log("User email verified successfully:", user.email);
 
       // Delete the token
       await VerificationToken.deleteOne({ _id: verificationToken._id });
@@ -110,7 +111,7 @@ export const verificationController = {
     }
   },
 
-  // Check verification status (useful for polling)
+  // Check verification status
   async checkVerificationStatus(req: Request, res: Response) {
     try {
       const userId = req.user?.userId;

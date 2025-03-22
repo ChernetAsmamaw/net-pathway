@@ -4,6 +4,60 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 
 export const userController = {
+  // Refresh token
+  async refreshToken(req: Request, res: Response) {
+    try {
+      // Get the current token from cookies
+      const currentToken = req.cookies.token;
+
+      if (!currentToken) {
+        return res.status(401).json({ message: "No token found" });
+      }
+
+      // Verify the current token
+      let decoded;
+      try {
+        decoded = jwt.verify(currentToken, process.env.JWT_SECRET!) as {
+          userId: string;
+          role: string;
+        };
+      } catch (err) {
+        // If token is expired or invalid, return 401
+        return res.status(401).json({ message: "Invalid or expired token" });
+      }
+
+      // Get user from database to ensure they still exist and are active
+      const user = await User.findById(decoded.userId);
+      if (!user || !user.isActive) {
+        return res.status(401).json({ message: "User not found or inactive" });
+      }
+
+      // Generate a new token
+      const newToken = jwt.sign(
+        { userId: user._id, role: user.role },
+        process.env.JWT_SECRET!,
+        { expiresIn: "48h" }
+      );
+
+      // Set the new token as a cookie
+      res.cookie("token", newToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+      });
+
+      // Return success with token
+      return res.status(200).json({
+        message: "Token refreshed",
+        token: newToken,
+      });
+    } catch (error: any) {
+      console.error("Token refresh error:", error);
+      return res.status(500).json({ message: "Error refreshing token" });
+    }
+  },
+
   // Check for admin domain during regular signup
   async register(req: Request, res: Response) {
     try {
@@ -132,6 +186,7 @@ export const userController = {
         email: user.email,
         role: user.role,
         profilePicture: user.profilePicture || null,
+        isEmailVerified: user.isEmailVerified || false,
       };
 
       res.status(200).json({

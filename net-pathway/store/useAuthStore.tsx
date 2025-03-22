@@ -56,7 +56,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
   authChecked: false,
 
-  // Send verification email
   sendVerificationEmail: async () => {
     try {
       set({ isLoading: true, error: null });
@@ -71,6 +70,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (response.status === 200) {
         toast.success("Verification email sent successfully!");
+        set({ isLoading: false });
         return true;
       }
 
@@ -88,7 +88,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  // Refresh user data
   refreshUserData: async () => {
     try {
       const response = await axios.get(`${API_URL}/users/profile`, {
@@ -101,6 +100,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         localStorage.setItem("user", JSON.stringify(userData));
         set({
           user: userData,
+          isAuthenticated: true,
+          error: null,
         });
         return true;
       }

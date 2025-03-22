@@ -5,11 +5,12 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { useNotificationStore } from "../../store/useNotificationStore";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import VerificationCodeInput from "@/components/verification/VerificationCodeInput";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const NotificationDropdown: React.FC = () => {
-  const { user, refreshUserData } = useAuthStore();
+  const { user, refreshUserData, verifyEmailCode } = useAuthStore();
   const {
     notifications,
     unreadCount,
@@ -21,6 +22,7 @@ const NotificationDropdown: React.FC = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showVerificationInput, setShowVerificationInput] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -46,6 +48,25 @@ const NotificationDropdown: React.FC = () => {
       initializeSystemNotifications();
     }
   }, [user, initializeSystemNotifications]);
+
+  // Listen for verification modal events
+  useEffect(() => {
+    const handleOpenVerificationModal = () => {
+      setShowVerificationInput(true);
+    };
+
+    window.addEventListener(
+      "open-verification-modal",
+      handleOpenVerificationModal
+    );
+
+    return () => {
+      window.removeEventListener(
+        "open-verification-modal",
+        handleOpenVerificationModal
+      );
+    };
+  }, []);
 
   // Get icon based on notification type
   const getNotificationIcon = (type: string) => {
@@ -82,6 +103,51 @@ const NotificationDropdown: React.FC = () => {
     return new Date(date).toLocaleDateString();
   };
 
+  // Handle email verification notification click
+  const handleEmailVerification = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        `${API_URL}/verification/send-code`,
+        {},
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        toast.success("Verification code sent! Please check your inbox.");
+        setShowVerificationInput(true);
+
+        // Mark the notification as read
+        const verificationNotification = notifications.find(
+          (n) => n.id === "email-verification"
+        );
+        if (verificationNotification) {
+          markAsRead(verificationNotification.id);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to send verification code:", error);
+      toast.error("Failed to send verification code. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle verification success
+  const handleVerificationSuccess = async () => {
+    await refreshUserData();
+    setShowVerificationInput(false);
+    toast.success("Your email has been verified!");
+
+    // Remove the verification notification
+    const verificationNotification = notifications.find(
+      (n) => n.id === "email-verification"
+    );
+    if (verificationNotification) {
+      removeNotification(verificationNotification.id);
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Notification Bell */}
@@ -97,6 +163,18 @@ const NotificationDropdown: React.FC = () => {
           </span>
         )}
       </button>
+
+      {/* Verification Code Input Modal */}
+      {showVerificationInput && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
+            <VerificationCodeInput
+              onSuccess={handleVerificationSuccess}
+              onCancel={() => setShowVerificationInput(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Dropdown */}
       <AnimatePresence>
@@ -166,39 +244,41 @@ const NotificationDropdown: React.FC = () => {
                           <p className="text-sm text-gray-600 mt-1">
                             {notification.message}
                           </p>
-                          {notification.action && (
+                          {notification.id === "email-verification" ? (
                             <button
-                              onClick={async () => {
-                                setIsLoading(true);
-                                try {
-                                  await notification.action?.onClick();
-                                  markAsRead(notification.id);
-
-                                  // For email verification, refresh user data
-                                  if (
-                                    notification.id === "email-verification"
-                                  ) {
-                                    await refreshUserData();
-                                    toast.success(
-                                      "Verification email sent! Please check your inbox."
-                                    );
-                                  }
-                                } catch (error) {
-                                  console.error("Action failed:", error);
-                                  toast.error(
-                                    "Failed to complete action. Please try again later."
-                                  );
-                                } finally {
-                                  setIsLoading(false);
-                                }
-                              }}
+                              onClick={handleEmailVerification}
                               disabled={isLoading}
                               className="mt-2 text-sm text-sky-600 hover:text-sky-800 font-medium disabled:opacity-50"
                             >
                               {isLoading
-                                ? "Processing..."
-                                : notification.action.label}
+                                ? "Sending..."
+                                : "Send verification code"}
                             </button>
+                          ) : (
+                            notification.action && (
+                              <button
+                                onClick={async () => {
+                                  setIsLoading(true);
+                                  try {
+                                    await notification.action?.onClick();
+                                    markAsRead(notification.id);
+                                  } catch (error) {
+                                    console.error("Action failed:", error);
+                                    toast.error(
+                                      "Failed to complete action. Please try again later."
+                                    );
+                                  } finally {
+                                    setIsLoading(false);
+                                  }
+                                }}
+                                disabled={isLoading}
+                                className="mt-2 text-sm text-sky-600 hover:text-sky-800 font-medium disabled:opacity-50"
+                              >
+                                {isLoading
+                                  ? "Processing..."
+                                  : notification.action.label}
+                              </button>
+                            )
                           )}
                         </div>
                         {notification.dismissible && (
