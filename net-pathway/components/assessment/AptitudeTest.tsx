@@ -1,122 +1,127 @@
-import { useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, CheckCircle } from "lucide-react";
+import BehavioralAssessment from "./BehavioralAssessment";
+import { useRouter } from "next/navigation";
+import { useAssessmentStore } from "@/store/useAssessmentStore";
 
-interface AptitudeTestProps {
-  onBack: () => void;
-}
+export default function AptitudeTest({ onBack }) {
+  const router = useRouter();
+  const [isCompleted, setIsCompleted] = useState(false);
+  const { resetAssessment, results, getTopCareerGroups } = useAssessmentStore();
 
-const questions = [
-  {
-    id: 1,
-    category: "Analytical Thinking",
-    question:
-      "If all roses are flowers and some flowers fade quickly, which statement is correct?",
-    options: [
-      "All roses fade quickly",
-      "Some roses may fade quickly",
-      "No roses fade quickly",
-      "Roses never fade",
-    ],
-    correctAnswer: 1,
-  },
-  // Add more questions here (total 30)
-];
+  // Reset assessment state when component mounts
+  useEffect(() => {
+    resetAssessment();
+  }, [resetAssessment]);
 
-export default function AptitudeTest({ onBack }: AptitudeTestProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
-  const questionsPerPage = 5;
-  const totalPages = Math.ceil(questions.length / questionsPerPage);
-
-  const getCurrentQuestions = () => {
-    const start = (currentPage - 1) * questionsPerPage;
-    return questions.slice(start, start + questionsPerPage);
+  const handleComplete = () => {
+    setIsCompleted(true);
   };
 
-  const handleAnswer = (questionId: number, answerIndex: number) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: answerIndex,
-    }));
+  const handleGeneratePath = () => {
+    router.push("/pathway/generate");
   };
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-sky-700 hover:text-sky-800 mb-6 group"
-      >
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        <span>Back to Assessment Options</span>
-      </button>
-
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Aptitude Assessment
-          </h2>
-          <p className="text-gray-600">
-            Page {currentPage} of {totalPages}
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          {getCurrentQuestions().map((q, idx) => (
-            <div key={q.id} className="bg-gray-50 rounded-lg p-6">
-              <div className="mb-4">
-                <span className="text-sm font-medium text-sky-600">
-                  {q.category}
-                </span>
-                <h3 className="text-lg font-medium text-gray-900 mt-1">
-                  {q.question}
-                </h3>
-              </div>
-
-              <div className="space-y-3">
-                {q.options.map((option, optionIdx) => (
-                  <label
-                    key={optionIdx}
-                    className="flex items-center gap-3 p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                  >
-                    <input
-                      type="radio"
-                      name={`question-${q.id}`}
-                      checked={answers[q.id] === optionIdx}
-                      onChange={() => handleAnswer(q.id, optionIdx)}
-                      className="w-4 h-4 text-sky-600 focus:ring-sky-500"
-                    />
-                    <span className="text-gray-700">{option}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-between mt-8">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 text-sky-700 hover:bg-sky-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-
-          <button
-            onClick={() => {
-              if (currentPage === totalPages) {
-                // Handle test submission
-                console.log("Test completed:", answers);
-              } else {
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-              }
-            }}
-            className="px-4 py-2 bg-sky-700 text-white rounded-lg hover:bg-sky-800"
-          >
-            {currentPage === totalPages ? "Submit" : "Next"}
-          </button>
-        </div>
+      <div className="mb-6 flex items-center">
+        <button
+          onClick={onBack}
+          className="mr-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-gray-600" />
+        </button>
+        <h2 className="text-2xl font-bold text-gray-900">
+          Behavioral Assessment
+        </h2>
       </div>
+
+      {!isCompleted ? (
+        <BehavioralAssessment onComplete={handleComplete} />
+      ) : (
+        <div className="text-center py-8">
+          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="h-8 w-8" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Assessment Completed!</h3>
+          <p className="text-gray-600 mb-6">
+            Your responses have been recorded. Based on your answers, we'll
+            generate personalized educational and career path recommendations.
+          </p>
+
+          {results && (
+            <div className="mb-8 p-6 bg-gray-50 rounded-lg text-left max-w-xl mx-auto">
+              <h4 className="font-medium text-lg mb-4">
+                Your Profile Highlights:
+              </h4>
+
+              {/* Display RIASEC scores */}
+              {results.riasec && (
+                <div className="mb-4">
+                  <p className="font-medium text-sm text-gray-700 mb-2">
+                    RIASEC Profile:
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(results.riasec)
+                      .sort((a, b) => b[1] - a[1])
+                      .slice(0, 3)
+                      .map(([category, score]) => (
+                        <div
+                          key={category}
+                          className="flex items-center justify-between p-2 bg-white rounded border"
+                        >
+                          <span className="capitalize">{category}</span>
+                          <span className="font-medium">
+                            {Math.round(score * 20)}%
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Display top career groups */}
+              <div className="mt-4">
+                <p className="font-medium text-sm text-gray-700 mb-2">
+                  Top Career Fields:
+                </p>
+                <div className="space-y-2">
+                  {getTopCareerGroups()
+                    .slice(0, 3)
+                    .map((groupName) => (
+                      <div
+                        key={groupName}
+                        className="p-2 bg-white rounded border"
+                      >
+                        <span className="capitalize">{groupName}</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-600 mt-4">
+                Click "Generate Path" to see detailed recommendations based on
+                your assessment results.
+              </p>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={onBack}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Return to Assessment Page
+            </button>
+            <button
+              onClick={handleGeneratePath}
+              className="px-6 py-3 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
+            >
+              Generate Path
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

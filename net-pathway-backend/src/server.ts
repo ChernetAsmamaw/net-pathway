@@ -9,6 +9,7 @@ import { mentorRouter } from "./routes/mentor.routes";
 import { adminStatisticsRouter } from "./routes/admin.statistics.routes";
 import { profileImageRouter } from "./routes/profile.image.routes";
 import { discussionRouter } from "./routes/discussion.routes";
+import { assessmentRouter } from "./routes/assessment.routes";
 
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -56,6 +57,7 @@ app.use("/api/mentors", mentorRouter);
 app.use("/api/admin/statistics", adminStatisticsRouter);
 app.use("/api/profile/image", profileImageRouter);
 app.use("/api/discussions", discussionRouter);
+app.use("/api/assessment", assessmentRouter);
 
 // Health check route
 app.get("/", (req, res) => {

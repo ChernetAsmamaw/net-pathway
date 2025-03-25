@@ -1,0 +1,279 @@
+{
+  "assessmentTitle": "Career Path Behavioral Assessment",
+  "assessmentDescription": "This assessment helps identify your natural inclinations, work preferences, and personality traits to suggest educational and career paths that align with your behavioral profile.",
+  "attribution": "This assessment incorporates elements from established frameworks including Holland's RIASEC model, the Myers-Briggs Type Indicator, and the Big Five personality traits.",
+  "questions": [
+    {
+      "id": 1,
+      "text": "When faced with a problem, I strongly prefer ones with clear, definitive answers rather than those with multiple interpretations or solutions. I find comfort in knowing there's a correct answer to reach.",
+      "category": "problem_solving",
+      "dimension": "analytical_vs_creative"
+    },
+    {
+      "id": 2,
+      "text": "I find deep satisfaction in creating original works such as art, music, writing, or designs. Even when not required, I often choose to express myself through creative mediums.",
+      "category": "interests",
+      "dimension": "artistic"
+    },
+    {
+      "id": 3,
+      "text": "In group settings, I naturally tend to step into leadership positions. When a team needs direction, I'm comfortable taking initiative and guiding others toward a common goal.",
+      "category": "social",
+      "dimension": "leadership"
+    },
+    {
+      "id": 4,
+      "text": "I prefer working with tangible, concrete things I can see and touch rather than dealing with abstract theories or concepts. I appreciate practical applications over theoretical discussions.",
+      "category": "work_style",
+      "dimension": "practical_vs_theoretical"
+    },
+    {
+      "id": 5,
+      "text": "I gain genuine satisfaction from helping others learn and develop new skills. I'm patient when explaining concepts and enjoy seeing someone understand something because of my guidance.",
+      "category": "social",
+      "dimension": "teaching"
+    },
+    {
+      "id": 6,
+      "text": "I enjoy collecting, analyzing, and interpreting data to identify patterns and draw meaningful conclusions. I find satisfaction in using evidence to solve problems or make decisions.",
+      "category": "problem_solving",
+      "dimension": "analytical"
+    },
+    {
+      "id": 7,
+      "text": "I'm drawn to working with technology and digital tools. I enjoy learning new software, exploring digital platforms, or using technology to solve problems and create solutions.",
+      "category": "interests",
+      "dimension": "technological"
+    },
+    {
+      "id": 8,
+      "text": "I thrive in structured environments with clear guidelines, rules, and expectations. I prefer having a defined framework for my tasks rather than open-ended or ambiguous situations.",
+      "category": "work_style",
+      "dimension": "structured_vs_flexible"
+    },
+    {
+      "id": 9,
+      "text": "I have a natural curiosity about how and why things work the way they do. I often find myself taking things apart, asking questions about mechanisms, or researching to satisfy my curiosity.",
+      "category": "interests",
+      "dimension": "investigative"
+    },
+    {
+      "id": 10,
+      "text": "I enjoy and am effective at persuading others to consider my viewpoint or adopt my ideas. I find satisfaction in crafting compelling arguments and convincing others to see things from my perspective.",
+      "category": "social",
+      "dimension": "persuasive"
+    },
+    {
+      "id": 11,
+      "text": "I'm comfortable taking calculated risks after weighing potential benefits against possible negative outcomes. I don't mind stepping outside my comfort zone if there's potential for meaningful reward.",
+      "category": "work_style",
+      "dimension": "risk_tolerance"
+    },
+    {
+      "id": 12,
+      "text": "I feel a strong connection when working with plants, animals, or natural materials. I enjoy outdoor activities, environmental work, or projects that involve direct interaction with nature and natural elements.",
+      "category": "interests",
+      "dimension": "naturalistic"
+    },
+    {
+      "id": 13,
+      "text": "I prefer roles where I can directly help people with their problems or needs. I find it fulfilling to provide support, guidance, or assistance that makes a positive difference in others' lives.",
+      "category": "social",
+      "dimension": "helping"
+    },
+    {
+      "id": 14,
+      "text": "I have a talent for organizing information, events, or physical spaces in logical, efficient ways. I enjoy creating systems that bring order to chaos and help things run more smoothly.",
+      "category": "work_style",
+      "dimension": "organizational"
+    },
+    {
+      "id": 15,
+      "text": "I naturally pay close attention to details that others might overlook. I enjoy work that requires precision, careful checking, and ensuring that small elements are correct and properly aligned.",
+      "category": "work_style",
+      "dimension": "detail_oriented"
+    },
+    {
+      "id": 16,
+      "text": "I generally prefer working independently on tasks and projects rather than collaborating with a team. I find I can be more productive and satisfied when I have autonomy over my work process.",
+      "category": "social",
+      "dimension": "independence_vs_collaboration"
+    },
+    {
+      "id": 17,
+      "text": "I thrive when given opportunities to be creative and think outside conventional boundaries. I enjoy generating novel solutions, exploring uncharted territory, and breaking away from established patterns.",
+      "category": "problem_solving",
+      "dimension": "creative"
+    },
+    {
+      "id": 18,
+      "text": "I feel energized and motivated in competitive environments where there are clear winners and achievements to strive for. Competition brings out my best performance and effort.",
+      "category": "work_style",
+      "dimension": "competitive_vs_collaborative"
+    },
+    {
+      "id": 19,
+      "text": "I find satisfaction in building, fixing, or working with physical objects and mechanical systems. I enjoy hands-on work that involves assembling, constructing, or repairing tangible things.",
+      "category": "interests",
+      "dimension": "mechanical"
+    },
+    {
+      "id": 20,
+      "text": "I adapt easily to rapid changes, shifting priorities, and uncertain situations. Rather than feeling stressed by unpredictability, I'm comfortable adjusting my approach as circumstances evolve.",
+      "category": "work_style",
+      "dimension": "adaptability"
+    },
+    {
+      "id": 21,
+      "text": "I prefer having multiple projects or tasks in progress simultaneously rather than focusing exclusively on one thing until completion. I enjoy shifting between different activities throughout my day.",
+      "category": "work_style",
+      "dimension": "multitasking_vs_focus"
+    },
+    {
+      "id": 22,
+      "text": "I'm drawn to in-depth research and learning about topics that interest me. I enjoy diving deep into subjects, reading extensively, and developing comprehensive knowledge in specific areas.",
+      "category": "interests",
+      "dimension": "intellectual"
+    },
+    {
+      "id": 23,
+      "text": "I feel comfortable presenting ideas, speaking, or performing in front of groups. Public speaking or demonstration scenarios don't significantly intimidate me, and I may even enjoy such opportunities.",
+      "category": "social",
+      "dimension": "public_speaking"
+    },
+    {
+      "id": 24,
+      "text": "I strongly prefer work where I can see concrete, tangible results from my efforts. I feel most satisfied when I can point to specific outcomes or achievements that resulted directly from my work.",
+      "category": "work_style",
+      "dimension": "results_oriented"
+    },
+    {
+      "id": 25,
+      "text": "I enjoy working with numbers, statistics, and mathematical concepts. I'm comfortable with numerical analysis and find satisfaction in quantitative reasoning and mathematical problem-solving.",
+      "category": "interests",
+      "dimension": "numerical"
+    },
+    {
+      "id": 26,
+      "text": "Throughout my education and activities, I've often found myself naturally drawn to or selected for leadership positions. Others tend to look to me for direction and decision-making in group settings.",
+      "category": "social",
+      "dimension": "leadership"
+    },
+    {
+      "id": 27,
+      "text": "I thrive in environments that encourage innovation, experimentation, and the development of new ideas. I prefer settings that value creative thinking over rigid adherence to tradition and established methods.",
+      "category": "work_style",
+      "dimension": "innovative_vs_traditional"
+    },
+    {
+      "id": 28,
+      "text": "I enjoy activities that require strategic planning and the ability to anticipate future developments. I like thinking several steps ahead, developing long-term plans, and considering various potential scenarios.",
+      "category": "problem_solving",
+      "dimension": "strategic"
+    },
+    {
+      "id": 29,
+      "text": "I feel comfortable with and may enjoy activities related to sales, promotion, or entrepreneurship. I'm not afraid to take initiative in business contexts or to pursue opportunities for growth and development.",
+      "category": "interests",
+      "dimension": "enterprising"
+    },
+    {
+      "id": 30,
+      "text": "In all my work, I highly value precision and accuracy. I take pride in producing error-free results and am willing to invest extra time to ensure that my work meets exacting standards of correctness.",
+      "category": "work_style",
+      "dimension": "precision"
+    }
+  ],
+  "responseOptions": [
+    {
+      "value": 1,
+      "label": "Strongly Disagree"
+    },
+    {
+      "value": 2,
+      "label": "Disagree"
+    },
+    {
+      "value": 3,
+      "label": "Neutral"
+    },
+    {
+      "value": 4,
+      "label": "Agree"
+    },
+    {
+      "value": 5,
+      "label": "Strongly Agree"
+    }
+  ],
+  "scoringCategories": {
+    "realistic": [4, 12, 19, 24, 30],
+    "investigative": [6, 9, 15, 22, 25],
+    "artistic": [2, 17, 27],
+    "social": [3, 5, 13, 23, 26],
+    "enterprising": [10, 18, 26, 28, 29],
+    "conventional": [8, 14, 15, 30],
+    "technological": [7, 19, 25],
+    "collaboration": [3, 5, 13, 16],
+    "leadership": [3, 10, 26],
+    "creativity": [2, 17, 27],
+    "analytical": [1, 6, 9, 22, 25, 28]
+  },
+  "careerGroupings": {
+    "stem": {
+      "description": "Science, Technology, Engineering, and Mathematics careers involve applying analytical and technical knowledge to solve complex problems.",
+      "relevantCategories": [
+        "realistic",
+        "investigative",
+        "technological",
+        "analytical"
+      ],
+      "examplePaths": [
+        "Engineering",
+        "Data Science",
+        "Research",
+        "Medicine",
+        "Computer Science"
+      ]
+    },
+    "creative": {
+      "description": "Creative careers focus on design, expression, and innovative thinking to create new experiences, products, or artistic works.",
+      "relevantCategories": ["artistic", "creativity"],
+      "examplePaths": [
+        "Design",
+        "Architecture",
+        "Writing",
+        "Fine Arts",
+        "Music",
+        "Film"
+      ]
+    },
+    "business": {
+      "description": "Business careers involve analyzing opportunities, managing resources, and developing strategies to achieve organizational goals.",
+      "relevantCategories": [
+        "enterprising",
+        "conventional",
+        "leadership",
+        "analytical"
+      ],
+      "examplePaths": [
+        "Management",
+        "Marketing",
+        "Finance",
+        "Entrepreneurship",
+        "Consulting"
+      ]
+    },
+    "service": {
+      "description": "Service careers focus on directly helping others, teaching, or improving people's wellbeing through direct interaction.",
+      "relevantCategories": ["social", "collaboration"],
+      "examplePaths": [
+        "Education",
+        "Healthcare",
+        "Social Work",
+        "Counseling",
+        "Public Service"
+      ]
+    }
+  }
+}

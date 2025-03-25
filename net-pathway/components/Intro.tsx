@@ -257,13 +257,13 @@ const Intro = () => {
   ];
 
   // Partner logos simplifying to text elements
-  const partners = [
-    "ALU",
-    "ALX",
-    "Google Developers",
-    "Mastercard ",
-    "Google Startups",
-  ];
+  // const partners = [
+  //   "ALU",
+  //   "ALX",
+  //   "Google Developers",
+  //   "Mastercard ",
+  //   "Google Startups",
+  // ];
 
   // Feature rotation
   useEffect(() => {
@@ -461,7 +461,7 @@ const Intro = () => {
       </section>
 
       {/* Partners Section - Simplified */}
-      <section className="py-16 px-6 lg:px-8 bg-gradient-to-r from-sky-50 to-purple-50">
+      {/* <section className="py-16 px-6 lg:px-8 bg-gradient-to-r from-sky-50 to-purple-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-800 mb-2">
@@ -483,7 +483,7 @@ const Intro = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Call to Action Section */}
       <section className="py-20 px-6 lg:px-8 bg-white relative">
