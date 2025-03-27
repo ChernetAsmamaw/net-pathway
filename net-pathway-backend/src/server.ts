@@ -10,6 +10,8 @@ import { adminStatisticsRouter } from "./routes/admin.statistics.routes";
 import { profileImageRouter } from "./routes/profile.image.routes";
 import { discussionRouter } from "./routes/discussion.routes";
 import { assessmentRouter } from "./routes/assessment.routes";
+import { langchainProgramMatchingRouter } from "./routes/langchain.program.matching.routes";
+import { chatRouter } from "./routes/chat.routes";
 
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -58,6 +60,8 @@ app.use("/api/admin/statistics", adminStatisticsRouter);
 app.use("/api/profile/image", profileImageRouter);
 app.use("/api/discussions", discussionRouter);
 app.use("/api/assessment", assessmentRouter);
+app.use("/api/langchain-matching", langchainProgramMatchingRouter);
+app.use("/api/chat", chatRouter);
 
 // Health check route
 app.get("/", (req, res) => {

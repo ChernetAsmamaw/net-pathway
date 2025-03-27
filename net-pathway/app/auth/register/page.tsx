@@ -4,10 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, User } from "lucide-react";
+import { Mail, Lock, User, FileText, Check } from "lucide-react";
 import { FcGoogle } from "@react-icons/all-files/fc/FcGoogle";
 import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "react-hot-toast";
+
+// Import the Terms Agreement Dialog component
+// This import assumes you've created the component at this path
+import TermsAgreementDialog from "@/components/auth/TermsAgreementDialog";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,10 +23,21 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
 
+  // Add state for terms agreement
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
+
   const { register } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Check terms acceptance first
+    if (!termsAccepted) {
+      toast.error("You must accept the Terms of Service to register");
+      setIsTermsDialogOpen(true);
+      return;
+    }
 
     // Validate form
     if (formData.password !== formData.confirmPassword) {
@@ -66,6 +81,13 @@ export default function RegisterPage() {
   };
 
   const handleGoogleLogin = () => {
+    // Check terms acceptance first
+    if (!termsAccepted) {
+      toast.error("You must accept the Terms of Service to continue");
+      setIsTermsDialogOpen(true);
+      return;
+    }
+
     window.location.href = "http://localhost:5000/api/users/auth/google";
   };
 
@@ -194,8 +216,45 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Terms Agreement Section */}
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => setIsTermsDialogOpen(true)}
+                className="inline-flex items-center text-sky-600 hover:text-sky-800 gap-1.5 text-sm"
+              >
+                <FileText className="h-4 w-4" />
+                Terms of Service &amp; Privacy Policy
+              </button>
+
+              <div className="mt-3 flex items-center">
+                <div
+                  onClick={() => setTermsAccepted(!termsAccepted)}
+                  className={`flex items-center gap-2 cursor-pointer rounded-md p-1 ${
+                    termsAccepted ? "text-sky-700" : "text-gray-500"
+                  }`}
+                >
+                  <div
+                    className={`h-5 w-5 rounded flex items-center justify-center border ${
+                      termsAccepted
+                        ? "bg-sky-100 border-sky-500"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {termsAccepted && (
+                      <Check className="h-4 w-4 text-sky-600" />
+                    )}
+                  </div>
+                  <span className="text-sm text-gray-700">
+                    I have read and agree to the Terms of Service & Privacy
+                    Policy
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <button
-              disabled={isLoading}
+              disabled={isLoading || !termsAccepted}
               type="submit"
               className="w-full py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-sky-700 hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -240,6 +299,14 @@ export default function RegisterPage() {
           </form>
         </div>
       </div>
+
+      {/* Terms Agreement Dialog */}
+      <TermsAgreementDialog
+        isOpen={isTermsDialogOpen}
+        onClose={() => setIsTermsDialogOpen(false)}
+        accepted={termsAccepted}
+        onAccept={setTermsAccepted}
+      />
     </div>
   );
 }

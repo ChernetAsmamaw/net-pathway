@@ -166,29 +166,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           authChecked: true,
         });
 
-        // Show verification notification if not auto-verified (like for admins)
-        if (!response.data.user.isEmailVerified) {
-          // Send verification email automatically after registration
-          try {
-            await axios.post(
-              `${API_URL}/verification/send`,
-              {},
-              {
-                withCredentials: true,
-              }
-            );
-            toast.success(
-              "Verification email sent! Please check your inbox to verify your account."
-            );
-          } catch (verificationError) {
-            console.error(
-              "Failed to send initial verification email:",
-              verificationError
-            );
-            toast.info("Please verify your email through your profile page.");
-          }
-        }
-
         return {
           success: true,
           isAdmin: response.data.user.role === "admin",

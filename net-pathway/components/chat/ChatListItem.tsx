@@ -1,0 +1,103 @@
+// components/chat/ChatListItem.tsx
+import React from "react";
+import { Chat } from "@/store/useChatStore";
+import { formatDistanceToNow } from "date-fns";
+
+interface ChatListItemProps {
+  chat: Chat;
+  currentUserId: string;
+  onClick: () => void;
+}
+
+const ChatListItem: React.FC<ChatListItemProps> = ({
+  chat,
+  currentUserId,
+  onClick,
+}) => {
+  // Determine if this user has unread messages
+  const hasUnread = chat.unreadBy.includes(currentUserId);
+
+  // Get the other user in the conversation
+  const otherUser =
+    currentUserId === chat.initiator._id ? chat.mentor : chat.initiator;
+
+  // Get last message if any
+  const lastMessage =
+    chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
+
+  // Format time
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    } catch (error) {
+      return "recently";
+    }
+  };
+
+  return (
+    <div
+      onClick={onClick}
+      className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+        hasUnread ? "bg-sky-50" : ""
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        {/* Avatar */}
+        <div className="relative flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-sky-100 to-purple-100 flex items-center justify-center overflow-hidden">
+            {otherUser.profilePicture ? (
+              <img
+                src={otherUser.profilePicture}
+                alt={otherUser.username}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-lg font-bold text-sky-700">
+                {otherUser.username.charAt(0)}
+              </span>
+            )}
+          </div>
+
+          {/* Unread indicator */}
+          {hasUnread && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-sky-500 rounded-full border-2 border-white"></div>
+          )}
+        </div>
+
+        <div className="flex-grow min-w-0">
+          <div className="flex justify-between items-start">
+            <h3
+              className={`font-medium text-gray-900 truncate ${
+                hasUnread ? "font-semibold" : ""
+              }`}
+            >
+              {otherUser.username}
+            </h3>
+            <span className="text-xs text-gray-500">
+              {lastMessage
+                ? formatTime(lastMessage.createdAt)
+                : formatTime(chat.createdAt)}
+            </span>
+          </div>
+
+          <p className="text-sm text-gray-600 line-clamp-1">
+            {chat.mentorProfile.title} · {chat.mentorProfile.company}
+          </p>
+
+          {lastMessage && (
+            <p
+              className={`text-sm line-clamp-1 mt-1 ${
+                hasUnread ? "text-gray-900 font-medium" : "text-gray-500"
+              }`}
+            >
+              {lastMessage.sender._id === currentUserId ? "You: " : ""}
+              {lastMessage.content}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatListItem;

@@ -168,16 +168,17 @@ export default function DiscussionsPage() {
                 )}
               </button>
 
-              <select
-                value={filters.sort}
-                onChange={(e) => handleSortChange(e.target.value as any)}
-                className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
-              >
-                <option value="latest">Latest</option>
-                <option value="activity">Most Active</option>
-                <option value="popular">Popular</option>
-                <option value="oldest">Oldest</option>
-              </select>
+              <div className="px-2 py-4 rounded-lg border border-gray-200 bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <select
+                  value={filters.sort}
+                  onChange={(e) => handleSortChange(e.target.value as any)}
+                >
+                  <option value="latest">Latest</option>
+                  <option value="activity">Most Active</option>
+                  <option value="popular">Popular</option>
+                  <option value="oldest">Oldest</option>
+                </select>
+              </div>
 
               <button
                 onClick={() => toggleUserDiscussions(false)}

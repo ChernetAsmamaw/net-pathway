@@ -9,8 +9,6 @@ import {
   Briefcase,
   Users,
   MessagesSquare,
-  // GraduationCap,
-  Settings,
   Target,
   ChevronLeft,
   ChevronRight,
@@ -28,7 +26,6 @@ const getNavigation = (isAdmin: boolean) => {
     { name: "Mentorship", href: "/mentorship", icon: Users },
     { name: "Blogs", href: "/blogs", icon: Briefcase },
     { name: "Discussion Board", href: "/discussions", icon: MessagesSquare },
-    { name: "Profile Settings", href: "/profile", icon: Settings },
   ];
 
   // Add admin dashboard link for admin users

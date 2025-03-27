@@ -94,10 +94,10 @@ export default function DiscussionCard({
               <Users className="w-4 h-4" />
               <span>{discussion.participants.length}</span>
             </div>
-            <div className="flex items-center gap-1">
+            {/* <div className="flex items-center gap-1">
               <MessageSquare className="w-4 h-4" />
               <span>{messagesCount}</span>
-            </div>
+            </div> */}
           </div>
           <div className="flex items-center gap-1 text-gray-500 text-sm">
             <Clock className="w-4 h-4" />

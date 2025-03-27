@@ -1,0 +1,3885 @@
+{
+  "universities": [
+    {
+      "id": "aau",
+      "name": "Addis Ababa University",
+      "location": "Addis Ababa, Ethiopia",
+      "website": "http://www.aau.edu.et",
+      "description": "The oldest and largest university in Ethiopia, offering a wide range of programs.",
+      "logoUrl": "/universities/aau-logo.png",
+      "generalRequirements": [
+        "High school diploma or equivalent",
+        "Satisfactory score on the Ethiopian University Entrance Examination",
+        "Specific requirements may vary by program"
+      ],
+      "departments": [
+        {
+          "id": "medicine",
+          "name": "College of Health Sciences",
+          "description": "Dedicated to advancing health through education, research, and service.",
+          "programs": [
+            {
+              "id": "medicine",
+              "name": "Doctor of Medicine (MD)",
+              "description": "A comprehensive program to train future medical professionals.",
+              "duration": "6 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "35,000 ETB per year",
+              "applicationDeadline": "June 30, 2025",
+              "entryRequirements": [
+                "Minimum GPA in relevant science subjects",
+                "Successful completion of pre-medical courses"
+              ],
+              "highlights": [
+                "Clinical rotations in major hospitals",
+                "Research opportunities",
+                "Experienced faculty"
+              ],
+              "courses": [
+                "Anatomy",
+                "Physiology",
+                "Pharmacology",
+                "Internal Medicine",
+                "Surgery"
+              ],
+              "careerOpportunities": [
+                "General Practitioner",
+                "Specialist Physician",
+                "Medical Researcher",
+                "Public Health Officer"
+              ],
+              "professors": [
+                "Dr. Yonas Kebede - Internal Medicine",
+                "Prof. Aster Tsegaye - Surgery"
+              ],
+              "tags": ["medicine", "health", "clinical"]
+            },
+            {
+              "id": "nursing",
+              "name": "Bachelor of Science in Nursing",
+              "description": "Focuses on providing high-quality nursing care and leadership.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "30,000 ETB per year",
+              "applicationDeadline": "June 30, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Interest in patient care"
+              ],
+              "highlights": [
+                "Hands-on clinical practice",
+                "Community health nursing",
+                "Patient education"
+              ],
+              "courses": [
+                "Fundamentals of Nursing",
+                "Medical-Surgical Nursing",
+                "Pediatric Nursing",
+                "Maternal and Child Health"
+              ],
+              "careerOpportunities": [
+                "Registered Nurse",
+                "Nurse Practitioner",
+                "Public Health Nurse",
+                "Clinical Nurse Specialist"
+              ],
+              "professors": [
+                "Dr. Selamawit Lemma - Nursing Science",
+                "Prof. Tesfaye Mekonnen - Community Health"
+              ],
+              "tags": ["nursing", "healthcare", "patient care"]
+            }
+          ]
+        },
+        {
+          "id": "engineering",
+          "name": "Faculty of Engineering",
+          "description": "Committed to excellence in engineering education and research.",
+          "programs": [
+            {
+              "id": "civil-engineering",
+              "name": "Bachelor of Science in Civil Engineering",
+              "description": "Deals with the design, construction, and maintenance of the physical and naturally built environment.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "40,000 ETB per year",
+              "applicationDeadline": "May 31, 2025",
+              "entryRequirements": [
+                "Strong background in Mathematics and Physics",
+                "Minimum GPA in relevant subjects"
+              ],
+              "highlights": [
+                "Design projects",
+                "Site visits",
+                "Use of modern engineering software"
+              ],
+              "courses": [
+                "Structural Analysis",
+                "Geotechnical Engineering",
+                "Hydraulic Engineering",
+                "Transportation Engineering"
+              ],
+              "careerOpportunities": [
+                "Civil Engineer",
+                "Structural Engineer",
+                "Construction Manager",
+                "Transportation Planner"
+              ],
+              "professors": [
+                "Dr. Alemayehu Beyene - Structural Engineering",
+                "Prof. Tigist Haile - Geotechnical Engineering"
+              ],
+              "tags": ["civil engineering", "construction", "infrastructure"]
+            },
+            {
+              "id": "electrical-engineering",
+              "name": "Bachelor of Science in Electrical Engineering",
+              "description": "Focuses on the design, development, and testing of electrical equipment.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "40,000 ETB per year",
+              "applicationDeadline": "May 31, 2025",
+              "entryRequirements": [
+                "Strong background in Mathematics and Physics",
+                "Minimum GPA in relevant subjects"
+              ],
+              "highlights": [
+                "Laboratory work",
+                "Simulation software",
+                "Industry internships"
+              ],
+              "courses": [
+                "Circuit Theory",
+                "Electromagnetics",
+                "Power Systems",
+                "Control Systems"
+              ],
+              "careerOpportunities": [
+                "Electrical Engineer",
+                "Power Engineer",
+                "Electronics Engineer",
+                "Control Systems Engineer"
+              ],
+              "professors": [
+                "Dr. Solomon Getachew - Power Systems",
+                "Prof. Hiwot Tesfaye - Electronics"
+              ],
+              "tags": ["electrical engineering", "power", "electronics"]
+            },
+            {
+              "id": "computer-science",
+              "name": "Bachelor of Science in Computer Science",
+              "description": "Deals with the theory and application of computation and computer technology.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "38,000 ETB per year",
+              "applicationDeadline": "May 31, 2025",
+              "entryRequirements": [
+                "Strong background in Mathematics",
+                "Interest in programming and problem-solving"
+              ],
+              "highlights": [
+                "Software development projects",
+                "Algorithm design",
+                "Database management"
+              ],
+              "courses": [
+                "Programming Fundamentals",
+                "Data Structures and Algorithms",
+                "Database Systems",
+                "Operating Systems"
+              ],
+              "careerOpportunities": [
+                "Software Developer",
+                "Data Scientist",
+                "Web Developer",
+                "System Analyst"
+              ],
+              "professors": [
+                "Dr. Abebe Lemma - Algorithms",
+                "Prof. Rahel Tadesse - Database Systems"
+              ],
+              "tags": ["computer science", "software", "programming"]
+            }
+          ]
+        },
+        {
+          "id": "business",
+          "name": "College of Business and Economics",
+          "description": "Provides quality education in business and economics to develop future leaders.",
+          "programs": [
+            {
+              "id": "accounting",
+              "name": "Bachelor of Arts in Accounting",
+              "description": "Focuses on the principles and practices of financial and management accounting.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "30,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in finance and business"
+              ],
+              "highlights": ["Financial analysis", "Auditing", "Taxation"],
+              "courses": [
+                "Financial Accounting",
+                "Management Accounting",
+                "Auditing Principles",
+                "Taxation"
+              ],
+              "careerOpportunities": [
+                "Accountant",
+                "Auditor",
+                "Financial Analyst",
+                "Tax Consultant"
+              ],
+              "professors": [
+                "Dr. Hana Getachew - Financial Accounting",
+                "Prof. Dawit Solomon - Auditing"
+              ],
+              "tags": ["accounting", "finance", "business"]
+            },
+            {
+              "id": "management",
+              "name": "Bachelor of Arts in Management",
+              "description": "Deals with the principles and practices of planning, organizing, leading, and controlling resources.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "30,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in leadership and organization"
+              ],
+              "highlights": [
+                "Strategic management",
+                "Human resource management",
+                "Marketing"
+              ],
+              "courses": [
+                "Principles of Management",
+                "Human Resource Management",
+                "Marketing Management",
+                "Strategic Management"
+              ],
+              "careerOpportunities": [
+                "Manager",
+                "Administrator",
+                "Business Analyst",
+                "Entrepreneur"
+              ],
+              "professors": [
+                "Dr. Martha Lemma - Human Resource Management",
+                "Prof. Solomon Teshome - Marketing"
+              ],
+              "tags": ["management", "leadership", "business"]
+            }
+          ]
+        },
+        {
+          "id": "law",
+          "name": "School of Law",
+          "description": "Dedicated to providing comprehensive legal education.",
+          "programs": [
+            {
+              "id": "law",
+              "name": "Bachelor of Laws (LLB)",
+              "description": "A program covering the fundamental principles of law.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "28,000 ETB per year",
+              "applicationDeadline": "July 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Strong analytical and writing skills"
+              ],
+              "highlights": [
+                "Moot court competitions",
+                "Legal clinics",
+                "Internships"
+              ],
+              "courses": [
+                "Constitutional Law",
+                "Criminal Law",
+                "Contract Law",
+                "Property Law"
+              ],
+              "careerOpportunities": [
+                "Lawyer",
+                "Judge",
+                "Legal Advisor",
+                "Prosecutor"
+              ],
+              "professors": [
+                "Dr. Tadesse Getu - Constitutional Law",
+                "Prof. Selam Tesfaye - Criminal Law"
+              ],
+              "tags": ["law", "legal", "jurisprudence"]
+            }
+          ]
+        },
+        {
+          "id": "agriculture",
+          "name": "College of Agriculture",
+          "description": "Focuses on agricultural science and sustainable development.",
+          "programs": [
+            {
+              "id": "agronomy",
+              "name": "Bachelor of Science in Agronomy",
+              "description": "Deals with the science and technology of producing and using plants for food, fuel, feed, and fiber.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "25,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Interest in agriculture"
+              ],
+              "highlights": ["Fieldwork", "Research farms", "Crop science"],
+              "courses": [
+                "Crop Production",
+                "Soil Science",
+                "Plant Breeding",
+                "Pest and Disease Management"
+              ],
+              "careerOpportunities": [
+                "Agronomist",
+                "Farm Manager",
+                "Agricultural Consultant",
+                "Plant Breeder"
+              ],
+              "professors": [
+                "Dr. Kebede Lemma - Crop Science",
+                "Prof. Aster Solomon - Soil Science"
+              ],
+              "tags": ["agriculture", "crops", "farming"]
+            },
+            {
+              "id": "animal-science",
+              "name": "Bachelor of Science in Animal Science",
+              "description": "Focuses on the biology and management of domestic animals.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "25,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Interest in animal husbandry"
+              ],
+              "highlights": [
+                "Animal nutrition",
+                "Breeding and genetics",
+                "Livestock management"
+              ],
+              "courses": [
+                "Animal Nutrition",
+                "Animal Breeding",
+                "Animal Physiology",
+                "Livestock Production"
+              ],
+              "careerOpportunities": [
+                "Animal Scientist",
+                "Livestock Manager",
+                "Dairy Farmer",
+                "Veterinary Technician"
+              ],
+              "professors": [
+                "Dr. Tesfaye Kebede - Animal Nutrition",
+                "Prof. Rahel Getachew - Animal Breeding"
+              ],
+              "tags": ["animal science", "livestock", "farming"]
+            }
+          ]
+        },
+        {
+          "id": "social-sciences",
+          "name": "College of Social Sciences",
+          "description": "Offers programs that explore human society and social relationships.",
+          "programs": [
+            {
+              "id": "economics",
+              "name": "Bachelor of Arts in Economics",
+              "description": "Studies the production, distribution, and consumption of goods and services.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "26,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in social and economic issues"
+              ],
+              "highlights": [
+                "Economic theory",
+                "Econometrics",
+                "Development economics"
+              ],
+              "courses": [
+                "Microeconomics",
+                "Macroeconomics",
+                "Econometrics",
+                "Development Economics"
+              ],
+              "careerOpportunities": [
+                "Economist",
+                "Market Analyst",
+                "Financial Analyst",
+                "Policy Advisor"
+              ],
+              "professors": [
+                "Dr. Getachew Tadesse - Macroeconomics",
+                "Prof. Hana Lemma - Development Economics"
+              ],
+              "tags": ["economics", "finance", "policy"]
+            },
+            {
+              "id": "political-science",
+              "name": "Bachelor of Arts in Political Science",
+              "description": "Examines the theory and practice of politics and the description and analysis of political systems and political behavior.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "26,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in politics and governance"
+              ],
+              "highlights": [
+                "Political theory",
+                "International relations",
+                "Comparative politics"
+              ],
+              "courses": [
+                "Introduction to Political Science",
+                "Political Theory",
+                "International Relations",
+                "Comparative Politics"
+              ],
+              "careerOpportunities": [
+                "Political Analyst",
+                "Policy Advisor",
+                "Diplomat",
+                "Researcher"
+              ],
+              "professors": [
+                "Dr. Lemma Getu - Political Theory",
+                "Prof. Tigist Teshome - International Relations"
+              ],
+              "tags": ["political science", "politics", "governance"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ju",
+      "name": "Jimma University",
+      "location": "Jimma, Ethiopia",
+      "website": "http://www.ju.edu.et",
+      "description": "A public university known for its strong programs in agriculture and health sciences.",
+      "logoUrl": "/universities/ju-logo.png",
+      "generalRequirements": [
+        "High school diploma or equivalent",
+        "Passing score on the Ethiopian Higher Education Entrance Examination",
+        "Specific prerequisites for certain programs"
+      ],
+      "departments": [
+        {
+          "id": "agriculture",
+          "name": "College of Agriculture and Veterinary Medicine",
+          "description": "Dedicated to advancing agricultural practices and animal health.",
+          "programs": [
+            {
+              "id": "plant-science",
+              "name": "Bachelor of Science in Plant Science",
+              "description": "Focuses on the biology, genetics, and cultivation of plants.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "23,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA in biology and chemistry",
+                "Interest in plant life"
+              ],
+              "highlights": [
+                "Greenhouse studies",
+                "Crop improvement techniques",
+                "Plant pathology"
+              ],
+              "courses": [
+                "Botany",
+                "Genetics",
+                "Crop Physiology",
+                "Plant Pathology"
+              ],
+              "careerOpportunities": [
+                "Plant Breeder",
+                "Agricultural Researcher",
+                "Crop Consultant",
+                "Horticulturist"
+              ],
+              "professors": [
+                "Dr. Abebe Haile - Plant Breeding",
+                "Prof. Selamawit Tadesse - Plant Pathology"
+              ],
+              "tags": ["plant science", "agriculture", "botany"]
+            },
+            {
+              "id": "veterinary-medicine",
+              "name": "Doctor of Veterinary Medicine (DVM)",
+              "description": "Trains professionals in the diagnosis, treatment, and prevention of animal diseases.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "28,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Strong background in biology and chemistry",
+                "Passion for animal welfare"
+              ],
+              "highlights": [
+                "Animal surgery",
+                "Clinical practice",
+                "Animal health management"
+              ],
+              "courses": [
+                "Animal Anatomy",
+                "Animal Physiology",
+                "Veterinary Pathology",
+                "Veterinary Surgery"
+              ],
+              "careerOpportunities": [
+                "Veterinarian",
+                "Animal Health Inspector",
+                "Research Scientist",
+                "Livestock Specialist"
+              ],
+              "professors": [
+                "Dr. Tesfaye Lemma - Veterinary Surgery",
+                "Prof. Hiwot Getachew - Animal Physiology"
+              ],
+              "tags": ["veterinary medicine", "animals", "health"]
+            }
+          ]
+        },
+        {
+          "id": "health-sciences",
+          "name": "College of Public Health and Medical Sciences",
+          "description": "Committed to improving public health through education and research.",
+          "programs": [
+            {
+              "id": "public-health",
+              "name": "Bachelor of Science in Public Health",
+              "description": "Focuses on preventing disease and promoting health in communities.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "25,000 ETB per year",
+              "applicationDeadline": "June 5, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science or social science subjects",
+                "Interest in community health"
+              ],
+              "highlights": [
+                "Epidemiology",
+                "Biostatistics",
+                "Health promotion"
+              ],
+              "courses": [
+                "Introduction to Public Health",
+                "Epidemiology",
+                "Biostatistics",
+                "Environmental Health"
+              ],
+              "careerOpportunities": [
+                "Public Health Officer",
+                "Health Educator",
+                "Epidemiologist",
+                "Health Program Manager"
+              ],
+              "professors": [
+                "Dr. Rahel Solomon - Epidemiology",
+                "Prof. Abebe Tadesse - Public Health"
+              ],
+              "tags": ["public health", "community", "prevention"]
+            },
+            {
+              "id": "midwifery",
+              "name": "Bachelor of Science in Midwifery",
+              "description": "Trains professionals to provide care for women during pregnancy, childbirth, and the postpartum period.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "24,000 ETB per year",
+              "applicationDeadline": "June 5, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Compassion for maternal and child health"
+              ],
+              "highlights": [
+                "Antenatal care",
+                "Delivery management",
+                "Postnatal care"
+              ],
+              "courses": [
+                "Fundamentals of Midwifery",
+                "Antenatal Care",
+                "Intrapartum Care",
+                "Postpartum and Newborn Care"
+              ],
+              "careerOpportunities": [
+                "Midwife",
+                "Maternal Health Nurse",
+                "Reproductive Health Specialist"
+              ],
+              "professors": [
+                "Dr. Tigist Lemma - Midwifery Practice",
+                "Prof. Yonas Haile - Maternal Health"
+              ],
+              "tags": ["midwifery", "maternal health", "childbirth"]
+            }
+          ]
+        },
+        {
+          "id": "education",
+          "name": "College of Education and Behavioral Sciences",
+          "description": "Dedicated to training qualified educators and advancing educational research.",
+          "programs": [
+            {
+              "id": "teacher-education",
+              "name": "Bachelor of Education in Primary Education",
+              "description": "Prepares teachers for primary school levels.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "July 10, 2025",
+              "entryRequirements": ["Minimum GPA", "Passion for teaching"],
+              "highlights": [
+                "Teaching methodologies",
+                "Child psychology",
+                "Classroom management"
+              ],
+              "courses": [
+                "Educational Psychology",
+                "Curriculum Development",
+                "Teaching Methods",
+                "Classroom Management"
+              ],
+              "careerOpportunities": [
+                "Primary School Teacher",
+                "Educational Administrator"
+              ],
+              "professors": [
+                "Dr. Martha Solomon - Educational Psychology",
+                "Prof. Dawit Tadesse - Curriculum Studies"
+              ],
+              "tags": ["education", "teaching", "primary"]
+            },
+            {
+              "id": "special-needs-education",
+              "name": "Bachelor of Education in Special Needs Education",
+              "description": "Focuses on teaching students with diverse learning needs.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "July 10, 2025",
+              "entryRequirements": ["Minimum GPA", "Empathy and patience"],
+              "highlights": [
+                "Inclusive education strategies",
+                "Assessment and intervention",
+                "Assistive technologies"
+              ],
+              "courses": [
+                "Introduction to Special Needs Education",
+                "Assessment and Diagnosis",
+                "Instructional Strategies",
+                "Assistive Technology"
+              ],
+              "careerOpportunities": [
+                "Special Needs Teacher",
+                "Educational Consultant"
+              ],
+              "professors": [
+                "Dr. Solomon Lemma - Special Education",
+                "Prof. Rahel Haile - Inclusive Education"
+              ],
+              "tags": ["education", "special needs", "inclusion"]
+            }
+          ]
+        },
+        {
+          "id": "business-economics",
+          "name": "College of Business and Economics",
+          "description": "Provides education in business, economics, and management.",
+          "programs": [
+            {
+              "id": "economics",
+              "name": "Bachelor of Arts in Economics",
+              "description": "Studies economic principles and their application to real-world problems.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in economic issues"
+              ],
+              "highlights": [
+                "Economic modeling",
+                "Policy analysis",
+                "Development economics"
+              ],
+              "courses": [
+                "Microeconomic Theory",
+                "Macroeconomic Theory",
+                "Development Economics",
+                "Econometrics"
+              ],
+              "careerOpportunities": [
+                "Economist",
+                "Market Research Analyst",
+                "Financial Planner"
+              ],
+              "professors": [
+                "Dr. Hana Tadesse - Economic Policy",
+                "Prof. Abebe Solomon - Microeconomics"
+              ],
+              "tags": ["economics", "policy", "development"]
+            },
+            {
+              "id": "marketing-management",
+              "name": "Bachelor of Arts in Marketing Management",
+              "description": "Focuses on strategies for promoting and selling products and services.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Creativity and communication skills"
+              ],
+              "highlights": [
+                "Market research",
+                "Advertising and promotion",
+                "Brand management"
+              ],
+              "courses": [
+                "Principles of Marketing",
+                "Consumer Behavior",
+                "Marketing Research",
+                "Advertising and Promotion"
+              ],
+              "careerOpportunities": [
+                "Marketing Manager",
+                "Brand Manager",
+                "Advertising Executive",
+                "Market Research Analyst"
+              ],
+              "professors": [
+                "Dr. Solomon Getu - Marketing Strategy",
+                "Prof. Rahel Lemma - Consumer Behavior"
+              ],
+              "tags": ["marketing", "management", "advertising"]
+            }
+          ]
+        },
+        {
+          "id": "engineering-technology",
+          "name": "Faculty of Engineering and Technology",
+          "description": "Offers programs in various fields of engineering and technology.",
+          "programs": [
+            {
+              "id": "mechanical-engineering",
+              "name": "Bachelor of Science in Mechanical Engineering",
+              "description": "Deals with the design, development, and manufacturing of mechanical devices and systems.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "26,000 ETB per year",
+              "applicationDeadline": "May 30, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and physics",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Thermodynamics",
+                "Fluid mechanics",
+                "Machine design"
+              ],
+              "courses": [
+                "Engineering Mechanics",
+                "Thermodynamics",
+                "Fluid Mechanics",
+                "Machine Design"
+              ],
+              "careerOpportunities": [
+                "Mechanical Engineer",
+                "Design Engineer",
+                "Manufacturing Engineer",
+                "Thermal Engineer"
+              ],
+              "professors": [
+                "Dr. Tesfaye Haile - Thermodynamics",
+                "Prof. Hiwot Solomon - Machine Design"
+              ],
+              "tags": ["mechanical engineering", "design", "manufacturing"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bdu",
+      "name": "Bahir Dar University",
+      "location": "Bahir Dar, Ethiopia",
+      "website": "http://www.bdu.edu.et",
+      "description": "One of the largest universities in Ethiopia, with a focus on research and community engagement.",
+      "logoUrl": "/universities/bdu-logo.png",
+      "generalRequirements": [
+        "Completion of secondary education",
+        "Successful score on the national university entrance exam",
+        "Meeting specific program requirements"
+      ],
+      "departments": [
+        {
+          "id": "education",
+          "name": "Faculty of Education",
+          "description": "Committed to producing qualified and ethical educators.",
+          "programs": [
+            {
+              "id": "english-language-teaching",
+              "name": "Bachelor of Arts in English Language and Literature with Teacher Education",
+              "description": "Prepares graduates to teach English at various levels.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "July 5, 2025",
+              "entryRequirements": ["Good command of English", "Minimum GPA"],
+              "highlights": [
+                "Language teaching methodologies",
+                "Literature analysis",
+                "Practical teaching experience"
+              ],
+              "courses": [
+                "English Grammar",
+                "Introduction to Literature",
+                "Teaching English as a Foreign Language",
+                "Curriculum and Instruction"
+              ],
+              "careerOpportunities": [
+                "English Teacher",
+                "Language Instructor",
+                "Curriculum Developer"
+              ],
+              "professors": [
+                "Dr. Aster Lemma - Applied Linguistics",
+                "Prof. Solomon Haile - English Literature"
+              ],
+              "tags": ["education", "english", "teaching"]
+            },
+            {
+              "id": "geography-environmental-studies",
+              "name": "Bachelor of Arts in Geography and Environmental Studies with Teacher Education",
+              "description": "Focuses on the study of Earth's surface, its features, inhabitants, and phenomena.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "July 5, 2025",
+              "entryRequirements": [
+                "Interest in geography and environmental issues",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Geographic information systems (GIS)",
+                "Environmental conservation",
+                "Fieldwork"
+              ],
+              "courses": [
+                "Physical Geography",
+                "Human Geography",
+                "Environmental Science",
+                "Remote Sensing and GIS"
+              ],
+              "careerOpportunities": [
+                "Geography Teacher",
+                "Environmental Consultant",
+                "Urban Planner"
+              ],
+              "professors": [
+                "Dr. Tigist Getachew - Environmental Geography",
+                "Prof. Abebe Lemma - Urban Geography"
+              ],
+              "tags": ["education", "geography", "environment"]
+            }
+          ]
+        },
+        {
+          "id": "business-economics",
+          "name": "Faculty of Business and Economics",
+          "description": "Offers programs designed to produce skilled professionals in business and economics.",
+          "programs": [
+            {
+              "id": "economics",
+              "name": "Bachelor of Science in Economics",
+              "description": "Provides a strong foundation in economic theory and analysis.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": ["Strong analytical skills", "Minimum GPA"],
+              "highlights": [
+                "Econometric methods",
+                "Macroeconomic policy",
+                "Microeconomic theory"
+              ],
+              "courses": [
+                "Mathematical Economics",
+                "Intermediate Microeconomics",
+                "Intermediate Macroeconomics",
+                "Econometrics"
+              ],
+              "careerOpportunities": [
+                "Economist",
+                "Financial Analyst",
+                "Market Researcher",
+                "Policy Analyst"
+              ],
+              "professors": [
+                "Dr. Yonas Solomon - Macroeconomic Policy",
+                "Prof. Rahel Tadesse - Microeconomic Theory"
+              ],
+              "tags": ["business", "economics", "finance"]
+            },
+            {
+              "id": "management",
+              "name": "Bachelor of Arts in Management",
+              "description": "Focuses on the principles and practices of effective organizational management.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": ["Leadership potential", "Minimum GPA"],
+              "highlights": [
+                "Strategic planning",
+                "Human resource management",
+                "Operations management"
+              ],
+              "courses": [
+                "Principles of Management",
+                "Organizational Behavior",
+                "Human Resource Management",
+                "Operations Management"
+              ],
+              "careerOpportunities": [
+                "Manager",
+                "Business Administrator",
+                "Project Manager",
+                "Human Resources Specialist"
+              ],
+              "professors": [
+                "Dr. Martha Haile - Organizational Behavior",
+                "Prof. Abebe Getachew - Strategic Management"
+              ],
+              "tags": ["business", "management", "leadership"]
+            }
+          ]
+        },
+        {
+          "id": "engineering",
+          "name": "Faculty of Engineering",
+          "description": "Offers a range of engineering disciplines to address societal needs.",
+          "programs": [
+            {
+              "id": "water-resources-engineering",
+              "name": "Bachelor of Science in Water Resources and Irrigation Engineering",
+              "description": "Focuses on the sustainable management and development of water resources.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "24,000 ETB per year",
+              "applicationDeadline": "May 20, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and physics",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Hydrology",
+                "Irrigation design",
+                "Water quality management"
+              ],
+              "courses": [
+                "Fluid Mechanics",
+                "Hydrology",
+                "Irrigation Engineering",
+                "Water Resources Management"
+              ],
+              "careerOpportunities": [
+                "Water Resources Engineer",
+                "Irrigation Engineer",
+                "Hydrologist",
+                "Environmental Engineer"
+              ],
+              "professors": [
+                "Dr. Solomon Lemma - Hydrology",
+                "Prof. Tigist Tadesse - Irrigation Engineering"
+              ],
+              "tags": ["engineering", "water resources", "irrigation"]
+            },
+            {
+              "id": "chemical-engineering",
+              "name": "Bachelor of Science in Chemical Engineering",
+              "description": "Deals with the design and operation of industrial chemical processes.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "24,000 ETB per year",
+              "applicationDeadline": "May 20, 2025",
+              "entryRequirements": [
+                "Strong background in chemistry and mathematics",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Process design",
+                "Reaction engineering",
+                "Separation processes"
+              ],
+              "courses": [
+                "Chemical Engineering Thermodynamics",
+                "Fluid Flow",
+                "Heat Transfer",
+                "Mass Transfer"
+              ],
+              "careerOpportunities": [
+                "Chemical Engineer",
+                "Process Engineer",
+                "Production Engineer",
+                "Environmental Engineer"
+              ],
+              "professors": [
+                "Dr. Rahel Getachew - Chemical Thermodynamics",
+                "Prof. Abebe Haile - Reaction Engineering"
+              ],
+              "tags": ["engineering", "chemical", "process"]
+            }
+          ]
+        },
+        {
+          "id": "agriculture",
+          "name": "College of Agriculture and Environmental Sciences",
+          "description": "Focuses on sustainable agricultural practices and environmental conservation.",
+          "programs": [
+            {
+              "id": "natural-resource-management",
+              "name": "Bachelor of Science in Natural Resource Management",
+              "description": "Deals with the sustainable use and conservation of natural resources.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Interest in environmental science",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Forestry",
+                "Wildlife management",
+                "Soil and water conservation"
+              ],
+              "courses": [
+                "Ecology",
+                "Forestry",
+                "Wildlife Management",
+                "Soil and Water Conservation"
+              ],
+              "careerOpportunities": [
+                "Natural Resource Manager",
+                "Conservation Officer",
+                "Environmental Consultant"
+              ],
+              "professors": [
+                "Dr. Tesfaye Tadesse - Forestry",
+                "Prof. Hiwot Lemma - Ecology"
+              ],
+              "tags": ["agriculture", "environment", "conservation"]
+            },
+            {
+              "id": "horticulture",
+              "name": "Bachelor of Science in Horticulture",
+              "description": "Focuses on the cultivation of garden plants, fruits, vegetables, and flowers.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Interest in plants and gardening",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Plant propagation",
+                "Greenhouse management",
+                "Post-harvest technology"
+              ],
+              "courses": [
+                "Principles of Horticulture",
+                "Plant Propagation",
+                "Greenhouse Management",
+                "Post-harvest Handling"
+              ],
+              "careerOpportunities": [
+                "Horticulturist",
+                "Nursery Manager",
+                "Landscape Designer"
+              ],
+              "professors": [
+                "Dr. Rahel Solomon - Horticulture Science",
+                "Prof. Abebe Haile - Plant Breeding"
+              ],
+              "tags": ["agriculture", "horticulture", "gardening"]
+            }
+          ]
+        },
+        {
+          "id": "social-sciences-humanities",
+          "name": "Faculty of Social Sciences and Humanities",
+          "description": "Offers programs that explore human culture, society, and history.",
+          "programs": [
+            {
+              "id": "history",
+              "name": "Bachelor of Arts in History",
+              "description": "Studies past events, particularly in human affairs.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "16,000 ETB per year",
+              "applicationDeadline": "July 15, 2025",
+              "entryRequirements": [
+                "Interest in historical events",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Ethiopian history",
+                "African history",
+                "World history"
+              ],
+              "courses": [
+                "Ancient History",
+                "Medieval History",
+                "Modern African History",
+                "History of Ethiopia"
+              ],
+              "careerOpportunities": [
+                "Historian",
+                "Archivist",
+                "Museum Curator",
+                "Researcher"
+              ],
+              "professors": [
+                "Dr. Tesfaye Getachew - Ethiopian History",
+                "Prof. Hiwot Tadesse - African History"
+              ],
+              "tags": ["social sciences", "history", "culture"]
+            },
+            {
+              "id": "sociology",
+              "name": "Bachelor of Arts in Sociology",
+              "description": "Studies society and human social interaction.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "16,000 ETB per year",
+              "applicationDeadline": "July 15, 2025",
+              "entryRequirements": ["Interest in social issues", "Minimum GPA"],
+              "highlights": [
+                "Social theory",
+                "Research methods",
+                "Social problems"
+              ],
+              "courses": [
+                "Introduction to Sociology",
+                "Social Theory",
+                "Research Methods",
+                "Social Problems"
+              ],
+              "careerOpportunities": [
+                "Social Worker",
+                "Researcher",
+                "Community Organizer"
+              ],
+              "professors": [
+                "Dr. Rahel Lemma - Social Theory",
+                "Prof. Abebe Solomon - Research Methods"
+              ],
+              "tags": ["social sciences", "sociology", "society"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hu",
+      "name": "Hawassa University",
+      "location": "Hawassa, Ethiopia",
+      "website": "http://www.hu.edu.et",
+      "description": "A comprehensive university with a strong focus on agriculture, health, and technology.",
+      "logoUrl": "/universities/hu-logo.png",
+      "generalRequirements": [
+        "Successful completion of high school",
+        "Passing the Ethiopian Higher Education Entrance Certificate Examination",
+        "Meeting specific faculty requirements"
+      ],
+      "departments": [
+        {
+          "id": "agriculture",
+          "name": "College of Agriculture",
+          "description": "Dedicated to advancing agricultural sciences and practices.",
+          "programs": [
+            {
+              "id": "agricultural-economics",
+              "name": "Bachelor of Science in Agricultural Economics",
+              "description": "Applies economic principles to agricultural production and management.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "21,000 ETB per year",
+              "applicationDeadline": "June 1, 2025",
+              "entryRequirements": [
+                "Minimum GPA in mathematics and economics",
+                "Interest in agricultural development"
+              ],
+              "highlights": [
+                "Farm management",
+                "Agricultural policy",
+                "Market analysis"
+              ],
+              "courses": [
+                "Principles of Agricultural Economics",
+                "Farm Management",
+                "Agricultural Marketing",
+                "Agricultural Policy"
+              ],
+              "careerOpportunities": [
+                "Agricultural Economist",
+                "Farm Manager",
+                "Market Analyst",
+                "Policy Advisor"
+              ],
+              "professors": [
+                "Dr. Solomon Haile - Agricultural Policy",
+                "Prof. Rahel Getachew - Farm Management"
+              ],
+              "tags": ["agriculture", "economics", "policy"]
+            },
+            {
+              "id": "animal-production",
+              "name": "Bachelor of Science in Animal Production and Technology",
+              "description": "Focuses on the efficient and sustainable production of animal products.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "21,000 ETB per year",
+              "applicationDeadline": "June 1, 2025",
+              "entryRequirements": [
+                "Minimum GPA in biology and chemistry",
+                "Interest in livestock and poultry"
+              ],
+              "highlights": [
+                "Animal breeding",
+                "Nutrition",
+                "Health management"
+              ],
+              "courses": [
+                "Animal Nutrition",
+                "Animal Breeding and Genetics",
+                "Animal Health",
+                "Livestock Production Systems"
+              ],
+              "careerOpportunities": [
+                "Animal Production Manager",
+                "Livestock Specialist",
+                "Poultry Farmer",
+                "Dairy Technologist"
+              ],
+              "professors": [
+                "Dr. Tesfaye Lemma - Animal Nutrition",
+                "Prof. Hiwot Solomon - Animal Breeding"
+              ],
+              "tags": ["agriculture", "animals", "production"]
+            }
+          ]
+        },
+        {
+          "id": "health-sciences",
+          "name": "College of Medicine and Health Sciences",
+          "description": "Dedicated to training healthcare professionals and conducting health research.",
+          "programs": [
+            {
+              "id": "public-health",
+              "name": "Bachelor of Science in Public Health",
+              "description": "Focuses on improving population health through education and intervention.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "23,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science or social science subjects",
+                "Commitment to community health"
+              ],
+              "highlights": [
+                "Disease surveillance",
+                "Health education",
+                "Environmental health"
+              ],
+              "courses": [
+                "Principles of Public Health",
+                "Epidemiology",
+                "Biostatistics",
+                "Environmental Health"
+              ],
+              "careerOpportunities": [
+                "Public Health Officer",
+                "Health Inspector",
+                "Health Program Coordinator"
+              ],
+              "professors": [
+                "Dr. Rahel Tadesse - Epidemiology",
+                "Prof. Abebe Getu - Public Health Management"
+              ],
+              "tags": ["health", "public health", "community"]
+            },
+            {
+              "id": "medical-laboratory-science",
+              "name": "Bachelor of Science in Medical Laboratory Science",
+              "description": "Trains professionals to perform diagnostic tests on biological samples.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "23,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA in biology and chemistry",
+                "Attention to detail"
+              ],
+              "highlights": [
+                "Clinical chemistry",
+                "Hematology",
+                "Microbiology"
+              ],
+              "courses": [
+                "Clinical Chemistry",
+                "Hematology",
+                "Medical Microbiology",
+                "Parasitology"
+              ],
+              "careerOpportunities": [
+                "Medical Laboratory Technologist",
+                "Research Technician"
+              ],
+              "professors": [
+                "Dr. Tigist Solomon - Medical Microbiology",
+                "Prof. Yonas Lemma - Clinical Chemistry"
+              ],
+              "tags": ["health", "laboratory", "medical science"]
+            }
+          ]
+        },
+        {
+          "id": "engineering",
+          "name": "Faculty of Engineering",
+          "description": "Provides quality education in various engineering disciplines.",
+          "programs": [
+            {
+              "id": "information-technology",
+              "name": "Bachelor of Science in Information Technology",
+              "description": "Focuses on the application of computer systems to solve business and organizational problems.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "25,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA in mathematics and physics",
+                "Interest in computers and technology"
+              ],
+              "highlights": [
+                "Networking",
+                "Database management",
+                "Software development"
+              ],
+              "courses": [
+                "Introduction to Programming",
+                "Database Systems",
+                "Computer Networks",
+                "Web Development"
+              ],
+              "careerOpportunities": [
+                "IT Specialist",
+                "Network Administrator",
+                "Database Administrator",
+                "Web Developer"
+              ],
+              "professors": [
+                "Dr. Abebe Haile - Computer Networks",
+                "Prof. Rahel Solomon - Database Systems"
+              ],
+              "tags": ["engineering", "it", "technology"]
+            },
+            {
+              "id": "construction-technology-management",
+              "name": "Bachelor of Science in Construction Technology and Management",
+              "description": "Deals with the planning, design, construction, and management of buildings and infrastructure.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "25,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA in mathematics and physics",
+                "Interest in construction and management"
+              ],
+              "highlights": [
+                "Construction materials",
+                "Project management",
+                "Structural design"
+              ],
+              "courses": [
+                "Construction Materials",
+                "Construction Management",
+                "Structural Analysis",
+                "Building Technology"
+              ],
+              "careerOpportunities": [
+                "Construction Manager",
+                "Project Engineer",
+                "Site Engineer"
+              ],
+              "professors": [
+                "Dr. Tesfaye Getu - Construction Management",
+                "Prof. Hiwot Tadesse - Structural Engineering"
+              ],
+              "tags": ["engineering", "construction", "management"]
+            }
+          ]
+        },
+        {
+          "id": "business-economics",
+          "name": "College of Business and Economics",
+          "description": "Offers programs in business, economics, and related fields.",
+          "programs": [
+            {
+              "id": "accounting-finance",
+              "name": "Bachelor of Arts in Accounting and Finance",
+              "description": "Combines the principles of accounting with financial management.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in finance and accounting"
+              ],
+              "highlights": [
+                "Financial accounting",
+                "Investment analysis",
+                "Management accounting"
+              ],
+              "courses": [
+                "Financial Accounting",
+                "Management Accounting",
+                "Financial Management",
+                "Investment Analysis"
+              ],
+              "careerOpportunities": [
+                "Accountant",
+                "Financial Analyst",
+                "Investment Banker"
+              ],
+              "professors": [
+                "Dr. Rahel Lemma - Financial Accounting",
+                "Prof. Abebe Solomon - Investment Management"
+              ],
+              "tags": ["business", "accounting", "finance"]
+            },
+            {
+              "id": "human-resource-management",
+              "name": "Bachelor of Arts in Human Resource Management",
+              "description": "Focuses on the management of an organization's workforce.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in people management"
+              ],
+              "highlights": [
+                "Recruitment and selection",
+                "Training and development",
+                "Compensation and benefits"
+              ],
+              "courses": [
+                "Human Resource Management",
+                "Organizational Behavior",
+                "Training and Development",
+                "Compensation and Benefits"
+              ],
+              "careerOpportunities": [
+                "HR Manager",
+                "Recruitment Specialist",
+                "Training Coordinator"
+              ],
+              "professors": [
+                "Dr. Tigist Getu - Human Resource Development",
+                "Prof. Yonas Haile - Organizational Psychology"
+              ],
+              "tags": ["business", "human resources", "management"]
+            }
+          ]
+        },
+        {
+          "id": "natural-sciences",
+          "name": "College of Natural and Computational Sciences",
+          "description": "Offers programs in basic and applied sciences.",
+          "programs": [
+            {
+              "id": "biology",
+              "name": "Bachelor of Science in Biology",
+              "description": "Studies the science of life and living organisms.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA in biology and chemistry",
+                "Interest in the natural world"
+              ],
+              "highlights": ["Genetics", "Ecology", "Microbiology"],
+              "courses": [
+                "General Biology",
+                "Genetics",
+                "Ecology",
+                "Microbiology"
+              ],
+              "careerOpportunities": [
+                "Biologist",
+                "Research Scientist",
+                "Environmental Scientist"
+              ],
+              "professors": [
+                "Dr. Abebe Lemma - Genetics",
+                "Prof. Rahel Solomon - Ecology"
+              ],
+              "tags": ["science", "biology", "nature"]
+            },
+            {
+              "id": "chemistry",
+              "name": "Bachelor of Science in Chemistry",
+              "description": "Studies the composition, structure, properties, and reactions of matter.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA in chemistry and mathematics",
+                "Interest in chemical processes"
+              ],
+              "highlights": [
+                "Organic chemistry",
+                "Physical chemistry",
+                "Analytical chemistry"
+              ],
+              "courses": [
+                "General Chemistry",
+                "Organic Chemistry",
+                "Physical Chemistry",
+                "Analytical Chemistry"
+              ],
+              "careerOpportunities": [
+                "Chemist",
+                "Research Scientist",
+                "Quality Control Analyst"
+              ],
+              "professors": [
+                "Dr. Solomon Getachew - Organic Chemistry",
+                "Prof. Hiwot Tadesse - Analytical Chemistry"
+              ],
+              "tags": ["science", "chemistry", "matter"]
+            }
+          ]
+        },
+        {
+          "id": "social-sciences-humanities",
+          "name": "College of Social Sciences and Humanities",
+          "description": "Offers programs in social sciences, humanities, and languages.",
+          "programs": [
+            {
+              "id": "sociology",
+              "name": "Bachelor of Arts in Sociology",
+              "description": "Studies social behavior, institutions, and societal development.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "July 1, 2025",
+              "entryRequirements": ["Minimum GPA", "Interest in social issues"],
+              "highlights": [
+                "Social research",
+                "Community development",
+                "Social inequality"
+              ],
+              "courses": [
+                "Introduction to Sociology",
+                "Social Research Methods",
+                "Social Inequality",
+                "Development Sociology"
+              ],
+              "careerOpportunities": [
+                "Social Worker",
+                "Community Development Officer",
+                "Researcher"
+              ],
+              "professors": [
+                "Dr. Rahel Solomon - Social Research",
+                "Prof. Abebe Haile - Development Studies"
+              ],
+              "tags": ["social sciences", "sociology", "community"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mu",
+      "name": "Mekelle University",
+      "location": "Mekelle, Ethiopia",
+      "website": "http://www.mu.edu.et",
+      "description": "A public university known for its strong engineering and technology programs.",
+      "logoUrl": "/universities/mu-logo.png",
+      "generalRequirements": [
+        "Successful completion of secondary school",
+        "Passing score in the Ethiopian Higher Education Entrance Examination",
+        "Specific requirements for different faculties"
+      ],
+      "departments": [
+        {
+          "id": "engineering",
+          "name": "College of Engineering and Technology",
+          "description": "Dedicated to providing high-quality engineering education and research.",
+          "programs": [
+            {
+              "id": "mechanical-engineering",
+              "name": "Bachelor of Science in Mechanical Engineering",
+              "description": "Focuses on the design, manufacturing, and maintenance of mechanical systems.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "27,000 ETB per year",
+              "applicationDeadline": "May 10, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and physics",
+                "Minimum GPA"
+              ],
+              "highlights": ["CAD/CAM", "Thermodynamics", "Control systems"],
+              "courses": [
+                "Engineering Drawing",
+                "Thermodynamics",
+                "Fluid Mechanics",
+                "Machine Design"
+              ],
+              "careerOpportunities": [
+                "Mechanical Engineer",
+                "Design Engineer",
+                "Maintenance Engineer"
+              ],
+              "professors": [
+                "Dr. Solomon Tadesse - Thermal Engineering",
+                "Prof. Hiwot Getachew - Manufacturing Engineering"
+              ],
+              "tags": ["engineering", "mechanical", "design"]
+            },
+            {
+              "id": "electrical-electronics-engineering",
+              "name": "Bachelor of Science in Electrical and Electronics Engineering",
+              "description": "Deals with the design and development of electrical and electronic systems.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "27,000 ETB per year",
+              "applicationDeadline": "May 10, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and physics",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Circuit analysis",
+                "Digital electronics",
+                "Power systems"
+              ],
+              "courses": [
+                "Circuit Theory",
+                "Digital Electronics",
+                "Electromagnetics",
+                "Power Systems"
+              ],
+              "careerOpportunities": [
+                "Electrical Engineer",
+                "Electronics Engineer",
+                "Power Engineer"
+              ],
+              "professors": [
+                "Dr. Rahel Lemma - Power Electronics",
+                "Prof. Abebe Haile - Communication Systems"
+              ],
+              "tags": ["engineering", "electrical", "electronics"]
+            }
+          ]
+        },
+        {
+          "id": "business-economics",
+          "name": "College of Business and Economics",
+          "description": "Offers programs in business, economics, and management.",
+          "programs": [
+            {
+              "id": "business-administration",
+              "name": "Bachelor of Arts in Business Administration",
+              "description": "Provides a broad understanding of business principles and practices.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "21,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": ["Minimum GPA", "Interest in business"],
+              "highlights": ["Marketing", "Finance", "Management"],
+              "courses": [
+                "Principles of Management",
+                "Principles of Marketing",
+                "Financial Accounting",
+                "Business Law"
+              ],
+              "careerOpportunities": [
+                "Business Manager",
+                "Marketing Executive",
+                "Financial Analyst"
+              ],
+              "professors": [
+                "Dr. Hiwot Tadesse - Marketing Management",
+                "Prof. Solomon Lemma - Financial Management"
+              ],
+              "tags": ["business", "administration", "management"]
+            },
+            {
+              "id": "accounting-finance",
+              "name": "Bachelor of Arts in Accounting and Finance",
+              "description": "Focuses on the principles and practices of accounting and financial management.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "21,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in accounting and finance"
+              ],
+              "highlights": ["Auditing", "Taxation", "Investment analysis"],
+              "courses": [
+                "Financial Accounting",
+                "Management Accounting",
+                "Auditing",
+                "Financial Management"
+              ],
+              "careerOpportunities": [
+                "Accountant",
+                "Auditor",
+                "Financial Analyst"
+              ],
+              "professors": [
+                "Dr. Rahel Getachew - Accounting Theory",
+                "Prof. Abebe Haile - Investment Banking"
+              ],
+              "tags": ["business", "accounting", "finance"]
+            }
+          ]
+        },
+        {
+          "id": "health-sciences",
+          "name": "College of Health Sciences",
+          "description": "Committed to improving health through education, research, and service.",
+          "programs": [
+            {
+              "id": "medicine",
+              "name": "Doctor of Medicine (MD)",
+              "description": "A comprehensive program to train future medical practitioners.",
+              "duration": "6 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "32,000 ETB per year",
+              "applicationDeadline": "June 30, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Successful completion of pre-medical courses"
+              ],
+              "highlights": [
+                "Clinical rotations",
+                "Research opportunities",
+                "Experienced faculty"
+              ],
+              "courses": [
+                "Anatomy",
+                "Physiology",
+                "Pharmacology",
+                "Internal Medicine",
+                "Surgery"
+              ],
+              "careerOpportunities": [
+                "General Practitioner",
+                "Specialist Physician",
+                "Medical Researcher"
+              ],
+              "professors": [
+                "Dr. Tesfaye Solomon - Internal Medicine",
+                "Prof. Hiwot Lemma - Surgery"
+              ],
+              "tags": ["health", "medicine", "clinical"]
+            },
+            {
+              "id": "nursing",
+              "name": "Bachelor of Science in Nursing",
+              "description": "Focuses on providing quality nursing care and promoting health.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "28,000 ETB per year",
+              "applicationDeadline": "June 30, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Interest in patient care"
+              ],
+              "highlights": [
+                "Clinical practice",
+                "Community health nursing",
+                "Patient education"
+              ],
+              "courses": [
+                "Fundamentals of Nursing",
+                "Medical-Surgical Nursing",
+                "Pediatric Nursing",
+                "Maternal and Child Health Nursing"
+              ],
+              "careerOpportunities": [
+                "Registered Nurse",
+                "Nurse Practitioner",
+                "Public Health Nurse"
+              ],
+              "professors": [
+                "Dr. Rahel Getachew - Nursing Science",
+                "Prof. Abebe Haile - Community Health Nursing"
+              ],
+              "tags": ["health", "nursing", "patient care"]
+            }
+          ]
+        },
+        {
+          "id": "natural-computational-sciences",
+          "name": "College of Natural and Computational Sciences",
+          "description": "Offers programs in basic and applied sciences and mathematics.",
+          "programs": [
+            {
+              "id": "mathematics",
+              "name": "Bachelor of Science in Mathematics",
+              "description": "Studies the abstract science of number, quantity, and space.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "19,000 ETB per year",
+              "applicationDeadline": "July 10, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Pure mathematics",
+                "Applied mathematics",
+                "Statistics"
+              ],
+              "courses": [
+                "Calculus",
+                "Linear Algebra",
+                "Abstract Algebra",
+                "Real Analysis"
+              ],
+              "careerOpportunities": [
+                "Mathematician",
+                "Statistician",
+                "Data Analyst",
+                "Actuary"
+              ],
+              "professors": [
+                "Dr. Hiwot Tadesse - Pure Mathematics",
+                "Prof. Solomon Lemma - Applied Mathematics"
+              ],
+              "tags": ["science", "mathematics", "analysis"]
+            },
+            {
+              "id": "physics",
+              "name": "Bachelor of Science in Physics",
+              "description": "Studies the fundamental constituents of the universe and their interactions.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "19,000 ETB per year",
+              "applicationDeadline": "July 10, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and physics",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Theoretical physics",
+                "Experimental physics",
+                "Applied physics"
+              ],
+              "courses": [
+                "Classical Mechanics",
+                "Electromagnetism",
+                "Quantum Mechanics",
+                "Thermodynamics"
+              ],
+              "careerOpportunities": [
+                "Physicist",
+                "Research Scientist",
+                " преподаватель"
+              ],
+              "professors": [
+                "Dr. Rahel Getachew - Theoretical Physics",
+                "Prof. Abebe Haile - Experimental Physics"
+              ],
+              "tags": ["science", "physics", "universe"]
+            }
+          ]
+        },
+        {
+          "id": "humanities-languages",
+          "name": "Faculty of Humanities and Languages",
+          "description": "Offers programs in humanities, social sciences, and languages.",
+          "programs": [
+            {
+              "id": "english-language-literature",
+              "name": "Bachelor of Arts in English Language and Literature",
+              "description": "Focuses on the study of the English language and its literature.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "17,000 ETB per year",
+              "applicationDeadline": "July 5, 2025",
+              "entryRequirements": ["Good command of English", "Minimum GPA"],
+              "highlights": [
+                "Literary analysis",
+                "Linguistics",
+                "Creative writing"
+              ],
+              "courses": [
+                "Introduction to English Literature",
+                "English Grammar",
+                "Phonetics and Phonology",
+                "Creative Writing"
+              ],
+              "careerOpportunities": [
+                "Teacher",
+                "Editor",
+                "Writer",
+                "Translator"
+              ],
+              "professors": [
+                "Dr. Solomon Lemma - English Literature",
+                "Prof. Hiwot Tadesse - Applied Linguistics"
+              ],
+              "tags": ["humanities", "english", "literature"]
+            },
+            {
+              "id": "history",
+              "name": "Bachelor of Arts in History",
+              "description": "Studies the past, focusing on human societies and their development.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "17,000 ETB per year",
+              "applicationDeadline": "July 5, 2025",
+              "entryRequirements": ["Interest in history", "Minimum GPA"],
+              "highlights": [
+                "Ethiopian history",
+                "African history",
+                "World history"
+              ],
+              "courses": [
+                "Ancient Civilizations",
+                "History of Africa",
+                "History of Ethiopia",
+                "Modern World History"
+              ],
+              "careerOpportunities": [
+                "Historian",
+                "Archivist",
+                "Museum Curator"
+              ],
+              "professors": [
+                "Dr. Rahel Getachew - Ethiopian History",
+                "Prof. Abebe Haile - African History"
+              ],
+              "tags": ["humanities", "history", "culture"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uog",
+      "name": "University of Gondar",
+      "location": "Gondar, Ethiopia",
+      "website": "http://www.uog.edu.et",
+      "description": "One of the oldest medical training institutions in Ethiopia, now a comprehensive university.",
+      "logoUrl": "/universities/uog-logo.png",
+      "generalRequirements": [
+        "Successful completion of secondary education",
+        "Passing the Ethiopian Higher Education Entrance Examination",
+        "Meeting specific program prerequisites"
+      ],
+      "departments": [
+        {
+          "id": "medicine",
+          "name": "College of Medicine and Health Sciences",
+          "description": "A pioneer in medical education in Ethiopia.",
+          "programs": [
+            {
+              "id": "medicine",
+              "name": "Doctor of Medicine (MD)",
+              "description": "A rigorous program to train competent medical doctors.",
+              "duration": "6 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "33,000 ETB per year",
+              "applicationDeadline": "June 25, 2025",
+              "entryRequirements": [
+                "High academic standing in science subjects",
+                "Successful interview"
+              ],
+              "highlights": [
+                "Extensive clinical exposure",
+                "Research opportunities",
+                "Community-based training"
+              ],
+              "courses": [
+                "Basic Medical Sciences (Anatomy, Physiology, Biochemistry)",
+                "Clinical Sciences (Internal Medicine, Surgery, Pediatrics, Obstetrics & Gynecology)",
+                "Public Health"
+              ],
+              "careerOpportunities": [
+                "Medical Officer",
+                "Specialist Doctor",
+                "Public Health Physician",
+                "Medical Researcher"
+              ],
+              "professors": [
+                "Dr. Abebe Tadesse - Internal Medicine",
+                "Prof. Rahel Solomon - Surgery"
+              ],
+              "tags": ["medicine", "health", "clinical practice"]
+            },
+            {
+              "id": "pharmacy",
+              "name": "Bachelor of Pharmacy (BPharm)",
+              "description": "Focuses on the science and practice of pharmacy.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "28,000 ETB per year",
+              "applicationDeadline": "June 25, 2025",
+              "entryRequirements": [
+                "Strong background in biology and chemistry",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Pharmaceutical chemistry",
+                "Pharmacology",
+                "Pharmaceutics",
+                "Clinical pharmacy"
+              ],
+              "courses": [
+                "Pharmaceutical Chemistry",
+                "Pharmacology",
+                "Pharmaceutics",
+                "Pharmacognosy",
+                "Clinical Pharmacy"
+              ],
+              "careerOpportunities": [
+                "Pharmacist",
+                "Pharmaceutical Industry",
+                "Regulatory Affairs",
+                "Clinical Pharmacist"
+              ],
+              "professors": [
+                "Dr. Solomon Getachew - Pharmaceutical Chemistry",
+                "Prof. Hiwot Lemma - Clinical Pharmacy"
+              ],
+              "tags": ["health", "pharmacy", "drugs"]
+            }
+          ]
+        },
+        {
+          "id": "engineering",
+          "name": "Faculty of Technology",
+          "description": "Offers programs in various fields of engineering and technology.",
+          "programs": [
+            {
+              "id": "biomedical-engineering",
+              "name": "Bachelor of Science in Biomedical Engineering",
+              "description": "Applies engineering principles to biology and medicine.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "26,000 ETB per year",
+              "applicationDeadline": "May 15, 2025",
+              "entryRequirements": [
+                "Strong foundation in mathematics, physics, and biology",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Medical instrumentation",
+                "Biomechanics",
+                "Biomaterials"
+              ],
+              "courses": [
+                "Circuit Theory",
+                "Physiology",
+                "Biomechanics",
+                "Medical Instrumentation"
+              ],
+              "careerOpportunities": [
+                "Biomedical Engineer",
+                "Medical Device Designer",
+                "Clinical Engineer"
+              ],
+              "professors": [
+                "Dr. Rahel Tadesse - Biomechanics",
+                "Prof. Abebe Haile - Medical Instrumentation"
+              ],
+              "tags": ["engineering", "biomedical", "health"]
+            },
+            {
+              "id": "software-engineering",
+              "name": "Bachelor of Science in Software Engineering",
+              "description": "Focuses on the design, development, and maintenance of software systems.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "26,000 ETB per year",
+              "applicationDeadline": "May 15, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and computer science",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Software design patterns",
+                "Agile development",
+                "Software testing"
+              ],
+              "courses": [
+                "Programming Fundamentals",
+                "Data Structures and Algorithms",
+                "Software Design and Architecture",
+                "Software Testing and Quality Assurance"
+              ],
+              "careerOpportunities": [
+                "Software Engineer",
+                "Software Developer",
+                "Software Architect",
+                "Quality Assurance Engineer"
+              ],
+              "professors": [
+                "Dr. Solomon Lemma - Software Architecture",
+                "Prof. Hiwot Getachew - Algorithm Design"
+              ],
+              "tags": ["engineering", "software", "programming"]
+            }
+          ]
+        },
+        {
+          "id": "business-economics",
+          "name": "College of Business and Economics",
+          "description": "Provides education in business, economics, and management.",
+          "programs": [
+            {
+              "id": "economics",
+              "name": "Bachelor of Arts in Economics",
+              "description": "Studies the principles of economics and their application to policy and development.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in economic and social issues"
+              ],
+              "highlights": [
+                "Economic development",
+                "Public finance",
+                "International economics"
+              ],
+              "courses": [
+                "Principles of Economics",
+                "Microeconomic Theory",
+                "Macroeconomic Theory",
+                "Development Economics"
+              ],
+              "careerOpportunities": [
+                "Economist",
+                "Policy Analyst",
+                "Development Practitioner"
+              ],
+              "professors": [
+                "Dr. Tigist Tadesse - Development Economics",
+                "Prof. Yonas Solomon - Public Finance"
+              ],
+              "tags": ["business", "economics", "policy"]
+            },
+            {
+              "id": "management",
+              "name": "Bachelor of Arts in Management",
+              "description": "Focuses on the principles and practices of managing organizations effectively.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": ["Minimum GPA", "Leadership potential"],
+              "highlights": [
+                "Strategic management",
+                "Marketing management",
+                "Financial management"
+              ],
+              "courses": [
+                "Principles of Management",
+                "Strategic Management",
+                "Marketing Management",
+                "Financial Management"
+              ],
+              "careerOpportunities": [
+                "Manager",
+                "Administrator",
+                "Entrepreneur"
+              ],
+              "professors": [
+                "Dr. Martha Getachew - Strategic Management",
+                "Prof. Dawit Lemma - Marketing Management"
+              ],
+              "tags": ["business", "management", "strategy"]
+            }
+          ]
+        },
+        {
+          "id": "education",
+          "name": "College of Education",
+          "description": "Committed to training qualified teachers and educational leaders.",
+          "programs": [
+            {
+              "id": "biology-education",
+              "name": "Bachelor of Science in Biology Education",
+              "description": "Prepares teachers to teach biology at secondary school levels.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "July 1, 2025",
+              "entryRequirements": [
+                "Strong background in biology",
+                "Interest in teaching"
+              ],
+              "highlights": [
+                "Biology content knowledge",
+                "Teaching methodologies",
+                "Curriculum development"
+              ],
+              "courses": [
+                "General Biology",
+                "Botany",
+                "Zoology",
+                "Biology Teaching Methods"
+              ],
+              "careerOpportunities": [
+                "Secondary School Teacher",
+                "Curriculum Specialist"
+              ],
+              "professors": [
+                "Dr. Hiwot Solomon - Biology Education",
+                "Prof. Tesfaye Tadesse - Curriculum Studies"
+              ],
+              "tags": ["education", "biology", "teaching"]
+            },
+            {
+              "id": "mathematics-education",
+              "name": "Bachelor of Science in Mathematics Education",
+              "description": "Prepares teachers to teach mathematics at secondary school levels.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "July 1, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics",
+                "Interest in teaching"
+              ],
+              "highlights": [
+                "Mathematical content knowledge",
+                "Teaching methodologies",
+                "Assessment in mathematics"
+              ],
+              "courses": [
+                "Calculus",
+                "Linear Algebra",
+                "Geometry",
+                "Mathematics Teaching Methods"
+              ],
+              "careerOpportunities": [
+                "Secondary School Teacher",
+                "Mathematics Tutor"
+              ],
+              "professors": [
+                "Dr. Rahel Getachew - Mathematics Education",
+                "Prof. Abebe Haile - Educational Assessment"
+              ],
+              "tags": ["education", "mathematics", "teaching"]
+            }
+          ]
+        },
+        {
+          "id": "social-sciences-humanities",
+          "name": "College of Social Sciences and Humanities",
+          "description": "Offers programs in social sciences, humanities, and languages.",
+          "programs": [
+            {
+              "id": "sociology",
+              "name": "Bachelor of Arts in Sociology",
+              "description": "Studies society, social interaction, and social change.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "16,000 ETB per year",
+              "applicationDeadline": "July 10, 2025",
+              "entryRequirements": ["Minimum GPA", "Interest in social issues"],
+              "highlights": [
+                "Social theory",
+                "Research methods",
+                "Social inequality"
+              ],
+              "courses": [
+                "Introduction to Sociology",
+                "Social Theory",
+                "Social Research Methods",
+                "Social Problems"
+              ],
+              "careerOpportunities": [
+                "Social Worker",
+                "Researcher",
+                "Community Development Officer"
+              ],
+              "professors": [
+                "Dr. Solomon Lemma - Social Theory",
+                "Prof. Hiwot Tadesse - Research Methodology"
+              ],
+              "tags": ["social sciences", "sociology", "society"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "astu",
+      "name": "Adama Science and Technology University",
+      "location": "Adama, Ethiopia",
+      "website": "https://www.astu.edu.et",
+      "description": "A leading technical institution focused on science and engineering education with strong industry connections.",
+      "logoUrl": "/universities/astu-logo.png",
+      "generalRequirements": [
+        "High school diploma or equivalent",
+        "Minimum GPA of 3.0 in science subjects",
+        "Ethiopian University Entrance Examination qualification",
+        "English language proficiency"
+      ],
+      "departments": [
+        {
+          "id": "architecture",
+          "name": "School of Architecture and Design",
+          "description": "The School of Architecture and Design offers programs focusing on the built environment, urban planning, and design innovation with emphasis on sustainable principles.",
+          "programs": [
+            {
+              "id": "architecture",
+              "name": "Bachelor of Science in Architecture",
+              "description": "Program focusing on architectural design, building technology, and sustainable construction with emphasis on contextual and climate-responsive architecture.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "45,000 ETB per year",
+              "applicationDeadline": "May 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 3.2 in Mathematics and Physics",
+                "Drawing skills and spatial awareness",
+                "Portfolio of creative work (preferred)"
+              ],
+              "highlights": [
+                "Architectural design studios",
+                "Building technology and materials",
+                "Computer-aided design and modeling",
+                "Sustainable and climate-responsive architecture"
+              ],
+              "courses": [
+                "Architectural Design Studio (ARCH101)",
+                "Building Materials and Construction (ARCH201)",
+                "Architectural History and Theory (ARCH301)",
+                "Sustainable Architecture (ARCH401)",
+                "Urban Design (ARCH501)"
+              ],
+              "careerOpportunities": [
+                "Architect",
+                "Architectural Designer",
+                "Project Manager",
+                "Building Consultant",
+                "Sustainable Design Specialist"
+              ],
+              "professors": [
+                "Dr. Alemayehu Tadesse - Architectural Design",
+                "Prof. Selamawit Bekele - Sustainable Architecture",
+                "Dr. Solomon Haile - Building Technology"
+              ],
+              "tags": ["architecture", "design", "sustainable building"]
+            },
+            {
+              "id": "urban-planning",
+              "name": "Bachelor of Science in Urban Planning and Design",
+              "description": "Program focusing on the planning and design of urban environments, addressing issues of sustainability, transportation, housing, and urban revitalization.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "42,000 ETB per year",
+              "applicationDeadline": "May 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 3.0 in Mathematics",
+                "Interest in urban issues"
+              ],
+              "highlights": [
+                "Urban planning principles and practice",
+                "GIS for urban analysis",
+                "Transportation planning",
+                "Community development and participation"
+              ],
+              "courses": [
+                "Introduction to Urban Planning (UPD101)",
+                "GIS for Urban Analysis (UPD201)",
+                "Transportation Planning (UPD301)",
+                "Housing and Community Development (UPD401)",
+                "Urban Design Studio (UPD501)"
+              ],
+              "careerOpportunities": [
+                "Urban Planner",
+                "City Developer",
+                "Transportation Planner",
+                "GIS Specialist",
+                "Housing Development Officer"
+              ],
+              "professors": [
+                "Dr. Tigist Alemu - Urban Planning",
+                "Prof. Abebe Mengistu - Transportation Planning",
+                "Dr. Meron Tadesse - Community Development"
+              ],
+              "tags": [
+                "urban planning",
+                "community development",
+                "transportation"
+              ]
+            },
+            {
+              "id": "interior-design",
+              "name": "Bachelor of Science in Interior Design",
+              "description": "Program focusing on the design of interior spaces with emphasis on functionality, aesthetics, and human experience.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "38,000 ETB per year",
+              "applicationDeadline": "May 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 2.8",
+                "Creative portfolio (preferred)"
+              ],
+              "highlights": [
+                "Interior design studios",
+                "Material selection and specification",
+                "Lighting and acoustic design",
+                "Digital visualization techniques"
+              ],
+              "courses": [
+                "Interior Design Fundamentals (ID101)",
+                "Color Theory and Materials (ID201)",
+                "Lighting and Acoustics (ID301)",
+                "Commercial Space Design (ID401)",
+                "Furniture Design (ID501)"
+              ],
+              "careerOpportunities": [
+                "Interior Designer",
+                "Space Planner",
+                "Exhibition Designer",
+                "Furniture Designer",
+                "Design Consultant"
+              ],
+              "professors": [
+                "Dr. Hiwot Solomon - Interior Design",
+                "Prof. Dawit Alemu - Lighting Design",
+                "Dr. Kidist Tadesse - Furniture Design"
+              ],
+              "tags": ["interior design", "space planning", "furniture design"]
+            }
+          ]
+        },
+        {
+          "id": "engineering",
+          "name": "Faculty of Engineering",
+          "description": "The Faculty of Engineering is dedicated to providing high-quality education and research in various engineering disciplines.",
+          "programs": [
+            {
+              "id": "mechanical-engineering",
+              "name": "Bachelor of Science in Mechanical Engineering",
+              "description": "Program focusing on the design, development, and manufacturing of mechanical and thermal devices and systems.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "42,000 ETB per year",
+              "applicationDeadline": "May 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 3.0 in Mathematics and Physics",
+                "Strong problem-solving skills"
+              ],
+              "highlights": [
+                "Design and analysis of mechanical systems",
+                "Thermodynamics and heat transfer",
+                "Manufacturing processes and automation",
+                "Control systems and robotics"
+              ],
+              "courses": [
+                "Engineering Mechanics (MECH101)",
+                "Thermodynamics (MECH201)",
+                "Fluid Mechanics (MECH301)",
+                "Machine Design (MECH401)",
+                "Control Systems (MECH501)"
+              ],
+              "careerOpportunities": [
+                "Mechanical Engineer",
+                "Design Engineer",
+                "Manufacturing Engineer",
+                "Energy Engineer",
+                "Automotive Engineer"
+              ],
+              "professors": [
+                "Dr. Tesfaye Lemma - Thermal Sciences",
+                "Prof. Rahel Getachew - Manufacturing Engineering",
+                "Dr. Solomon Hailemariam - Control Systems"
+              ],
+              "tags": [
+                "mechanical engineering",
+                "design",
+                "manufacturing",
+                "energy"
+              ]
+            },
+            {
+              "id": "electrical-engineering",
+              "name": "Bachelor of Science in Electrical and Computer Engineering",
+              "description": "Program focusing on the principles and applications of electrical systems, electronics, and computer hardware and software.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "42,000 ETB per year",
+              "applicationDeadline": "May 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 3.0 in Mathematics and Physics",
+                "Interest in electronics and computing"
+              ],
+              "highlights": [
+                "Circuit theory and analysis",
+                "Digital electronics and microprocessors",
+                "Power systems and renewable energy",
+                "Computer architecture and organization"
+              ],
+              "courses": [
+                "Circuit Analysis (ECE101)",
+                "Digital Logic Design (ECE201)",
+                "Electromagnetics (ECE301)",
+                "Power Systems (ECE401)",
+                "Microprocessors (ECE501)"
+              ],
+              "careerOpportunities": [
+                "Electrical Engineer",
+                "Electronics Engineer",
+                "Computer Engineer",
+                "Power Systems Engineer",
+                "Telecommunications Engineer"
+              ],
+              "professors": [
+                "Dr. Abebe Mengistu - Power Systems",
+                "Prof. Tigist Alemu - Digital Electronics",
+                "Dr. Dawit Solomon - Computer Architecture"
+              ],
+              "tags": [
+                "electrical engineering",
+                "computer engineering",
+                "electronics",
+                "power"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "computing",
+          "name": "School of Computing",
+          "description": "The School of Computing offers programs in computer science and information technology, preparing students for the digital age.",
+          "programs": [
+            {
+              "id": "computer-science",
+              "name": "Bachelor of Science in Computer Science",
+              "description": "Program focusing on the theoretical foundations of computation and their application in the design and development of computer systems and software.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "40,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 3.0 in Mathematics",
+                "Strong logical and analytical skills"
+              ],
+              "highlights": [
+                "Algorithm design and analysis",
+                "Software development methodologies",
+                "Database systems and data mining",
+                "Artificial intelligence and machine learning"
+              ],
+              "courses": [
+                "Programming Fundamentals (CS101)",
+                "Data Structures and Algorithms (CS201)",
+                "Database Systems (CS301)",
+                "Operating Systems (CS401)",
+                "Artificial Intelligence (CS402)"
+              ],
+              "careerOpportunities": [
+                "Software Developer",
+                "Data Scientist",
+                "Algorithm Engineer",
+                "Database Administrator",
+                "AI/ML Engineer"
+              ],
+              "professors": [
+                "Dr. Rahel Getachew - Algorithms",
+                "Prof. Solomon Haile - Database Systems",
+                "Dr. Martha Lemma - Artificial Intelligence"
+              ],
+              "tags": [
+                "computer science",
+                "software development",
+                "algorithms",
+                "ai"
+              ]
+            },
+            {
+              "id": "information-technology",
+              "name": "Bachelor of Science in Information Technology",
+              "description": "Program focusing on the application of computer systems and software to manage and process information, supporting the needs of organizations.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "40,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 2.8",
+                "Interest in technology and its applications"
+              ],
+              "highlights": [
+                "Network administration and security",
+                "Web development and design",
+                "Information systems analysis and design",
+                "IT project management"
+              ],
+              "courses": [
+                "Introduction to IT (IT101)",
+                "Networking Fundamentals (IT201)",
+                "Web Development (IT301)",
+                "Database Management (IT302)",
+                "IT Project Management (IT401)"
+              ],
+              "careerOpportunities": [
+                "IT Specialist",
+                "Network Administrator",
+                "Web Developer",
+                "Database Administrator",
+                "IT Project Manager"
+              ],
+              "professors": [
+                "Dr. Abebe Mengistu - Networking",
+                "Prof. Tigist Alemu - Web Technologies",
+                "Dr. Yonas Kebede - Information Systems"
+              ],
+              "tags": [
+                "information technology",
+                "networking",
+                "web development",
+                "it management"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "applied-sciences",
+          "name": "School of Applied Sciences",
+          "description": "The School of Applied Sciences focuses on the practical application of scientific principles to solve real-world problems.",
+          "programs": [
+            {
+              "id": "applied-physics",
+              "name": "Bachelor of Science in Applied Physics",
+              "description": "Program focusing on the application of physics principles to technological and practical problems.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "38,000 ETB per year",
+              "applicationDeadline": "June 5, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 2.8 in Mathematics and Physics",
+                "Interest in the practical applications of physics"
+              ],
+              "highlights": [
+                "Electronics and instrumentation",
+                "Materials science",
+                "Renewable energy technologies",
+                "Photonics and optics"
+              ],
+              "courses": [
+                "Classical Mechanics (PHYS101)",
+                "Electricity and Magnetism (PHYS201)",
+                "Thermodynamics and Statistical Mechanics (PHYS301)",
+                "Solid State Physics (PHYS401)",
+                "Optics (PHYS402)"
+              ],
+              "careerOpportunities": [
+                "Applied Physicist",
+                "Instrumentation Engineer",
+                "Materials Scientist",
+                "Renewable Energy Specialist"
+              ],
+              "professors": [
+                "Dr. Solomon Hailemariam - Solid State Physics",
+                "Prof. Selamawit Bekele - Renewable Energy",
+                "Dr. Dawit Alemu - Optics"
+              ],
+              "tags": [
+                "applied physics",
+                "electronics",
+                "materials science",
+                "renewable energy"
+              ]
+            },
+            {
+              "id": "applied-chemistry",
+              "name": "Bachelor of Science in Applied Chemistry",
+              "description": "Program focusing on the application of chemical principles to industrial and technological processes.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "38,000 ETB per year",
+              "applicationDeadline": "June 5, 2025",
+              "entryRequirements": [
+                "Minimum GPA of 2.8 in Chemistry and Mathematics",
+                "Interest in the practical applications of chemistry"
+              ],
+              "highlights": [
+                "Industrial chemistry",
+                "Polymer science",
+                "Environmental chemistry",
+                "Analytical techniques"
+              ],
+              "courses": [
+                "Inorganic Chemistry (CHEM101)",
+                "Organic Chemistry (CHEM201)",
+                "Physical Chemistry (CHEM301)",
+                "Analytical Chemistry (CHEM401)",
+                "Industrial Chemistry (CHEM402)"
+              ],
+              "careerOpportunities": [
+                "Industrial Chemist",
+                "Quality Control Chemist",
+                "Environmental Chemist",
+                "Polymer Scientist"
+              ],
+              "professors": [
+                "Dr. Tigist Alemu - Organic Chemistry",
+                "Prof. Abebe Mengistu - Analytical Chemistry",
+                "Dr. Meron Tadesse - Polymer Science"
+              ],
+              "tags": [
+                "applied chemistry",
+                "industrial chemistry",
+                "polymer science",
+                "environmental chemistry"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dbu",
+      "name": "Debre Berhan University",
+      "location": "Debre Berhan, Ethiopia",
+      "website": "http://www.dbu.edu.et",
+      "description": "A growing university committed to providing quality education and contributing to regional development.",
+      "logoUrl": "/universities/dbu-logo.png",
+      "generalRequirements": [
+        "Successful completion of secondary education",
+        "Passing score on the Ethiopian Higher Education Entrance Examination",
+        "Specific requirements for each program"
+      ],
+      "departments": [
+        {
+          "id": "engineering",
+          "name": "Faculty of Engineering and Technology",
+          "description": "Offers programs in various engineering and technology fields.",
+          "programs": [
+            {
+              "id": "civil-engineering",
+              "name": "Bachelor of Science in Civil Engineering",
+              "description": "Focuses on the design, construction, and maintenance of infrastructure projects.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "23,000 ETB per year",
+              "applicationDeadline": "May 20, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and physics",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Structural analysis and design",
+                "Geotechnical engineering",
+                "Water resources engineering"
+              ],
+              "courses": [
+                "Engineering Mechanics",
+                "Structural Analysis",
+                "Geotechnical Engineering",
+                "Hydraulic Engineering"
+              ],
+              "careerOpportunities": [
+                "Civil Engineer",
+                "Structural Engineer",
+                "Construction Engineer",
+                "Water Resources Engineer"
+              ],
+              "professors": [
+                "Dr. Solomon Getachew - Structural Engineering",
+                "Prof. Hiwot Tesfaye - Geotechnical Engineering"
+              ],
+              "tags": ["engineering", "civil", "infrastructure"]
+            },
+            {
+              "id": "computer-science",
+              "name": "Bachelor of Science in Computer Science",
+              "description": "Deals with the theoretical and practical aspects of computation and computer technology.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics",
+                "Interest in programming and algorithms"
+              ],
+              "highlights": [
+                "Software development",
+                "Database systems",
+                "Computer networks"
+              ],
+              "courses": [
+                "Programming Fundamentals",
+                "Data Structures and Algorithms",
+                "Database Management Systems",
+                "Computer Networks"
+              ],
+              "careerOpportunities": [
+                "Software Developer",
+                "Database Administrator",
+                "Network Engineer"
+              ],
+              "professors": [
+                "Dr. Abebe Lemma - Algorithms",
+                "Prof. Rahel Tadesse - Database Systems"
+              ],
+              "tags": ["science", "computer science", "programming"]
+            },
+            {
+              "id": "information-systems",
+              "name": "Bachelor of Science in Information Systems",
+              "description": "Focuses on the integration of information technology solutions and business processes.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in business and technology"
+              ],
+              "highlights": [
+                "Systems analysis and design",
+                "Database management",
+                "IT project management"
+              ],
+              "courses": [
+                "Introduction to Information Systems",
+                "Systems Analysis and Design",
+                "Database Management",
+                "IT Project Management"
+              ],
+              "careerOpportunities": [
+                "IT Analyst",
+                "Systems Analyst",
+                "Project Manager"
+              ],
+              "professors": [
+                "Dr. Tesfaye Solomon - Information Systems",
+                "Prof. Hiwot Getachew - Database Management"
+              ],
+              "tags": ["technology", "information systems", "management"]
+            }
+          ]
+        },
+        {
+          "id": "health-sciences",
+          "name": "College of Medicine and Health Sciences",
+          "description": "Committed to training healthcare professionals for the region.",
+          "programs": [
+            {
+              "id": "public-health",
+              "name": "Bachelor of Science in Public Health",
+              "description": "Focuses on improving community health through preventive measures and health promotion.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Interest in community health"
+              ],
+              "highlights": [
+                "Epidemiology",
+                "Biostatistics",
+                "Environmental health"
+              ],
+              "courses": [
+                "Introduction to Public Health",
+                "Epidemiology",
+                "Biostatistics",
+                "Environmental Health"
+              ],
+              "careerOpportunities": [
+                "Public Health Officer",
+                "Health Educator",
+                "Sanitarian"
+              ],
+              "professors": [
+                "Dr. Rahel Tadesse - Epidemiology",
+                "Prof. Abebe Solomon - Public Health"
+              ],
+              "tags": ["health", "public health", "prevention"]
+            },
+            {
+              "id": "nursing",
+              "name": "Bachelor of Science in Nursing",
+              "description": "Trains nurses to provide comprehensive care to patients.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Compassion and dedication to patient care"
+              ],
+              "highlights": [
+                "Clinical practice in hospitals",
+                "Community health placements"
+              ],
+              "courses": [
+                "Fundamentals of Nursing",
+                "Medical-Surgical Nursing",
+                "Pediatric Nursing",
+                "Maternal and Child Health Nursing"
+              ],
+              "careerOpportunities": [
+                "Registered Nurse",
+                "Clinical Nurse",
+                "Public Health Nurse"
+              ],
+              "professors": [
+                "Dr. Tigist Lemma - Nursing Science",
+                "Prof. Yonas Haile - Community Health Nursing"
+              ],
+              "tags": ["health", "nursing", "patient care"]
+            }
+          ]
+        },
+        {
+          "id": "business-economics",
+          "name": "College of Business and Economics",
+          "description": "Offers programs in business, economics, and management.",
+          "programs": [
+            {
+              "id": "management",
+              "name": "Bachelor of Arts in Management",
+              "description": "Focuses on the principles of planning, organizing, leading, and controlling resources.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in leadership and organization"
+              ],
+              "highlights": [
+                "Strategic management",
+                "Human resource management",
+                "Marketing management"
+              ],
+              "courses": [
+                "Principles of Management",
+                "Human Resource Management",
+                "Marketing Management",
+                "Strategic Management"
+              ],
+              "careerOpportunities": [
+                "Manager",
+                "Administrator",
+                "Business Analyst"
+              ],
+              "professors": [
+                "Dr. Martha Solomon - Human Resource Management",
+                "Prof. Dawit Tadesse - Marketing"
+              ],
+              "tags": ["business", "management", "leadership"]
+            },
+            {
+              "id": "economics",
+              "name": "Bachelor of Arts in Economics",
+              "description": "Studies the production, distribution, and consumption of goods and services.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in economic issues"
+              ],
+              "highlights": [
+                "Microeconomics",
+                "Macroeconomics",
+                "Development economics"
+              ],
+              "courses": [
+                "Principles of Microeconomics",
+                "Principles of Macroeconomics",
+                "Development Economics",
+                "Econometrics"
+              ],
+              "careerOpportunities": [
+                "Economist",
+                "Financial Analyst",
+                "Market Analyst"
+              ],
+              "professors": [
+                "Dr. Yonas Kebede - Macroeconomics",
+                "Prof. Aster Tsegaye - Development Economics"
+              ],
+              "tags": ["business", "economics", "finance"]
+            }
+          ]
+        },
+        {
+          "id": "agriculture",
+          "name": "College of Agriculture and Natural Resources",
+          "description": "Focuses on sustainable agriculture and the management of natural resources.",
+          "programs": [
+            {
+              "id": "agronomy",
+              "name": "Bachelor of Science in Agronomy",
+              "description": "Deals with the science and technology of crop production and soil management.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "17,000 ETB per year",
+              "applicationDeadline": "June 5, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Interest in crop science"
+              ],
+              "highlights": [
+                "Crop production techniques",
+                "Soil fertility management",
+                "Plant protection"
+              ],
+              "courses": [
+                "Crop Production",
+                "Soil Science",
+                "Plant Breeding",
+                "Plant Pathology"
+              ],
+              "careerOpportunities": [
+                "Agronomist",
+                "Crop Consultant",
+                "Farm Manager"
+              ],
+              "professors": [
+                "Dr. Kebede Lemma - Crop Science",
+                "Prof. Aster Solomon - Soil Science"
+              ],
+              "tags": ["agriculture", "crops", "soil"]
+            },
+            {
+              "id": "animal-science",
+              "name": "Bachelor of Science in Animal Science",
+              "description": "Focuses on the biology and management of farm animals.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "17,000 ETB per year",
+              "applicationDeadline": "June 5, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Interest in animal husbandry"
+              ],
+              "highlights": [
+                "Animal nutrition",
+                "Breeding and genetics",
+                "Animal health"
+              ],
+              "courses": [
+                "Animal Nutrition",
+                "Animal Breeding",
+                "Animal Physiology",
+                "Animal Health Management"
+              ],
+              "careerOpportunities": [
+                "Animal Scientist",
+                "Livestock Manager",
+                "Dairy Farmer"
+              ],
+              "professors": [
+                "Dr. Tesfaye Kebede - Animal Nutrition",
+                "Prof. Rahel Getachew - Animal Breeding"
+              ],
+              "tags": ["agriculture", "animals", "livestock"]
+            }
+          ]
+        },
+        {
+          "id": "natural-sciences",
+          "name": "Faculty of Natural and Computational Sciences",
+          "description": "Offers programs in basic sciences and mathematics.",
+          "programs": [
+            {
+              "id": "biology",
+              "name": "Bachelor of Science in Biology",
+              "description": "Studies the science of life and living organisms.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "16,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA in biology and chemistry",
+                "Interest in the natural world"
+              ],
+              "highlights": ["Ecology", "Genetics", "Microbiology"],
+              "courses": [
+                "General Biology",
+                "Genetics",
+                "Ecology",
+                "Microbiology"
+              ],
+              "careerOpportunities": [
+                "Biologist",
+                "Research Assistant",
+                "Environmental Technician"
+              ],
+              "professors": [
+                "Dr. Abebe Haile - Genetics",
+                "Prof. Selamawit Tadesse - Ecology"
+              ],
+              "tags": ["science", "biology", "ecology"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wu",
+      "name": "Wollega University",
+      "location": "Nekemte, Ethiopia",
+      "website": "http://www.wollegauniversity.edu.et",
+      "description": "A public university located in the western part of Ethiopia.",
+      "logoUrl": "/universities/wu-logo.png",
+      "generalRequirements": [
+        "Completion of high school",
+        "Successful score on the Ethiopian Higher Education Entrance Examination",
+        "Meeting specific program requirements"
+      ],
+      "departments": [
+        {
+          "id": "agriculture",
+          "name": "College of Agriculture and Natural Resources",
+          "description": "Focuses on agricultural development and sustainable resource management in the Wollega region.",
+          "programs": [
+            {
+              "id": "rural-development-agricultural-extension",
+              "name": "Bachelor of Science in Rural Development and Agricultural Extension",
+              "description": "Focuses on improving rural livelihoods through agricultural development and extension services.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "15,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in rural community development"
+              ],
+              "highlights": [
+                "Community development strategies",
+                "Agricultural extension methods",
+                "Sustainable agriculture"
+              ],
+              "courses": [
+                "Principles of Rural Development",
+                "Agricultural Extension Methods",
+                "Sustainable Agriculture",
+                "Community Mobilization"
+              ],
+              "careerOpportunities": [
+                "Rural Development Officer",
+                "Agricultural Extension Agent",
+                "Community Development Worker"
+              ],
+              "professors": [
+                "Dr. Tesfaye Getu - Rural Sociology",
+                "Prof. Hiwot Tadesse - Agricultural Extension"
+              ],
+              "tags": ["agriculture", "rural development", "extension"]
+            },
+            {
+              "id": "agribusiness-management",
+              "name": "Bachelor of Science in Agribusiness Management",
+              "description": "Focuses on the business aspects of agriculture and the food industry.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "15,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in business and agriculture"
+              ],
+              "highlights": [
+                "Agricultural marketing",
+                "Farm financial management",
+                "Agribusiness entrepreneurship"
+              ],
+              "courses": [
+                "Principles of Agribusiness Management",
+                "Agricultural Marketing",
+                "Farm Financial Management",
+                "Agribusiness Entrepreneurship"
+              ],
+              "careerOpportunities": [
+                "Agribusiness Manager",
+                "Agricultural Marketing Specialist",
+                "Farm Business Consultant"
+              ],
+              "professors": [
+                "Dr. Rahel Lemma - Agricultural Economics",
+                "Prof. Abebe Solomon - Business Management"
+              ],
+              "tags": ["agriculture", "business", "management"]
+            }
+          ]
+        },
+        {
+          "id": "health-sciences",
+          "name": "College of Health Sciences",
+          "description": "Dedicated to improving the health and well-being of the community through education and service.",
+          "programs": [
+            {
+              "id": "nursing",
+              "name": "Bachelor of Science in Nursing",
+              "description": "Trains professional nurses to provide quality healthcare.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Commitment to patient care"
+              ],
+              "highlights": [
+                "Clinical practice in hospitals and health centers",
+                "Community health nursing",
+                "Nursing leadership"
+              ],
+              "courses": [
+                "Fundamentals of Nursing",
+                "Medical-Surgical Nursing",
+                "Pediatric Nursing",
+                "Maternal and Child Health Nursing"
+              ],
+              "careerOpportunities": [
+                "Registered Nurse",
+                "Nurse Educator",
+                "Public Health Nurse"
+              ],
+              "professors": [
+                "Dr. Hiwot Tadesse - Nursing Education",
+                "Prof. Solomon Getachew - Community Health Nursing"
+              ],
+              "tags": ["health", "nursing", "patient care"]
+            },
+            {
+              "id": "medical-laboratory-technology",
+              "name": "Bachelor of Science in Medical Laboratory Technology",
+              "description": "Trains professionals to perform laboratory tests for the diagnosis and management of diseases.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "18,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA in biology and chemistry",
+                "Attention to detail and accuracy"
+              ],
+              "highlights": [
+                "Clinical chemistry",
+                "Hematology and blood transfusion",
+                "Medical microbiology and parasitology"
+              ],
+              "courses": [
+                "Clinical Chemistry",
+                "Hematology",
+                "Medical Microbiology",
+                "Parasitology"
+              ],
+              "careerOpportunities": [
+                "Medical Laboratory Technologist",
+                "Research Technician"
+              ],
+              "professors": [
+                "Dr. Rahel Solomon - Medical Microbiology",
+                "Prof. Abebe Haile - Clinical Chemistry"
+              ],
+              "tags": ["health", "laboratory", "medical technology"]
+            }
+          ]
+        },
+        {
+          "id": "education",
+          "name": "College of Education",
+          "description": "Committed to training qualified and motivated teachers for all levels of education.",
+          "programs": [
+            {
+              "id": "english-language-teaching",
+              "name": "Bachelor of Arts in English Language and Literature with Teacher Education",
+              "description": "Prepares graduates to teach English language and literature effectively.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "14,000 ETB per year",
+              "applicationDeadline": "July 5, 2025",
+              "entryRequirements": [
+                "Good command of English",
+                "Interest in literature and language"
+              ],
+              "highlights": [
+                "Language teaching methodologies",
+                "Literary analysis and interpretation",
+                "Curriculum development in English"
+              ],
+              "courses": [
+                "English Grammar and Usage",
+                "Introduction to English Literature",
+                "Teaching Methodology",
+                "Curriculum Design"
+              ],
+              "careerOpportunities": [
+                "English Teacher",
+                "Language Instructor",
+                "Curriculum Developer"
+              ],
+              "professors": [
+                "Dr. Solomon Lemma - Applied Linguistics",
+                "Prof. Hiwot Getachew - English Literature"
+              ],
+              "tags": ["education", "english", "language"]
+            },
+            {
+              "id": "civics-ethics-education",
+              "name": "Bachelor of Arts in Civics and Ethics Education",
+              "description": "Prepares teachers to educate students on civic responsibilities and ethical values.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "14,000 ETB per year",
+              "applicationDeadline": "July 5, 2025",
+              "entryRequirements": [
+                "Interest in social and political issues",
+                "Strong ethical values"
+              ],
+              "highlights": [
+                "Civic education principles",
+                "Ethical theories and practices",
+                "Citizenship and governance"
+              ],
+              "courses": [
+                "Introduction to Civics and Ethics",
+                "Political Philosophy",
+                "Moral and Ethical Theories",
+                "Citizenship and Governance"
+              ],
+              "careerOpportunities": [
+                "Civics and Ethics Teacher",
+                "Citizenship Education Officer"
+              ],
+              "professors": [
+                "Dr. Rahel Tadesse - Political Science",
+                "Prof. Abebe Haile - Philosophy"
+              ],
+              "tags": ["education", "civics", "ethics"]
+            }
+          ]
+        },
+        {
+          "id": "business-economics",
+          "name": "College of Business and Economics",
+          "description": "Offers programs in business, economics, and management to develop future leaders.",
+          "programs": [
+            {
+              "id": "accounting",
+              "name": "Bachelor of Arts in Accounting",
+              "description": "Focuses on the principles and practices of financial and management accounting.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "16,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Aptitude for numbers and finance"
+              ],
+              "highlights": [
+                "Financial statement analysis",
+                "Cost accounting",
+                "Auditing principles"
+              ],
+              "courses": [
+                "Principles of Accounting I",
+                "Principles of Accounting II",
+                "Cost and Management Accounting",
+                "Auditing and Assurance"
+              ],
+              "careerOpportunities": [
+                "Accountant",
+                "Auditor",
+                "Financial Analyst"
+              ],
+              "professors": [
+                "Dr. Solomon Getachew - Financial Accounting",
+                "Prof. Hiwot Lemma - Management Accounting"
+              ],
+              "tags": ["business", "accounting", "finance"]
+            },
+            {
+              "id": "marketing-management",
+              "name": "Bachelor of Arts in Marketing Management",
+              "description": "Focuses on strategies for promoting and selling products and services effectively.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "16,000 ETB per year",
+              "applicationDeadline": "June 15, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Creativity and communication skills"
+              ],
+              "highlights": [
+                "Market research",
+                "Advertising and promotion",
+                "Sales management"
+              ],
+              "courses": [
+                "Principles of Marketing",
+                "Consumer Behavior",
+                "Marketing Research",
+                "Sales Management"
+              ],
+              "careerOpportunities": [
+                "Marketing Manager",
+                "Brand Manager",
+                "Sales Executive"
+              ],
+              "professors": [
+                "Dr. Rahel Tadesse - Marketing Strategy",
+                "Prof. Abebe Haile - Consumer Psychology"
+              ],
+              "tags": ["business", "marketing", "management"]
+            }
+          ]
+        },
+        {
+          "id": "social-sciences-humanities",
+          "name": "College of Social Sciences and Humanities",
+          "description": "Offers programs that explore human society, culture, and history.",
+          "programs": [
+            {
+              "id": "sociology",
+              "name": "Bachelor of Arts in Sociology",
+              "description": "Studies society, social interaction, and the causes and consequences of social behavior.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "14,000 ETB per year",
+              "applicationDeadline": "July 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in social issues and research"
+              ],
+              "highlights": [
+                "Social theories",
+                "Sociological research methods",
+                "Social problems and policy"
+              ],
+              "courses": [
+                "Introduction to Sociology",
+                "Social Theory",
+                "Sociological Research Methods",
+                "Social Problems"
+              ],
+              "careerOpportunities": [
+                "Social Worker",
+                "Researcher",
+                "Policy Analyst"
+              ],
+              "professors": [
+                "Dr. Solomon Lemma - Sociological Theory",
+                "Prof. Hiwot Getachew - Research Methods"
+              ],
+              "tags": ["social sciences", "sociology", "society"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "amu",
+      "name": "Arba Minch University",
+      "location": "Arba Minch, Ethiopia",
+      "website": "http://www.amu.edu.et",
+      "description": "A public university known for its diverse programs and research activities.",
+      "logoUrl": "/universities/amu-logo.png",
+      "generalRequirements": [
+        "Successful completion of secondary education",
+        "Passing score on the Ethiopian Higher Education Entrance Examination",
+        "Specific requirements for different programs"
+      ],
+      "departments": [
+        {
+          "id": "engineering",
+          "name": "Faculty of Engineering",
+          "description": "Offers a range of engineering programs to meet the growing technological demands.",
+          "programs": [
+            {
+              "id": "electrical-computer-engineering",
+              "name": "Bachelor of Science in Electrical and Computer Engineering",
+              "description": "Combines the principles of electrical engineering with computer science.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "May 20, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and physics",
+                "Minimum GPA"
+              ],
+              "highlights": [
+                "Digital systems design",
+                "Microprocessor systems",
+                "Power electronics"
+              ],
+              "courses": [
+                "Circuit Theory",
+                "Digital Logic Design",
+                "Microprocessors and Microcontrollers",
+                "Power Electronics"
+              ],
+              "careerOpportunities": [
+                "Electrical Engineer",
+                "Computer Engineer",
+                "Electronics Engineer"
+              ],
+              "professors": [
+                "Dr. Abebe Haile - Digital Systems",
+                "Prof. Rahel Solomon - Power Electronics"
+              ],
+              "tags": ["engineering", "electrical", "computer"]
+            },
+            {
+              "id": "water-resources-environmental-engineering",
+              "name": "Bachelor of Science in Water Resources and Environmental Engineering",
+              "description": "Focuses on the sustainable management of water resources and environmental protection.",
+              "duration": "5 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "22,000 ETB per year",
+              "applicationDeadline": "May 20, 2025",
+              "entryRequirements": [
+                "Strong background in mathematics and physics",
+                "Interest in environmental issues"
+              ],
+              "highlights": [
+                "Hydrology and water resources management",
+                "Environmental pollution control",
+                "Irrigation and drainage engineering"
+              ],
+              "courses": [
+                "Fluid Mechanics",
+                "Hydrology",
+                "Environmental Engineering",
+                "Irrigation and Drainage"
+              ],
+              "careerOpportunities": [
+                "Water Resources Engineer",
+                "Environmental Engineer",
+                "Irrigation Engineer"
+              ],
+              "professors": [
+                "Dr. Solomon Lemma - Hydrology",
+                "Prof. Hiwot Getachew - Environmental Engineering"
+              ],
+              "tags": ["engineering", "water resources", "environment"]
+            }
+          ]
+        },
+        {
+          "id": "business-economics",
+          "name": "College of Business and Economics",
+          "description": "Offers programs in business, economics, and management to prepare future leaders.",
+          "programs": [
+            {
+              "id": "economics",
+              "name": "Bachelor of Arts in Economics",
+              "description": "Studies the principles of economics with a focus on development issues.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "17,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in economic development"
+              ],
+              "highlights": [
+                "Development economics",
+                "Public finance",
+                "Econometrics"
+              ],
+              "courses": [
+                "Principles of Economics",
+                "Development Economics",
+                "Public Finance",
+                "Econometrics"
+              ],
+              "careerOpportunities": [
+                "Economist",
+                "Development Planner",
+                "Policy Analyst"
+              ],
+              "professors": [
+                "Dr. Rahel Tadesse - Development Economics",
+                "Prof. Abebe Solomon - Public Finance"
+              ],
+              "tags": ["business", "economics", "development"]
+            },
+            {
+              "id": "tourism-management",
+              "name": "Bachelor of Arts in Tourism Management",
+              "description": "Focuses on the management and sustainability of tourism destinations and businesses.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "17,000 ETB per year",
+              "applicationDeadline": "June 10, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in tourism and hospitality"
+              ],
+              "highlights": [
+                "Tourism planning and development",
+                "Hospitality management",
+                "Sustainable tourism"
+              ],
+              "courses": [
+                "Introduction to Tourism and Hospitality",
+                "Tourism Planning and Development",
+                "Hospitality Management",
+                "Sustainable Tourism"
+              ],
+              "careerOpportunities": [
+                "Tourism Manager",
+                "Hotel Manager",
+                "Tour Operator"
+              ],
+              "professors": [
+                "Dr. Tigist Getu - Tourism Planning",
+                "Prof. Yonas Haile - Hospitality Management"
+              ],
+              "tags": ["business", "tourism", "management"]
+            }
+          ]
+        },
+        {
+          "id": "agriculture",
+          "name": "College of Agriculture",
+          "description": "Dedicated to advancing agricultural practices and rural development in the region.",
+          "programs": [
+            {
+              "id": "horticulture",
+              "name": "Bachelor of Science in Horticulture",
+              "description": "Focuses on the science and art of cultivating fruits, vegetables, and ornamental plants.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "16,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science subjects",
+                "Interest in plants and gardening"
+              ],
+              "highlights": [
+                "Plant propagation techniques",
+                "Greenhouse management",
+                "Post-harvest handling"
+              ],
+              "courses": [
+                "Principles of Horticulture",
+                "Plant Propagation",
+                "Greenhouse Management",
+                "Post-harvest Technology"
+              ],
+              "careerOpportunities": [
+                "Horticulturist",
+                "Nursery Manager",
+                "Landscape Designer"
+              ],
+              "professors": [
+                "Dr. Rahel Solomon - Horticulture Science",
+                "Prof. Abebe Haile - Plant Breeding"
+              ],
+              "tags": ["agriculture", "horticulture", "plants"]
+            },
+            {
+              "id": "natural-resource-management",
+              "name": "Bachelor of Science in Natural Resource Management",
+              "description": "Focuses on the sustainable use and conservation of natural resources.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "16,000 ETB per year",
+              "applicationDeadline": "May 25, 2025",
+              "entryRequirements": [
+                "Interest in environmental science",
+                "Minimum GPA in science subjects"
+              ],
+              "highlights": [
+                "Forestry",
+                "Wildlife management",
+                "Soil and water conservation"
+              ],
+              "courses": [
+                "Introduction to Natural Resource Management",
+                "Forestry",
+                "Wildlife Management",
+                "Soil and Water Conservation"
+              ],
+              "careerOpportunities": [
+                "Natural Resource Manager",
+                "Conservation Officer",
+                "Environmental Consultant"
+              ],
+              "professors": [
+                "Dr. Solomon Getachew - Forestry",
+                "Prof. Hiwot Tadesse - Environmental Science"
+              ],
+              "tags": ["agriculture", "natural resources", "environment"]
+            }
+          ]
+        },
+        {
+          "id": "health-sciences",
+          "name": "College of Medicine and Health Sciences",
+          "description": "Committed to training healthcare professionals for the southern region of Ethiopia.",
+          "programs": [
+            {
+              "id": "medicine",
+              "name": "Doctor of Medicine (MD)",
+              "description": "A comprehensive program to train future medical doctors.",
+              "duration": "6 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "25,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "High academic achievement in science subjects",
+                "Successful completion of pre-medical studies"
+              ],
+              "highlights": [
+                "Clinical rotations in regional hospitals",
+                "Community-based health programs",
+                "Research opportunities"
+              ],
+              "courses": [
+                "Anatomy",
+                "Physiology",
+                "Biochemistry",
+                "Internal Medicine",
+                "Surgery"
+              ],
+              "careerOpportunities": [
+                "Medical Doctor",
+                "Specialist Physician",
+                "Public Health Officer"
+              ],
+              "professors": [
+                "Dr. Tesfaye Lemma - Internal Medicine",
+                "Prof. Rahel Getachew - Surgery"
+              ],
+              "tags": ["health", "medicine", "clinical"]
+            },
+            {
+              "id": "public-health",
+              "name": "Bachelor of Science in Public Health",
+              "description": "Focuses on the prevention of disease and the promotion of health in communities.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "20,000 ETB per year",
+              "applicationDeadline": "June 20, 2025",
+              "entryRequirements": [
+                "Minimum GPA in science or social science subjects",
+                "Interest in community health issues"
+              ],
+              "highlights": [
+                "Epidemiology and biostatistics",
+                "Health policy and management",
+                "Environmental health"
+              ],
+              "courses": [
+                "Introduction to Public Health",
+                "Epidemiology",
+                "Biostatistics",
+                "Health Policy and Management"
+              ],
+              "careerOpportunities": [
+                "Public Health Officer",
+                "Health Program Manager",
+                "Epidemiologist"
+              ],
+              "professors": [
+                "Dr. Solomon Haile - Epidemiology",
+                "Prof. Hiwot Solomon - Health Policy"
+              ],
+              "tags": ["health", "public health", "community health"]
+            }
+          ]
+        },
+        {
+          "id": "social-sciences-humanities",
+          "name": "College of Social Sciences and Humanities",
+          "description": "Offers programs that explore human society, culture, and history.",
+          "programs": [
+            {
+              "id": "geography-environmental-studies",
+              "name": "Bachelor of Arts in Geography and Environmental Studies",
+              "description": "Studies the Earth's surface, its features, inhabitants, and phenomena, with a focus on environmental issues.",
+              "duration": "4 years",
+              "studyMode": "Full-time",
+              "tuitionFee": "15,000 ETB per year",
+              "applicationDeadline": "July 1, 2025",
+              "entryRequirements": [
+                "Minimum GPA",
+                "Interest in geography and environmental science"
+              ],
+              "highlights": [
+                "Geographic Information Systems (GIS)",
+                "Climate change studies",
+                "Environmental management"
+              ],
+              "courses": [
+                "Physical Geography",
+                "Human Geography",
+                "Introduction to Environmental Science",
+                "Remote Sensing and GIS"
+              ],
+              "careerOpportunities": [
+                "Geographer",
+                "Environmental Consultant",
+                "Urban Planner"
+              ],
+              "professors": [
+                "Dr. Rahel Getachew - Environmental Geography",
+                "Prof. Abebe Lemma - Climatology"
+              ],
+              "tags": ["social sciences", "geography", "environment"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
