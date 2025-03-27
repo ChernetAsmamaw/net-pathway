@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useChatStore } from "@/store/useChatStore";
-import { ArrowLeft, Send, Archive } from "lucide-react";
+import { Send, Archive } from "lucide-react";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatHeader from "@/components/chat/ChatHeader";
 import EmptyState from "@/components/chat/EmptyState";
@@ -22,6 +22,7 @@ export default function ChatDetailPage() {
     sendMessage,
     markChatAsRead,
     archiveChat,
+    usingMockData,
   } = useChatStore();
 
   const [newMessage, setNewMessage] = useState("");
@@ -41,31 +42,39 @@ export default function ChatDetailPage() {
     initAuth();
   }, [checkAuth, isAuthenticated, router]);
 
-  // Fetch chat by ID
+  // Fetch chat by ID and mark as read
   useEffect(() => {
     if (isAuthenticated && chatId) {
+      console.log(
+        `Fetching chat: ${chatId}, Authenticated: ${isAuthenticated}`
+      );
       fetchChatById(chatId);
-
-      // Mark chat as read
       markChatAsRead(chatId);
     }
-
-    // Poll for new messages every 10 seconds
-    const interval = setInterval(() => {
-      if (isAuthenticated && chatId) {
-        fetchChatById(chatId);
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
   }, [isAuthenticated, chatId, fetchChatById, markChatAsRead]);
 
-  // Scroll to bottom of messages
+  // Scroll to bottom of messages when they change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [currentChat?.messages]);
+
+  // Get other user from the chat - safely extract values
+  const getOtherUser = () => {
+    if (!currentChat || !user) return null;
+
+    // Safely get IDs and convert to strings for comparison
+    // Make sure none of the properties are undefined
+    const currentUserId = user._id?.toString() || ""; // Use _id instead of id
+    const initiatorId = currentChat.initiator?._id?.toString() || "";
+
+    if (currentUserId === initiatorId) {
+      return currentChat.mentor;
+    } else {
+      return currentChat.initiator;
+    }
+  };
 
   // Handle sending a message
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -73,7 +82,9 @@ export default function ChatDetailPage() {
 
     if (!newMessage.trim()) return;
 
+    console.log(`Sending message in chat: ${chatId}`);
     const success = await sendMessage(chatId, newMessage);
+
     if (success) {
       setNewMessage("");
     }
@@ -81,20 +92,14 @@ export default function ChatDetailPage() {
 
   // Handle archive chat
   const handleArchiveChat = async () => {
+    console.log(`Archiving chat: ${chatId}`);
     const success = await archiveChat(chatId);
+
     if (success) {
       router.push("/chats");
     }
+
     setShowArchiveConfirm(false);
-  };
-
-  // Get other user from the chat
-  const getOtherUser = () => {
-    if (!currentChat || !user) return null;
-
-    return user.id === currentChat.initiator._id
-      ? currentChat.mentor
-      : currentChat.initiator;
   };
 
   const otherUser = getOtherUser();
@@ -132,23 +137,24 @@ export default function ChatDetailPage() {
                 {/* Chat Header */}
                 <ChatHeader
                   chat={currentChat}
-                  currentUserId={user.id}
+                  currentUserId={user._id || ""} // Use _id instead of id
                   onBack={() => router.push("/chats")}
                   onArchive={() => setShowArchiveConfirm(true)}
                 />
 
                 {/* Messages Area */}
                 <div className="flex-grow overflow-y-auto p-4">
-                  {currentChat.messages.length === 0 ? (
+                  {!currentChat.messages ||
+                  currentChat.messages.length === 0 ? (
                     <div className="h-full flex items-center justify-center text-center p-4">
                       <div>
                         <p className="text-gray-500 mb-2">
                           No messages yet. Start the conversation with{" "}
-                          {otherUser?.username}!
+                          {otherUser?.username || "this mentor"}!
                         </p>
                         <p className="text-gray-400 text-sm">
-                          {currentChat.mentorProfile.title} at{" "}
-                          {currentChat.mentorProfile.company}
+                          {currentChat.mentorProfile?.title || "Mentor"} at{" "}
+                          {currentChat.mentorProfile?.company || "Company"}
                         </p>
                       </div>
                     </div>
@@ -158,7 +164,10 @@ export default function ChatDetailPage() {
                         <ChatMessage
                           key={message._id}
                           message={message}
-                          isOwnMessage={message.sender._id === user.id}
+                          isOwnMessage={
+                            message.sender?._id?.toString() ===
+                            user._id?.toString()
+                          }
                         />
                       ))}
                       <div ref={messagesEndRef} />

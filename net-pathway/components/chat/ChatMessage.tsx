@@ -28,6 +28,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
     }
   };
 
+  // For debugging
+  console.log(
+    `Rendering message from ${message.sender.username}, isOwnMessage: ${isOwnMessage}`
+  );
+
   return (
     <div className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
       <div className="flex items-end max-w-[80%] md:max-w-[70%] gap-2">
@@ -42,7 +47,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
               />
             ) : (
               <span className="text-xs font-bold text-sky-700">
-                {message.sender.username.charAt(0)}
+                {message.sender.username
+                  ? message.sender.username.charAt(0).toUpperCase()
+                  : "?"}
               </span>
             )}
           </div>
@@ -77,7 +84,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
               />
             ) : (
               <span className="text-xs font-bold text-sky-700">
-                {message.sender.username.charAt(0)}
+                {message.sender.username
+                  ? message.sender.username.charAt(0).toUpperCase()
+                  : "U"}
               </span>
             )}
           </div>

@@ -16,11 +16,32 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   onBack,
   onArchive,
 }) => {
-  // Get the other user in the conversation
-  const otherUser =
-    currentUserId === chat.initiator._id ? chat.mentor : chat.initiator;
-
   const [showMenu, setShowMenu] = React.useState(false);
+
+  // Safely get other user with null checks
+  const getOtherUser = () => {
+    if (!chat || !currentUserId) {
+      return chat?.mentor || chat?.initiator || null;
+    }
+
+    // Ensure we're comparing string IDs safely
+    const currentUserIdStr = currentUserId?.toString() || "";
+    const initiatorIdStr = chat.initiator?._id?.toString() || "";
+
+    // If current user is the initiator, show the mentor
+    if (
+      currentUserIdStr &&
+      initiatorIdStr &&
+      currentUserIdStr === initiatorIdStr
+    ) {
+      return chat.mentor;
+    }
+
+    // Otherwise show the initiator
+    return chat.initiator;
+  };
+
+  const otherUser = getOtherUser();
 
   return (
     <div className="p-4 border-b border-gray-100 flex items-center justify-between">
@@ -36,23 +57,28 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-100 to-purple-100 flex items-center justify-center overflow-hidden">
-            {otherUser.profilePicture ? (
+            {otherUser?.profilePicture ? (
               <img
                 src={otherUser.profilePicture}
-                alt={otherUser.username}
+                alt={otherUser.username || "User"}
                 className="w-full h-full object-cover"
               />
             ) : (
               <span className="text-sm font-bold text-sky-700">
-                {otherUser.username.charAt(0)}
+                {otherUser?.username
+                  ? otherUser.username.charAt(0).toUpperCase()
+                  : "?"}
               </span>
             )}
           </div>
 
           <div>
-            <h3 className="font-medium text-gray-900">{otherUser.username}</h3>
+            <h3 className="font-medium text-gray-900">
+              {otherUser?.username || "User"}
+            </h3>
             <p className="text-xs text-gray-500">
-              {chat.mentorProfile.title} · {chat.mentorProfile.company}
+              {chat.mentorProfile?.title || "Mentor"} ·{" "}
+              {chat.mentorProfile?.company || "Company"}
             </p>
           </div>
         </div>
