@@ -63,7 +63,7 @@ interface ChatState {
   setCurrentChat: (chat: Chat | null) => void;
 }
 
-// Helper to create mock chats - always use mock data due to 404s
+// Helper to create mock chats
 const createMockChat = (mentorId: string, mentorName: string): Chat => {
   const uniqueId = `mock-${Date.now()}-${Math.random()
     .toString(36)
@@ -73,7 +73,7 @@ const createMockChat = (mentorId: string, mentorName: string): Chat => {
     _id: uniqueId,
     initiator: {
       _id: "current-user-id",
-      username: "Current User",
+      username: "You", // Changed from "Current User" to "You"
       profilePicture: undefined,
     },
     mentor: {
@@ -111,13 +111,61 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       set({ loadingChats: true, error: null });
 
-      // Skip API call and use mock data since the endpoint is 404ing
+      // For now using mock data
       console.log("Using mock chat data since API is not available");
 
-      // Create a couple of mock chats
+      // Create mock chats with a few sample mentors
       const mockChats = [
         createMockChat("mentor1", "John Mentor"),
         createMockChat("mentor2", "Alice Advisor"),
+        createMockChat("mentor3", "Robert Coach"),
+      ];
+
+      // Add some sample messages to make the chats more realistic
+      mockChats[0].messages = [
+        {
+          _id: `msg-1`,
+          content:
+            "Hello, I'm interested in learning more about your mentorship program.",
+          sender: mockChats[0].initiator,
+          read: true,
+          createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        },
+        {
+          _id: `msg-2`,
+          content:
+            "Hi there! I'd be happy to tell you more about it. What specific areas are you looking to improve?",
+          sender: mockChats[0].mentor,
+          read: true,
+          createdAt: new Date(Date.now() - 82800000).toISOString(), // 23 hours ago
+        },
+      ];
+
+      mockChats[1].messages = [
+        {
+          _id: `msg-3`,
+          content:
+            "I'm looking for guidance on advancing my career in software development.",
+          sender: mockChats[1].initiator,
+          read: true,
+          createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+        },
+        {
+          _id: `msg-4`,
+          content:
+            "That's great! I specialize in software career advancement. What's your current role?",
+          sender: mockChats[1].mentor,
+          read: true,
+          createdAt: new Date(Date.now() - 169200000).toISOString(), // 47 hours ago
+        },
+        {
+          _id: `msg-5`,
+          content:
+            "I'm currently a junior developer looking to move into a mid-level position.",
+          sender: mockChats[1].initiator,
+          read: true,
+          createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        },
       ];
 
       set({
@@ -139,7 +187,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       set({ loadingChat: true, error: null });
 
-      // If we're already using mock data or the API is unavailable
       // Just use mock data since the API is 404ing
       const { chats } = get();
       const mockChat = chats.find((chat) => chat._id === chatId);
@@ -154,6 +201,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
           chatId.replace("mock-", ""),
           "Demo Mentor"
         );
+
+        // Add welcome message from the mentor
+        newMockChat.messages = [
+          {
+            _id: `msg-welcome-${Date.now()}`,
+            content: "Hello! I'm your new mentor. How can I help you today?",
+            sender: newMockChat.mentor,
+            read: false,
+            createdAt: new Date().toISOString(),
+          },
+        ];
 
         set({
           currentChat: newMockChat,
@@ -191,7 +249,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       // Create a mock chat since the API is 404ing
       console.log("Creating mock chat for mentor:", mentorId);
-      const newMockChat = createMockChat(mentorId, `Mentor ${mentorId}`);
+
+      // Determine a more realistic mentor name based on ID
+      let mentorName = "Unknown Mentor";
+      if (mentorId.includes("1")) mentorName = "John Mentor";
+      else if (mentorId.includes("2")) mentorName = "Alice Advisor";
+      else if (mentorId.includes("3")) mentorName = "Robert Coach";
+      else if (mentorId.includes("4")) mentorName = "Sarah Guide";
+      else mentorName = `Mentor ${mentorId.slice(-2)}`;
+
+      const newMockChat = createMockChat(mentorId, mentorName);
+
+      // Add an automatic welcome message from the mentor
+      newMockChat.messages = [
+        {
+          _id: `msg-welcome-${Date.now()}`,
+          content: `Hello! I'm ${mentorName}. I'm happy to connect with you. How can I help with your career development today?`,
+          sender: newMockChat.mentor,
+          read: false,
+          createdAt: new Date().toISOString(),
+        },
+      ];
 
       // Add to chats list
       const { chats } = get();
@@ -225,7 +303,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         content,
         sender: {
           _id: "current-user-id",
-          username: "Current User",
+          username: "You", // Changed from "Current User" to "You"
           profilePicture: undefined,
         },
         read: false,
@@ -250,7 +328,40 @@ export const useChatStore = create<ChatState>((set, get) => ({
           ),
         });
 
-        console.log("Added mock message:", mockMessage);
+        // Add automatic mentor response after a short delay
+        setTimeout(() => {
+          // Only respond if still on the same chat
+          const currentState = get();
+          if (currentState.currentChat?._id === chatId) {
+            const responseMessage = {
+              _id: `msg-${Date.now()}-${Math.random()
+                .toString(36)
+                .substring(2, 9)}`,
+              content: generateMentorResponse(
+                content,
+                currentState.currentChat.mentor.username
+              ),
+              sender: currentState.currentChat.mentor,
+              read: false,
+              createdAt: new Date().toISOString(),
+            };
+
+            const updatedChat = {
+              ...currentState.currentChat,
+              messages: [...currentState.currentChat.messages, responseMessage],
+              lastMessage: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+
+            set({
+              currentChat: updatedChat,
+              chats: currentState.chats.map((chat) =>
+                chat._id === chatId ? updatedChat : chat
+              ),
+            });
+          }
+        }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
+
         return true;
       }
 
@@ -293,13 +404,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   // Get count of unread chats - just use local data
   fetchUnreadCount: async () => {
-    // Skip API call since it's 404ing
     // Just calculate from local data
     try {
       const { chats } = get();
-      const unreadCount = chats.filter((chat) =>
-        (chat.unreadBy || []).includes("current-user-id")
-      ).length;
+      const unreadCount = chats.filter((chat) => {
+        // Safely check if the current user is in the unreadBy array
+        return (chat.unreadBy || []).some(
+          (id) => String(id) === "current-user-id"
+        );
+      }).length;
 
       set({ unreadCount });
     } catch (error) {
@@ -346,5 +459,62 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ currentChat: chat });
   },
 }));
+
+// Helper function to generate realistic mentor responses
+function generateMentorResponse(
+  userMessage: string,
+  mentorName: string
+): string {
+  const userMessageLower = userMessage.toLowerCase();
+
+  // Check for common questions/patterns and provide relevant responses
+  if (
+    userMessageLower.includes("hello") ||
+    userMessageLower.includes("hi") ||
+    userMessageLower.includes("hey")
+  ) {
+    return `Hello there! How can I help you today?`;
+  }
+
+  if (
+    userMessageLower.includes("experience") ||
+    userMessageLower.includes("background")
+  ) {
+    return `I have over 8 years of experience in tech and career development. I've worked with companies like TechCorp and InnoSystems before becoming a mentor.`;
+  }
+
+  if (userMessageLower.includes("resume") || userMessageLower.includes("cv")) {
+    return `I'd be happy to review your resume! You can share it here or we can schedule a call to go through it together.`;
+  }
+
+  if (
+    userMessageLower.includes("interview") ||
+    userMessageLower.includes("interviews")
+  ) {
+    return `Interview preparation is crucial. Let's focus on common questions in your field and practice with mock interviews. Would you like to start with technical or behavioral questions?`;
+  }
+
+  if (userMessageLower.includes("thank")) {
+    return `You're welcome! I'm here to help. Let me know if you have any other questions.`;
+  }
+
+  if (
+    userMessageLower.includes("advice") ||
+    userMessageLower.includes("suggestion")
+  ) {
+    return `My advice would be to focus on building a portfolio of projects that demonstrate your skills. Also, networking is incredibly important in this industry. Have you been attending any industry events or meetups?`;
+  }
+
+  // Default responses for when no specific pattern is matched
+  const defaultResponses = [
+    `That's an interesting point. Could you tell me more about your goals in this area?`,
+    `I understand where you're coming from. Based on my experience, I would suggest focusing on developing your skills in that direction.`,
+    `Great question! This is something many of my mentees ask about. Let's break this down step by step.`,
+    `I think we should explore this topic further. It's an important aspect of your career development.`,
+    `Let me share some insights from my experience that might help you with this.`,
+  ];
+
+  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+}
 
 export default useChatStore;

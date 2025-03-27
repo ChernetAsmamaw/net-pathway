@@ -1,3 +1,4 @@
+// components/chat/ChatListItem.tsx
 import React from "react";
 import { Chat } from "@/store/useChatStore";
 import { formatDistanceToNow } from "date-fns";
@@ -13,14 +14,13 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   currentUserId,
   onClick,
 }) => {
-  // Determine if this user has unread messages - convert to string for proper comparison
-  const hasUnread = chat.unreadBy.some((id) => id.toString() === currentUserId);
+  // Determine if this user has unread messages - safely convert values to strings for comparison
+  const hasUnread = chat.unreadBy.some(
+    (id) => String(id) === String(currentUserId)
+  );
 
-  // Get the other user in the conversation - ensure we're comparing strings
-  const otherUser =
-    currentUserId === chat.initiator._id.toString()
-      ? chat.mentor
-      : chat.initiator;
+  // Get the other user in the conversation (always show the mentor)
+  const otherUser = chat.mentor;
 
   // Get last message if any
   const lastMessage =
@@ -94,9 +94,9 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
                 hasUnread ? "text-gray-900 font-medium" : "text-gray-500"
               }`}
             >
-              {lastMessage.sender._id.toString() === currentUserId
+              {String(lastMessage.sender._id) === String(currentUserId)
                 ? "You: "
-                : ""}
+                : `${otherUser.username}: `}
               {lastMessage.content}
             </p>
           )}

@@ -22,7 +22,6 @@ export default function ChatDetailPage() {
     sendMessage,
     markChatAsRead,
     archiveChat,
-    usingMockData,
   } = useChatStore();
 
   const [newMessage, setNewMessage] = useState("");
@@ -60,22 +59,6 @@ export default function ChatDetailPage() {
     }
   }, [currentChat?.messages]);
 
-  // Get other user from the chat - safely extract values
-  const getOtherUser = () => {
-    if (!currentChat || !user) return null;
-
-    // Safely get IDs and convert to strings for comparison
-    // Make sure none of the properties are undefined
-    const currentUserId = user._id?.toString() || ""; // Use _id instead of id
-    const initiatorId = currentChat.initiator?._id?.toString() || "";
-
-    if (currentUserId === initiatorId) {
-      return currentChat.mentor;
-    } else {
-      return currentChat.initiator;
-    }
-  };
-
   // Handle sending a message
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +85,22 @@ export default function ChatDetailPage() {
     setShowArchiveConfirm(false);
   };
 
-  const otherUser = getOtherUser();
+  // Helper function to determine if a message is from the current user
+  const isOwnMessage = (messageId: string) => {
+    if (!currentChat || !user) return false;
+
+    const message = currentChat.messages.find((m) => m._id === messageId);
+    if (!message) return false;
+
+    return message.sender._id === "current-user-id";
+  };
+
+  // Get mentor data for display
+  const getMentor = () => {
+    return currentChat?.mentor || null;
+  };
+
+  const mentor = getMentor();
 
   if (!user) {
     return (
@@ -137,7 +135,7 @@ export default function ChatDetailPage() {
                 {/* Chat Header */}
                 <ChatHeader
                   chat={currentChat}
-                  currentUserId={user._id || ""} // Use _id instead of id
+                  currentUserId="current-user-id" // Fixed currentUserId
                   onBack={() => router.push("/chats")}
                   onArchive={() => setShowArchiveConfirm(true)}
                 />
@@ -150,7 +148,7 @@ export default function ChatDetailPage() {
                       <div>
                         <p className="text-gray-500 mb-2">
                           No messages yet. Start the conversation with{" "}
-                          {otherUser?.username || "this mentor"}!
+                          {mentor?.username || "this mentor"}!
                         </p>
                         <p className="text-gray-400 text-sm">
                           {currentChat.mentorProfile?.title || "Mentor"} at{" "}
@@ -165,8 +163,7 @@ export default function ChatDetailPage() {
                           key={message._id}
                           message={message}
                           isOwnMessage={
-                            message.sender?._id?.toString() ===
-                            user._id?.toString()
+                            String(message.sender._id) === "current-user-id"
                           }
                         />
                       ))}

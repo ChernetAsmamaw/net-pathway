@@ -1,3 +1,4 @@
+// components/chat/ChatMessage.tsx
 import React from "react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -24,14 +25,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
     try {
       return formatDistanceToNow(new Date(dateString), { addSuffix: true });
     } catch (error) {
+      console.error("Date formatting error:", error);
       return "recently";
     }
   };
-
-  // For debugging
-  console.log(
-    `Rendering message from ${message.sender.username}, isOwnMessage: ${isOwnMessage}`
-  );
 
   return (
     <div className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
@@ -63,6 +60,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
               : "bg-gray-100 text-gray-800 rounded-bl-none"
           }`}
         >
+          {/* For mentor messages, display username if it's not "You" */}
+          {!isOwnMessage && message.sender.username !== "You" && (
+            <div className="font-medium text-xs text-sky-700 mb-1">
+              {message.sender.username}
+            </div>
+          )}
+
           <p className="whitespace-pre-wrap break-words">{message.content}</p>
           <div
             className={`text-xs mt-1 text-right ${
@@ -84,9 +88,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
               />
             ) : (
               <span className="text-xs font-bold text-sky-700">
-                {message.sender.username
-                  ? message.sender.username.charAt(0).toUpperCase()
-                  : "U"}
+                {isOwnMessage
+                  ? "Y"
+                  : message.sender.username.charAt(0).toUpperCase()}
               </span>
             )}
           </div>

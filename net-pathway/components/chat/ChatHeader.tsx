@@ -18,30 +18,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 }) => {
   const [showMenu, setShowMenu] = React.useState(false);
 
-  // Safely get other user with null checks
-  const getOtherUser = () => {
-    if (!chat || !currentUserId) {
-      return chat?.mentor || chat?.initiator || null;
-    }
-
-    // Ensure we're comparing string IDs safely
-    const currentUserIdStr = currentUserId?.toString() || "";
-    const initiatorIdStr = chat.initiator?._id?.toString() || "";
-
-    // If current user is the initiator, show the mentor
-    if (
-      currentUserIdStr &&
-      initiatorIdStr &&
-      currentUserIdStr === initiatorIdStr
-    ) {
-      return chat.mentor;
-    }
-
-    // Otherwise show the initiator
-    return chat.initiator;
-  };
-
-  const otherUser = getOtherUser();
+  // Always get the mentor for display
+  const mentor = chat.mentor;
 
   return (
     <div className="p-4 border-b border-gray-100 flex items-center justify-between">
@@ -57,24 +35,24 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-100 to-purple-100 flex items-center justify-center overflow-hidden">
-            {otherUser?.profilePicture ? (
+            {mentor?.profilePicture ? (
               <img
-                src={otherUser.profilePicture}
-                alt={otherUser.username || "User"}
+                src={mentor.profilePicture}
+                alt={mentor.username || "Mentor"}
                 className="w-full h-full object-cover"
               />
             ) : (
               <span className="text-sm font-bold text-sky-700">
-                {otherUser?.username
-                  ? otherUser.username.charAt(0).toUpperCase()
-                  : "?"}
+                {mentor?.username
+                  ? mentor.username.charAt(0).toUpperCase()
+                  : "M"}
               </span>
             )}
           </div>
 
           <div>
             <h3 className="font-medium text-gray-900">
-              {otherUser?.username || "User"}
+              {mentor?.username || "Mentor"}
             </h3>
             <p className="text-xs text-gray-500">
               {chat.mentorProfile?.title || "Mentor"} ·{" "}
