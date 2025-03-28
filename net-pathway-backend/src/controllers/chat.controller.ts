@@ -1,9 +1,9 @@
 // net-pathway-backend/src/controllers/chat.controller.ts
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import Chat from "../models/Chat";
 import User from "../models/User";
 import Mentor from "../models/Mentor";
-import mongoose from "mongoose";
 
 export const chatController = {
   // Initialize or get an existing chat with a mentor
@@ -110,16 +110,15 @@ export const chatController = {
         .populate("mentorProfile", "title company expertise");
 
       // Get unread counts
-      const unreadCounts: Record<string, number> = chats.reduce(
-        (counts: Record<string, number>, chat) => {
-          const chatId = chat._id.toString();
-          counts[chatId] = chat.unreadBy.some((id) => id.toString() === userId)
-            ? 1
-            : 0;
-          return counts;
-        },
-        {}
-      );
+      const unreadCounts: Record<string, number> = {};
+      chats.forEach((chat) => {
+        const chatId = chat._id.toString();
+        unreadCounts[chatId] = chat.unreadBy.some(
+          (id) => id.toString() === userId
+        )
+          ? 1
+          : 0;
+      });
 
       res.status(200).json({
         chats,
@@ -213,7 +212,7 @@ export const chatController = {
         createdAt: new Date(),
       } as any);
 
-      // Add the recipient to unreadBy (handled by the pre-save hook in the model)
+      // Update lastActivity and unreadBy - handled by the pre-save hook in the model
       await chat.save();
 
       // Get the populated chat to return

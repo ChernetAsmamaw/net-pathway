@@ -14,17 +14,19 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   currentUserId,
   onClick,
 }) => {
-  // Determine if this user has unread messages - safely convert values to strings for comparison
-  const hasUnread = chat.unreadBy.some(
-    (id) => String(id) === String(currentUserId)
-  );
+  // Determine if this user has unread messages - safely check the unreadBy array
+  const hasUnread =
+    Array.isArray(chat.unreadBy) &&
+    chat.unreadBy.some((id) => String(id) === String(currentUserId));
 
-  // Get the other user in the conversation (always show the mentor)
+  // Get the other user in the conversation (always show the mentor for simplicity)
   const otherUser = chat.mentor;
 
   // Get last message if any
   const lastMessage =
-    chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
+    chat.messages && chat.messages.length > 0
+      ? chat.messages[chat.messages.length - 1]
+      : null;
 
   // Format time
   const formatTime = (dateString: string) => {

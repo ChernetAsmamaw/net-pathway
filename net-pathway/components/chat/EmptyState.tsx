@@ -1,3 +1,4 @@
+// components/chat/EmptyState.tsx
 import React, { ReactNode } from "react";
 
 interface EmptyStateProps {

@@ -1,3 +1,4 @@
+// app/(authenticated)/chats/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -42,8 +43,10 @@ export default function ChatsPage() {
 
     return (
       otherUser.username.toLowerCase().includes(query) ||
-      chat.mentorProfile.title.toLowerCase().includes(query) ||
-      chat.mentorProfile.company.toLowerCase().includes(query) ||
+      (chat.mentorProfile?.title &&
+        chat.mentorProfile.title.toLowerCase().includes(query)) ||
+      (chat.mentorProfile?.company &&
+        chat.mentorProfile.company.toLowerCase().includes(query)) ||
       chat.messages.some((msg) => msg.content.toLowerCase().includes(query))
     );
   });

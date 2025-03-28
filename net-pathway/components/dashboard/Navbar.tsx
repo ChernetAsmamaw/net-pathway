@@ -3,10 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { User, LogOut, Settings, X, MessageSquare } from "lucide-react";
+import { User, LogOut, Settings, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "../../store/useAuthStore";
-import { useChatStore } from "../../store/useChatStore";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import NotificationDropdown from "../../components/notifications/NotificationDropdown";
@@ -17,19 +16,6 @@ const Navbar = () => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const popupRef = useRef(null);
   const { user, logout } = useAuthStore();
-  const { unreadCount, fetchUnreadCount } = useChatStore();
-
-  // Check for unread messages when component mounts
-  useEffect(() => {
-    fetchUnreadCount();
-
-    // Poll for new messages every 30 seconds
-    const interval = setInterval(() => {
-      fetchUnreadCount();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -76,21 +62,6 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Chat Notification Icon */}
-            <button
-              onClick={() => router.push("/chats")}
-              className="p-3 hover:bg-gray-50 rounded-full relative transition duration-150"
-              aria-label="Chat Messages"
-            >
-              <MessageSquare className="w-5 h-5 text-gray-600" />
-
-              {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-sky-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
-
             {/* Notification Dropdown */}
             <NotificationDropdown />
 
@@ -145,19 +116,7 @@ const Navbar = () => {
                         <Settings className="w-4 h-4" />
                         Profile Settings
                       </Link>
-                      <Link
-                        href="/chats"
-                        className="flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition duration-150"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        My Messages
-                        {unreadCount > 0 && (
-                          <span className="ml-auto bg-sky-500 text-white text-xs rounded-full px-2 py-0.5">
-                            {unreadCount}
-                          </span>
-                        )}
-                      </Link>
+                      {/* Profile Settings link */}
                       <div className="px-3 py-1">
                         <div className="border-t border-gray-100"></div>
                       </div>

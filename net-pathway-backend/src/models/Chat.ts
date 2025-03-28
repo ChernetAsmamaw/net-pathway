@@ -3,15 +3,15 @@ import mongoose from "mongoose";
 
 // Message schema as a sub-document
 const messageSchema = new mongoose.Schema({
-  sender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
   content: {
     type: String,
     required: true,
     trim: true,
+  },
+  sender: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
   read: {
     type: Boolean,
@@ -108,7 +108,7 @@ chatSchema.pre("save", function (next) {
 });
 
 // Create indexes for better query performance
-chatSchema.index({ initiator: 1, mentor: 1 }, { unique: true });
+chatSchema.index({ initiator: 1, mentor: 1 });
 chatSchema.index({ initiator: 1 });
 chatSchema.index({ mentor: 1 });
 chatSchema.index({ lastMessage: -1 });

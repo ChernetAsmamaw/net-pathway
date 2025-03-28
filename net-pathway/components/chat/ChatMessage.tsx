@@ -60,8 +60,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
               : "bg-gray-100 text-gray-800 rounded-bl-none"
           }`}
         >
-          {/* For mentor messages, display username if it's not "You" */}
-          {!isOwnMessage && message.sender.username !== "You" && (
+          {/* For other users' messages, display username if available */}
+          {!isOwnMessage && (
             <div className="font-medium text-xs text-sky-700 mb-1">
               {message.sender.username}
             </div>
@@ -88,9 +88,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
               />
             ) : (
               <span className="text-xs font-bold text-sky-700">
-                {isOwnMessage
-                  ? "Y"
-                  : message.sender.username.charAt(0).toUpperCase()}
+                {message.sender.username
+                  ? message.sender.username.charAt(0).toUpperCase()
+                  : "Y"}
               </span>
             )}
           </div>

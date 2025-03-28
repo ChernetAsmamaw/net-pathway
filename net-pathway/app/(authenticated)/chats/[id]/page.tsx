@@ -1,4 +1,3 @@
-// app/(authenticated)/chats/[id]/page.tsx
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -9,6 +8,7 @@ import { Send, Archive } from "lucide-react";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatHeader from "@/components/chat/ChatHeader";
 import EmptyState from "@/components/chat/EmptyState";
+import { toast } from "react-hot-toast";
 
 export default function ChatDetailPage() {
   const router = useRouter();
@@ -44,12 +44,18 @@ export default function ChatDetailPage() {
   // Fetch chat by ID and mark as read
   useEffect(() => {
     if (isAuthenticated && chatId) {
-      console.log(
-        `Fetching chat: ${chatId}, Authenticated: ${isAuthenticated}`
-      );
       fetchChatById(chatId);
       markChatAsRead(chatId);
     }
+
+    // Poll for new messages every 15 seconds
+    const interval = setInterval(() => {
+      if (isAuthenticated && chatId) {
+        fetchChatById(chatId);
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
   }, [isAuthenticated, chatId, fetchChatById, markChatAsRead]);
 
   // Scroll to bottom of messages when they change
@@ -65,42 +71,24 @@ export default function ChatDetailPage() {
 
     if (!newMessage.trim()) return;
 
-    console.log(`Sending message in chat: ${chatId}`);
     const success = await sendMessage(chatId, newMessage);
-
     if (success) {
       setNewMessage("");
+    } else {
+      toast.error("Failed to send message. Please try again.");
     }
   };
 
   // Handle archive chat
   const handleArchiveChat = async () => {
-    console.log(`Archiving chat: ${chatId}`);
     const success = await archiveChat(chatId);
-
     if (success) {
       router.push("/chats");
+    } else {
+      toast.error("Failed to archive chat. Please try again.");
     }
-
     setShowArchiveConfirm(false);
   };
-
-  // Helper function to determine if a message is from the current user
-  const isOwnMessage = (messageId: string) => {
-    if (!currentChat || !user) return false;
-
-    const message = currentChat.messages.find((m) => m._id === messageId);
-    if (!message) return false;
-
-    return message.sender._id === "current-user-id";
-  };
-
-  // Get mentor data for display
-  const getMentor = () => {
-    return currentChat?.mentor || null;
-  };
-
-  const mentor = getMentor();
 
   if (!user) {
     return (
@@ -135,25 +123,25 @@ export default function ChatDetailPage() {
                 {/* Chat Header */}
                 <ChatHeader
                   chat={currentChat}
-                  currentUserId="current-user-id" // Fixed currentUserId
+                  currentUserId={user.id}
                   onBack={() => router.push("/chats")}
                   onArchive={() => setShowArchiveConfirm(true)}
                 />
 
                 {/* Messages Area */}
                 <div className="flex-grow overflow-y-auto p-4">
-                  {!currentChat.messages ||
-                  currentChat.messages.length === 0 ? (
+                  {currentChat.messages.length === 0 ? (
                     <div className="h-full flex items-center justify-center text-center p-4">
                       <div>
                         <p className="text-gray-500 mb-2">
-                          No messages yet. Start the conversation with{" "}
-                          {mentor?.username || "this mentor"}!
+                          No messages yet. Start the conversation!
                         </p>
-                        <p className="text-gray-400 text-sm">
-                          {currentChat.mentorProfile?.title || "Mentor"} at{" "}
-                          {currentChat.mentorProfile?.company || "Company"}
-                        </p>
+                        {currentChat.mentorProfile && (
+                          <p className="text-gray-400 text-sm">
+                            {currentChat.mentorProfile.title} at{" "}
+                            {currentChat.mentorProfile.company}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -162,9 +150,7 @@ export default function ChatDetailPage() {
                         <ChatMessage
                           key={message._id}
                           message={message}
-                          isOwnMessage={
-                            String(message.sender._id) === "current-user-id"
-                          }
+                          isOwnMessage={message.sender._id === user.id}
                         />
                       ))}
                       <div ref={messagesEndRef} />

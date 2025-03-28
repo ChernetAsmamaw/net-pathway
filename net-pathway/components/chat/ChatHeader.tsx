@@ -18,7 +18,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 }) => {
   const [showMenu, setShowMenu] = React.useState(false);
 
-  // Always get the mentor for display
+  // Simply always show the mentor in the header
+  // This is clearer and more consistent with the mentorship nature of the app
   const mentor = chat.mentor;
 
   return (
@@ -35,28 +36,23 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-100 to-purple-100 flex items-center justify-center overflow-hidden">
-            {mentor?.profilePicture ? (
+            {mentor.profilePicture ? (
               <img
                 src={mentor.profilePicture}
-                alt={mentor.username || "Mentor"}
+                alt={mentor.username}
                 className="w-full h-full object-cover"
               />
             ) : (
               <span className="text-sm font-bold text-sky-700">
-                {mentor?.username
-                  ? mentor.username.charAt(0).toUpperCase()
-                  : "M"}
+                {mentor.username.charAt(0).toUpperCase()}
               </span>
             )}
           </div>
 
           <div>
-            <h3 className="font-medium text-gray-900">
-              {mentor?.username || "Mentor"}
-            </h3>
+            <h3 className="font-medium text-gray-900">{mentor.username}</h3>
             <p className="text-xs text-gray-500">
-              {chat.mentorProfile?.title || "Mentor"} ·{" "}
-              {chat.mentorProfile?.company || "Company"}
+              {chat.mentorProfile.title} · {chat.mentorProfile.company}
             </p>
           </div>
         </div>

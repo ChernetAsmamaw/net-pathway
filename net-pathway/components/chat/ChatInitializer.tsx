@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChatStore } from "@/store/useChatStore";
 import { Send } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface ChatInitializerProps {
   mentorId: string;
@@ -18,7 +19,7 @@ const ChatInitializer: React.FC<ChatInitializerProps> = ({
   company,
 }) => {
   const router = useRouter();
-  const { initializeChat } = useChatStore();
+  const { initializeChat, sendMessage } = useChatStore();
   const [initialMessage, setInitialMessage] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
@@ -32,22 +33,23 @@ const ChatInitializer: React.FC<ChatInitializerProps> = ({
     setIsCreating(true);
 
     try {
-      // Create the chat
+      // Create or get the chat
       const chat = await initializeChat(mentorId);
 
       if (chat) {
         if (initialMessage.trim()) {
           // If there's an initial message, send it
-          await new Promise((resolve) => setTimeout(resolve, 500)); // Small delay
-          await useChatStore.getState().sendMessage(chat._id, initialMessage);
+          await sendMessage(chat._id, initialMessage);
         }
 
         // Navigate to the chat
         router.push(`/chats/${chat._id}`);
+      } else {
+        throw new Error("Failed to initialize chat");
       }
     } catch (error) {
       console.error("Failed to start chat:", error);
-      alert("Failed to start chat. Please try again.");
+      toast.error("Failed to start chat. Please try again.");
     } finally {
       setIsCreating(false);
     }

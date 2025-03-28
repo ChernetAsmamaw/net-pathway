@@ -13,9 +13,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
+  MessageSquare,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useChatStore } from "@/store/useChatStore";
 
 // Updated navigation with consistent paths and admin route
 const getNavigation = (isAdmin: boolean) => {
@@ -48,9 +50,24 @@ export default function Sidebar({ onCollapse }: SidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { user } = useAuthStore();
+  const { unreadCount, fetchUnreadCount } = useChatStore();
   const isAdmin = user?.role === "admin";
 
   const navigation = getNavigation(isAdmin);
+
+  // Check for unread messages when component mounts and when authentication changes
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+
+      // Poll for new messages every 30 seconds
+      const interval = setInterval(() => {
+        fetchUnreadCount();
+      }, 30000);
+
+      return () => clearInterval(interval);
+    }
+  }, [fetchUnreadCount, user]);
 
   useEffect(() => {
     if (onCollapse) {
@@ -94,6 +111,43 @@ export default function Sidebar({ onCollapse }: SidebarProps) {
                 </motion.div>
               );
             })}
+
+            {/* Chat Link with Notification Badge */}
+            <motion.div whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                href="/chats"
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  pathname === "/chats"
+                    ? "bg-gradient-to-r from-sky-50 to-purple-50 text-sky-700"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <div className="relative">
+                  <MessageSquare
+                    className={`w-5 h-5 ${
+                      pathname === "/chats"
+                        ? "text-sky-700"
+                        : "text-gray-400 group-hover:text-gray-500"
+                    }`}
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-sky-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </div>
+                {!isCollapsed && (
+                  <div className="flex justify-between items-center w-full">
+                    <span>Messages</span>
+                    {unreadCount > 0 && (
+                      <span className="bg-sky-500 text-white text-xs rounded-full px-2 py-0.5">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </Link>
+            </motion.div>
           </nav>
         </div>
 
