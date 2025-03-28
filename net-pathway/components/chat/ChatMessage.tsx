@@ -33,7 +33,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
   return (
     <div className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
       <div className="flex items-end max-w-[80%] md:max-w-[70%] gap-2">
-        {/* Avatar for others' messages */}
+        {/* Avatar for others' messages - shown only for messages NOT from current user */}
         {!isOwnMessage && (
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-sky-100 to-purple-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
             {message.sender.profilePicture ? (
@@ -68,16 +68,18 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage }) => {
           )}
 
           <p className="whitespace-pre-wrap break-words">{message.content}</p>
+
           <div
             className={`text-xs mt-1 text-right ${
               isOwnMessage ? "text-sky-200" : "text-gray-500"
             }`}
           >
             {formatTime(message.createdAt)}
+            {isOwnMessage && message.read && <span className="ml-1">✓</span>}
           </div>
         </div>
 
-        {/* Avatar for own messages */}
+        {/* Avatar for own messages - shown only for messages FROM current user */}
         {isOwnMessage && (
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-sky-100 to-purple-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
             {message.sender.profilePicture ? (

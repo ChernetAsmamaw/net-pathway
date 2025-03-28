@@ -211,7 +211,7 @@ export const userController = {
     }
   },
 
-  // Get user profile
+  // Get user profile with detailed information
   async getProfile(req: Request, res: Response) {
     try {
       const user = await User.findById(req.user?.userId).select("-password");
@@ -227,20 +227,41 @@ export const userController = {
     }
   },
 
+  // Update profile with new fields
   async updateProfile(req: Request, res: Response) {
     try {
-      const { username, email } = req.body;
+      const {
+        username,
+        email,
+        location,
+        highSchool,
+        educationYear,
+        bio,
+        interests,
+        skills,
+        dateOfBirth,
+      } = req.body;
       const userId = req.user?.userId;
 
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        {
-          username,
-          email,
-          updatedAt: new Date(),
-        },
-        { new: true }
-      ).select("-password");
+      // Build update object with only provided fields
+      const updateData: any = {
+        updatedAt: new Date(),
+      };
+
+      // Only update fields that are provided (not undefined)
+      if (username !== undefined) updateData.username = username;
+      if (email !== undefined) updateData.email = email;
+      if (location !== undefined) updateData.location = location;
+      if (highSchool !== undefined) updateData.highSchool = highSchool;
+      if (educationYear !== undefined) updateData.educationYear = educationYear;
+      if (bio !== undefined) updateData.bio = bio;
+      if (interests !== undefined) updateData.interests = interests;
+      if (skills !== undefined) updateData.skills = skills;
+      if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+
+      const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+        new: true,
+      }).select("-password");
 
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });

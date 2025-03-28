@@ -173,12 +173,12 @@ const MentorDetails: React.FC<MentorDetailsProps> = ({ mentor, onClose }) => {
                     >
                       {getAvailabilityLabel()}
                     </span>
-                    <div className="flex items-center gap-1">
+                    {/* <div className="flex items-center gap-1">
                       {renderRating()}
                       <span className="text-gray-500 text-sm ml-1">
                         ({mentor.rating}/5)
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

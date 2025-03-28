@@ -1,13 +1,29 @@
 "use client";
 
-import VerificationCodeInput from "@/components/verification/VerificationCodeInput";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "react-hot-toast";
-import { User, Mail, Camera, Loader } from "lucide-react";
+import {
+  User,
+  Mail,
+  Camera,
+  Loader,
+  MapPin,
+  School,
+  Calendar,
+  Info,
+  Tag,
+  Code,
+  Clock,
+  CheckCircle,
+  X,
+  ExternalLink,
+  Star,
+} from "lucide-react";
 import axios from "axios";
 import VerificationBadge from "@/components/verification/VerificationBadge";
 import ImageCropper from "@/components/profile/ImageCropper";
+import VerificationCodeInput from "@/components/verification/VerificationCodeInput";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -19,18 +35,52 @@ export default function ProfilePage() {
     deleteProfileImage,
     refreshUserData,
   } = useAuthStore();
+
   const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
   const [isSendingVerification, setIsSendingVerification] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [cropperImage, setCropperImage] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    username: user?.username || "",
-    email: user?.email || "",
-  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showVerificationInput, setShowVerificationInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Initialize form data with user data or empty values
+  const [formData, setFormData] = useState({
+    username: user?.username || "",
+    email: user?.email || "",
+    location: user?.location || "",
+    highSchoolName: user?.highSchool?.name || "",
+    graduationYear: user?.highSchool?.graduationYear?.toString() || "",
+    educationYear: user?.educationYear || "Other",
+    bio: user?.bio || "",
+    interests: user?.interests?.join(", ") || "",
+    skills: user?.skills?.join(", ") || "",
+    dateOfBirth: user?.dateOfBirth
+      ? new Date(user.dateOfBirth).toISOString().split("T")[0]
+      : "",
+  });
+
+  // Refresh form data when user data changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.username || "",
+        email: user.email || "",
+        location: user.location || "",
+        highSchoolName: user.highSchool?.name || "",
+        graduationYear: user.highSchool?.graduationYear?.toString() || "",
+        educationYear: user.educationYear || "Other",
+        bio: user.bio || "",
+        interests: user.interests?.join(", ") || "",
+        skills: user.skills?.join(", ") || "",
+        dateOfBirth: user.dateOfBirth
+          ? new Date(user.dateOfBirth).toISOString().split("T")[0]
+          : "",
+      });
+    }
+  }, [user]);
 
   // Handle profile update
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +88,51 @@ export default function ProfilePage() {
     setIsSubmitting(true);
 
     try {
-      const success = await updateProfile(formData);
+      // Basic validation
+      if (!formData.username.trim()) {
+        toast.error("Username is required");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) {
+        toast.error("Valid email is required");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Convert comma-separated strings to arrays
+      const interests = formData.interests
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+      const skills = formData.skills
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+
+      // Format highSchool object
+      const highSchool = {
+        name: formData.highSchoolName,
+        graduationYear: formData.graduationYear
+          ? Number(formData.graduationYear)
+          : null,
+      };
+
+      // Prepare updated profile data
+      const updatedProfileData = {
+        username: formData.username,
+        email: formData.email,
+        location: formData.location,
+        highSchool,
+        educationYear: formData.educationYear,
+        bio: formData.bio,
+        interests,
+        skills,
+        dateOfBirth: formData.dateOfBirth || null,
+      };
+
+      const success = await updateProfile(updatedProfileData);
 
       if (success) {
         toast.success("Profile updated successfully");
@@ -56,10 +150,22 @@ export default function ProfilePage() {
 
   // Reset form data when canceling edit
   const handleCancel = () => {
-    setFormData({
-      username: user?.username || "",
-      email: user?.email || "",
-    });
+    if (user) {
+      setFormData({
+        username: user.username || "",
+        email: user.email || "",
+        location: user.location || "",
+        highSchoolName: user.highSchool?.name || "",
+        graduationYear: user.highSchool?.graduationYear?.toString() || "",
+        educationYear: user.educationYear || "Other",
+        bio: user.bio || "",
+        interests: user.interests?.join(", ") || "",
+        skills: user.skills?.join(", ") || "",
+        dateOfBirth: user.dateOfBirth
+          ? new Date(user.dateOfBirth).toISOString().split("T")[0]
+          : "",
+      });
+    }
     setIsEditing(false);
   };
 
@@ -101,10 +207,7 @@ export default function ProfilePage() {
 
   // Handle cropped image
   const handleCroppedImage = async (croppedImageBase64: string) => {
-    // Close cropper
     setCropperImage(null);
-
-    // Upload cropped image
     await uploadImage(croppedImageBase64);
   };
 
@@ -113,9 +216,8 @@ export default function ProfilePage() {
     setIsUploading(true);
 
     try {
-      // Check if we should use the auth store method or direct API call
+      // Use auth store method if available
       if (uploadProfileImageBase64) {
-        // Use auth store method
         const imageUrl = await uploadProfileImageBase64(base64Image);
 
         if (imageUrl) {
@@ -133,8 +235,6 @@ export default function ProfilePage() {
 
         if (response.data.imageUrl) {
           toast.success("Profile image updated successfully");
-
-          // Refresh user data
           await refreshUserData();
         }
       }
@@ -157,9 +257,7 @@ export default function ProfilePage() {
     setIsDeleting(true);
 
     try {
-      // Check if we should use auth store method or direct API call
       if (deleteProfileImage) {
-        // Use auth store method
         const success = await deleteProfileImage();
 
         if (success) {
@@ -168,14 +266,11 @@ export default function ProfilePage() {
           toast.error("Failed to delete image");
         }
       } else {
-        // Direct API call (fallback)
         await axios.delete(`${API_URL}/profile/image`, {
           withCredentials: true,
         });
 
         toast.success("Profile image removed");
-
-        // Refresh user data
         await refreshUserData();
       }
     } catch (error: any) {
@@ -184,6 +279,32 @@ export default function ProfilePage() {
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  // Handle send verification email
+  const handleSendVerification = async () => {
+    setIsSendingVerification(true);
+    try {
+      const response = await axios.post(
+        `${API_URL}/verification/send-code`,
+        {},
+        { withCredentials: true }
+      );
+
+      toast.success("Verification code sent! Please check your inbox.");
+      setShowVerificationInput(true);
+    } catch (error) {
+      console.error("Failed to send verification code:", error);
+      toast.error("Failed to send verification code. Please try again later.");
+    } finally {
+      setIsSendingVerification(false);
+    }
+  };
+
+  const handleVerificationSuccess = async () => {
+    await refreshUserData();
+    setShowVerificationInput(false);
+    toast.success("Your email has been verified!");
   };
 
   return (
@@ -248,20 +369,7 @@ export default function ProfilePage() {
                   className="absolute -bottom-2 -right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
                   title="Remove profile picture"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -291,161 +399,609 @@ export default function ProfilePage() {
               {user?.role &&
                 user.role.charAt(0).toUpperCase() + user.role.slice(1)}
             </span>
+
+            {/* Basic Info Summary */}
+            <div className="mt-3 flex flex-wrap gap-3">
+              {user?.location && (
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4 text-sky-600" />
+                  <span>{user.location}</span>
+                </div>
+              )}
+
+              {user?.highSchool?.name && (
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <School className="w-4 h-4 text-sky-600" />
+                  <span>{user.highSchool.name}</span>
+                </div>
+              )}
+
+              {user?.educationYear && (
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <Clock className="w-4 h-4 text-sky-600" />
+                  <span>{user.educationYear}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Verification Code Input Modal */}
+      {showVerificationInput && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
+            <VerificationCodeInput
+              onSuccess={handleVerificationSuccess}
+              onCancel={() => setShowVerificationInput(false)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Profile Content */}
-      <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
-        {isEditing ? (
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
-                  }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                  required
-                />
-              </div>
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        {/* Tab navigation */}
+        <div className="flex border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab(0)}
+            className={`py-3 px-5 font-medium text-sm transition-colors flex-1 text-center ${
+              activeTab === 0
+                ? "text-sky-700 border-b-2 border-sky-500 bg-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            Basic Info
+          </button>
+          <button
+            onClick={() => setActiveTab(1)}
+            className={`py-3 px-5 font-medium text-sm transition-colors flex-1 text-center ${
+              activeTab === 1
+                ? "text-sky-700 border-b-2 border-sky-500 bg-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            Education
+          </button>
+          <button
+            onClick={() => setActiveTab(2)}
+            className={`py-3 px-5 font-medium text-sm transition-colors flex-1 text-center ${
+              activeTab === 2
+                ? "text-sky-700 border-b-2 border-sky-500 bg-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            Skills & Bio
+          </button>
+        </div>
 
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                  required
-                />
-              </div>
-
-              <div className="flex space-x-4 pt-4">
+        <div className="p-6">
+          {/* Edit/Save buttons */}
+          <div className="flex justify-end mb-6">
+            {isEditing ? (
+              <div className="flex gap-3">
                 <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:opacity-50"
-                >
-                  {isSubmitting ? "Saving..." : "Save Changes"}
-                </button>
-                <button
-                  type="button"
                   onClick={handleCancel}
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
                   Cancel
                 </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors flex items-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader className="w-4 h-4 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Save Changes</span>
+                    </>
+                  )}
+                </button>
               </div>
-            </div>
-          </form>
-        ) : (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
-                <User className="w-5 h-5 text-sky-600" />
-                <div>
-                  <p className="text-sm text-gray-500">Username</p>
-                  <p className="font-medium">{user?.username}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
-                <Mail className="w-5 h-5 text-sky-600" />
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{user?.email}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Email Verification Section */}
-            {!user?.isEmailVerified && (
-              <div className="bg-amber-50 p-4 rounded-xl border-l-4 border-amber-500">
-                <h3 className="text-amber-800 font-medium mb-2">
-                  Email Verification Required
-                </h3>
-                <p className="text-amber-700 mb-3">
-                  Please verify your email address to access all features of Net
-                  Pathway.
-                </p>
-                {showVerificationInput ? (
-                  <VerificationCodeInput
-                    onSuccess={() => {
-                      refreshUserData();
-                      setShowVerificationInput(false);
-                    }}
-                    onCancel={() => setShowVerificationInput(false)}
-                  />
-                ) : (
-                  <button
-                    onClick={() => {
-                      setIsSendingVerification(true);
-                      axios
-                        .post(
-                          `${API_URL}/verification/send-code`,
-                          {},
-                          { withCredentials: true }
-                        )
-                        .then(() => {
-                          toast.success(
-                            "Verification code sent! Please check your inbox."
-                          );
-                          setShowVerificationInput(true);
-                        })
-                        .catch((error) => {
-                          console.error(
-                            "Failed to send verification code:",
-                            error
-                          );
-                          toast.error(
-                            "Failed to send verification code. Please try again later."
-                          );
-                        })
-                        .finally(() => {
-                          setIsSendingVerification(false);
-                        });
-                    }}
-                    disabled={isSendingVerification}
-                    className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
-                  >
-                    {isSendingVerification
-                      ? "Sending..."
-                      : "Send Verification Code"}
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Edit Profile Button */}
-            <div className="flex space-x-4">
+            ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700"
+                className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
               >
                 Edit Profile
               </button>
-            </div>
+            )}
           </div>
-        )}
+
+          {/* Email verification section - always visible */}
+          {!user?.isEmailVerified && (
+            <div className="bg-amber-50 p-4 rounded-xl border-l-4 border-amber-500 mb-6">
+              <h3 className="font-medium text-amber-800 mb-1">
+                Email Verification Required
+              </h3>
+              <p className="text-amber-700 text-sm mb-3">
+                Please verify your email address to access all features of Net
+                Pathway.
+              </p>
+              <button
+                onClick={handleSendVerification}
+                disabled={isSendingVerification}
+                className="px-3 py-1.5 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
+              >
+                {isSendingVerification
+                  ? "Sending..."
+                  : "Send Verification Code"}
+              </button>
+            </div>
+          )}
+
+          {/* Tab 1: Basic Info */}
+          {activeTab === 0 && (
+            <div>
+              {isEditing ? (
+                <form className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="username"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        id="username"
+                        value={formData.username}
+                        onChange={(e) =>
+                          setFormData({ ...formData, username: e.target.value })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="location"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) =>
+                        setFormData({ ...formData, location: e.target.value })
+                      }
+                      placeholder="City, Country"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="dateOfBirth"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Date of Birth
+                    </label>
+                    <input
+                      type="date"
+                      id="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          dateOfBirth: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                    />
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                      <User className="w-5 h-5 text-sky-600" />
+                      <div>
+                        <p className="text-sm text-gray-500">Username</p>
+                        <p className="font-medium">{user?.username}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                      <Mail className="w-5 h-5 text-sky-600" />
+                      <div>
+                        <p className="text-sm text-gray-500">Email</p>
+                        <p className="font-medium">{user?.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                      <MapPin className="w-5 h-5 text-sky-600" />
+                      <div>
+                        <p className="text-sm text-gray-500">Location</p>
+                        <p className="font-medium">
+                          {user?.location || "Not specified"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                      <Calendar className="w-5 h-5 text-sky-600" />
+                      <div>
+                        <p className="text-sm text-gray-500">Date of Birth</p>
+                        <p className="font-medium">
+                          {user?.dateOfBirth
+                            ? new Date(user.dateOfBirth).toLocaleDateString()
+                            : "Not specified"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 2: Education */}
+          {activeTab === 1 && (
+            <div>
+              {isEditing ? (
+                <form className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="highSchoolName"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      High School Name
+                    </label>
+                    <input
+                      type="text"
+                      id="highSchoolName"
+                      value={formData.highSchoolName}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          highSchoolName: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="graduationYear"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Graduation Year
+                      </label>
+                      <input
+                        type="number"
+                        id="graduationYear"
+                        value={formData.graduationYear}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            graduationYear: e.target.value,
+                          })
+                        }
+                        min="1900"
+                        max="2100"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="educationYear"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Education Year
+                      </label>
+                      <div className="relative"></div>
+                      <select
+                        id="educationYear"
+                        value={formData.educationYear}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            educationYear: e.target.value,
+                          })
+                        }
+                        className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 appearance-none bg-white"
+                      >
+                        <option value="Freshman Year">Freshman Year</option>
+                        <option value="Sophomore Year">Sophomore Year</option>
+                        <option value="Junior Year">Junior Year</option>
+                        <option value="Senior Year">Senior Year</option>
+                        <option value="Gap Year">Gap Year</option>
+                        <option value="Other">Other</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <svg
+                          className="w-5 h-5 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 9l-7 7-7-7"
+                          ></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                      <School className="w-5 h-5 text-sky-600" />
+                      <div>
+                        <p className="text-sm text-gray-500">High School</p>
+                        <p className="font-medium">
+                          {user?.highSchool?.name || "Not specified"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                      <Calendar className="w-5 h-5 text-sky-600" />
+                      <div>
+                        <p className="text-sm text-gray-500">Graduation Year</p>
+                        <p className="font-medium">
+                          {user?.highSchool?.graduationYear || "Not specified"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                      <Clock className="w-5 h-5 text-sky-600" />
+                      <div>
+                        <p className="text-sm text-gray-500">Education Year</p>
+                        <p className="font-medium">
+                          {user?.educationYear || "Not specified"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Education resource links */}
+                  <div className="mt-6 bg-blue-50 p-5 rounded-xl">
+                    <h3 className="font-medium text-blue-800 mb-3 flex items-center gap-2">
+                      <ExternalLink className="w-5 h-5" />
+                      Related Educational Resources
+                    </h3>
+                    <ul className="space-y-2 pl-7 text-blue-700">
+                      <li className="hover:underline cursor-pointer">
+                        <a href="#" className="flex items-center gap-1">
+                          <Star className="w-3 h-3" />
+                          Career guidance for{" "}
+                          {user?.educationYear || "students"}
+                        </a>
+                      </li>
+                      <li className="hover:underline cursor-pointer">
+                        <a href="#" className="flex items-center gap-1">
+                          <Star className="w-3 h-3" />
+                          Scholarship opportunities
+                        </a>
+                      </li>
+                      <li className="hover:underline cursor-pointer">
+                        <a href="#" className="flex items-center gap-1">
+                          <Star className="w-3 h-3" />
+                          Student networking events
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 3: Skills & Bio */}
+          {activeTab === 2 && (
+            <div>
+              {isEditing ? (
+                <form className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="bio"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Biography
+                    </label>
+                    <textarea
+                      id="bio"
+                      value={formData.bio}
+                      onChange={(e) =>
+                        setFormData({ ...formData, bio: e.target.value })
+                      }
+                      rows={4}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                      placeholder="Tell us about yourself..."
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="interests"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Interests (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      id="interests"
+                      value={formData.interests}
+                      onChange={(e) =>
+                        setFormData({ ...formData, interests: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                      placeholder="Reading, Music, Sports..."
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="skills"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Skills (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      id="skills"
+                      value={formData.skills}
+                      onChange={(e) =>
+                        setFormData({ ...formData, skills: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                      placeholder="Programming, Design, Writing..."
+                    />
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-6">
+                  <div className="p-4 bg-gray-50 rounded-xl">
+                    <div className="flex items-start gap-3 mb-2">
+                      <Info className="w-5 h-5 text-sky-600 mt-0.5" />
+                      <h3 className="text-md font-medium text-gray-900">
+                        Biography
+                      </h3>
+                    </div>
+                    <p className="text-gray-700 whitespace-pre-wrap pl-8">
+                      {user?.bio || "No biography provided yet."}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <div className="flex items-start gap-3 mb-3">
+                        <Tag className="w-5 h-5 text-sky-600 mt-0.5" />
+                        <h3 className="text-md font-medium text-gray-900">
+                          Interests
+                        </h3>
+                      </div>
+                      <div className="flex flex-wrap gap-2 pl-8">
+                        {user?.interests && user.interests.length > 0 ? (
+                          user.interests.map((interest, index) => (
+                            <span
+                              key={index}
+                              className="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm"
+                            >
+                              {interest}
+                            </span>
+                          ))
+                        ) : (
+                          <p className="text-gray-500">
+                            No interests listed yet.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <div className="flex items-start gap-3 mb-3">
+                        <Code className="w-5 h-5 text-sky-600 mt-0.5" />
+                        <h3 className="text-md font-medium text-gray-900">
+                          Skills
+                        </h3>
+                      </div>
+                      <div className="flex flex-wrap gap-2 pl-8">
+                        {user?.skills && user.skills.length > 0 ? (
+                          user.skills.map((skill, index) => (
+                            <span
+                              key={index}
+                              className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"
+                            >
+                              {skill}
+                            </span>
+                          ))
+                        ) : (
+                          <p className="text-gray-500">No skills listed yet.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Skill assessment promotion */}
+                  {user?.skills && user.skills.length > 0 && (
+                    <div className="mt-6 bg-purple-50 p-5 rounded-xl">
+                      <h3 className="font-medium text-purple-800 mb-2">
+                        Skill Recommendations
+                      </h3>
+                      <p className="text-purple-700 text-sm mb-3">
+                        Based on your skills, you might be interested in these
+                        career paths:
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-4">
+                        {user.skills.includes("Programming") && (
+                          <div className="flex items-center gap-2 text-purple-800">
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Software Development</span>
+                          </div>
+                        )}
+                        {user.skills.includes("Design") && (
+                          <div className="flex items-center gap-2 text-purple-800">
+                            <CheckCircle className="w-4 h-4" />
+                            <span>UX/UI Design</span>
+                          </div>
+                        )}
+                        {user.skills.includes("Writing") && (
+                          <div className="flex items-center gap-2 text-purple-800">
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Content Creation</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-purple-800">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Career Assessment</span>
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        <button
+                          className="text-sm bg-purple-200 text-purple-800 px-3 py-1.5 rounded-lg hover:bg-purple-300 transition-colors"
+                          onClick={() => (window.location.href = "/assessment")}
+                        >
+                          Take full assessment →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Image Cropper Modal */}

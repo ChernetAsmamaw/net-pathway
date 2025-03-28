@@ -14,13 +14,16 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   currentUserId,
   onClick,
 }) => {
-  // Determine if this user has unread messages - safely check the unreadBy array
+  // Determine if this user has unread messages
   const hasUnread =
     Array.isArray(chat.unreadBy) &&
     chat.unreadBy.some((id) => String(id) === String(currentUserId));
 
-  // Get the other user in the conversation (always show the mentor for simplicity)
-  const otherUser = chat.mentor;
+  // Determine if current user is the mentor
+  const isMentor = String(currentUserId) === String(chat.mentor._id);
+
+  // Get the other participant in the conversation
+  const otherUser = isMentor ? chat.initiator : chat.mentor;
 
   // Get last message if any
   const lastMessage =
@@ -76,7 +79,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
                 hasUnread ? "font-semibold" : ""
               }`}
             >
-              {otherUser.username || "Mentor"}
+              {otherUser.username || "User"}
             </h3>
             <span className="text-xs text-gray-500">
               {lastMessage
@@ -85,10 +88,18 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
             </span>
           </div>
 
-          <p className="text-sm text-gray-600 line-clamp-1">
-            {chat.mentorProfile?.title || "Mentor"} ·{" "}
-            {chat.mentorProfile?.company || "Company"}
-          </p>
+          {/* Show role/title for mentor if current user is not the mentor */}
+          {!isMentor && chat.mentorProfile && (
+            <p className="text-sm text-gray-600 line-clamp-1">
+              {chat.mentorProfile.title || "Mentor"} ·{" "}
+              {chat.mentorProfile.company || "Company"}
+            </p>
+          )}
+
+          {/* Show "Student" if current user is the mentor */}
+          {isMentor && (
+            <p className="text-sm text-gray-600 line-clamp-1">Student</p>
+          )}
 
           {lastMessage && (
             <p

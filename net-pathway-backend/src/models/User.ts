@@ -54,6 +54,54 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  location: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  highSchool: {
+    name: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    graduationYear: {
+      type: Number,
+      min: 1900,
+      max: 2100,
+      default: null,
+    },
+  },
+  educationYear: {
+    type: String,
+    enum: [
+      "Freshman Year",
+      "Sophomore Year",
+      "Junior Year",
+      "Senior Year",
+      "Gap Year",
+      "Other",
+    ],
+    default: "Other",
+  },
+  bio: {
+    type: String,
+    trim: true,
+    maxlength: 1000,
+    default: "",
+  },
+  interests: {
+    type: [String],
+    default: [],
+  },
+  skills: {
+    type: [String],
+    default: [],
+  },
+  dateOfBirth: {
+    type: Date,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
