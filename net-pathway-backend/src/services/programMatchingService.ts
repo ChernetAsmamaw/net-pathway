@@ -10,7 +10,7 @@ import {
   ProgramInfo,
   ProgramMatch
 } from '../types/matchingTypes';
-import universitiesData from '../data/universities.json';
+import universitiesData from '../data/universities_and_programs.json';
 
 export class ProgramMatchingService {
   private universitiesData: UniversityData;

@@ -106,7 +106,7 @@ export class PineconeMatchingService {
       await this.initialize();
 
       // Create student profile
-      const studentProfile = this.createStudentProfile(
+      const studentProfile createStudentProfile(
         transcriptData,
         assessmentResults
       );

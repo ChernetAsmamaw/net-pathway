@@ -57,3 +57,36 @@ export interface ProgramMatch {
 export interface UniversityData {
   universities: University[];
 }
+
+export interface StudentProfile {
+  grades: Record<string, number>;
+  interests: string[];
+  skills: string[];
+  personalityTraits: string[];
+  BehavioralAssessment: Record<string, number>;
+}
+
+export interface Subject {
+  name: string;
+  code: string;
+  credits: number;
+  description: string;
+  prerequisites: string[];
+  corequisites: string[];
+}
+
+export interface ProgramInfo {
+  id: string;
+  name: string;
+  description: string;
+  duration: string;
+  studyMode: string;
+  tuitionFee: string;
+  entryRequirements: string[];
+  highlights: string[];
+  courses: Subject[];
+  careerOpportunities: string[];
+  tags: string[];
+  applicationDeadline?: string;
+  universityId: string;
+}
