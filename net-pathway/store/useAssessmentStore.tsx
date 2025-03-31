@@ -1,305 +1,261 @@
+// store/useAssessmentStore.tsx
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
+// Define assessment data interfaces
+interface Subject {
+  name: string;
+  percentage: number;
+}
+
+interface Activity {
+  name: string;
+  position: string;
+  description: string;
+}
+
+interface AssessmentResponse {
+  [key: number]: number;
+}
+
 interface AssessmentResults {
   riasec?: Record<string, number>;
   multiple_intelligence?: Record<string, number>;
-  career_anchors?: Record<string, number>;
-  work_dimensions?: Record<string, number>;
 }
 
 interface AssessmentState {
-  questions: any[];
-  responses: Record<number, number>;
-  currentQuestion: number;
-  assessmentData: any;
-  results: AssessmentResults | null;
+  // Status trackers
+  academicCompleted: boolean;
+  extracurricularCompleted: boolean;
+  behavioralCompleted: boolean;
   isLoading: boolean;
-  isSubmitting: boolean;
   error: string | null;
-  completed: boolean;
 
-  // Data fetching
-  fetchAssessmentQuestions: () => Promise<void>;
+  // Assessment data
+  academicData: { subjects: Subject[]; gpa: number } | null;
+  extracurricularData: { activities: Activity[] } | null;
+  behavioralData: {
+    responses: AssessmentResponse;
+    results: AssessmentResults;
+  } | null;
 
-  // Assessment interaction
-  setResponse: (questionId: number, value: number) => void;
-  setCurrentQuestion: (index: number) => void;
-  nextQuestion: () => void;
-  prevQuestion: () => void;
+  // Combined data
+  combinedData: any | null;
 
-  // Submission
-  submitAssessment: () => Promise<boolean>;
+  // Functions
+  fetchAssessmentStatus: () => Promise<void>;
 
-  // Results
-  calculateResults: () => AssessmentResults;
-  getTopCareerGroups: () => string[];
+  saveAcademicData: (data: {
+    subjects: Subject[];
+    gpa: number;
+  }) => Promise<boolean>;
+  saveExtracurricularData: (data: {
+    activities: Activity[];
+  }) => Promise<boolean>;
+  saveBehavioralData: (data: {
+    responses: AssessmentResponse;
+    results: AssessmentResults;
+  }) => Promise<boolean>;
 
-  // State management
-  resetAssessment: () => void;
+  fetchCombinedData: () => Promise<any>;
+
+  resetAssessmentState: () => void;
+  getAllCompleted: () => boolean;
 }
 
 export const useAssessmentStore = create<AssessmentState>((set, get) => ({
-  questions: [],
-  responses: {},
-  currentQuestion: 0,
-  assessmentData: null,
-  results: null,
+  // Initial state
+  academicCompleted: false,
+  extracurricularCompleted: false,
+  behavioralCompleted: false,
   isLoading: false,
-  isSubmitting: false,
   error: null,
-  completed: false,
 
-  // Fetch assessment questions from JSON file
-  fetchAssessmentQuestions: async () => {
+  academicData: null,
+  extracurricularData: null,
+  behavioralData: null,
+  combinedData: null,
+
+  // Fetch assessment status from backend
+  fetchAssessmentStatus: async () => {
     try {
       set({ isLoading: true, error: null });
 
-      // Load questions from public JSON file
-      const response = await fetch("/data/career-assessment.json");
-      if (!response.ok) {
-        throw new Error("Failed to load assessment data");
-      }
-
-      const assessmentData = await response.json();
-
-      // Initialize empty responses
-      const initialResponses = {};
-      assessmentData.questions.forEach((q) => {
-        initialResponses[q.id] = null;
+      const response = await axios.get(`${API_URL}/assessment/status`, {
+        withCredentials: true,
       });
 
-      set({
-        assessmentData,
-        questions: assessmentData.questions,
-        responses: initialResponses,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error("Error loading assessment:", error);
-      set({
-        error: error.message || "Failed to load assessment",
-        isLoading: false,
-      });
-      toast.error("Failed to load assessment questions");
-    }
-  },
+      if (response.data.assessmentStatus) {
+        const { transcript, extracurricular, behavioral } =
+          response.data.assessmentStatus;
 
-  // Set response for a question
-  setResponse: (questionId, value) => {
-    set((state) => ({
-      responses: {
-        ...state.responses,
-        [questionId]: value,
-      },
-    }));
-  },
-
-  // Set current question index
-  setCurrentQuestion: (index) => {
-    const { questions } = get();
-    if (index >= 0 && index < questions.length) {
-      set({ currentQuestion: index });
-      // Scroll to top for better UX
-      if (typeof window !== "undefined") {
-        window.scrollTo(0, 0);
-      }
-    }
-  },
-
-  // Move to next question
-  nextQuestion: () => {
-    const { currentQuestion, questions, responses } = get();
-    const currentQuestionId = questions[currentQuestion]?.id;
-
-    // Only proceed if current question is answered
-    if (
-      responses[currentQuestionId] !== null &&
-      responses[currentQuestionId] !== undefined
-    ) {
-      if (currentQuestion < questions.length - 1) {
-        set({ currentQuestion: currentQuestion + 1 });
-        // Scroll to top for better UX
-        if (typeof window !== "undefined") {
-          window.scrollTo(0, 0);
-        }
-      } else {
-        // At the last question - could trigger submission
-        const results = get().calculateResults();
-        set({ results });
-      }
-    }
-  },
-
-  // Move to previous question
-  prevQuestion: () => {
-    const { currentQuestion } = get();
-    if (currentQuestion > 0) {
-      set({ currentQuestion: currentQuestion - 1 });
-      // Scroll to top for better UX
-      if (typeof window !== "undefined") {
-        window.scrollTo(0, 0);
-      }
-    }
-  },
-
-  // Calculate assessment results
-  calculateResults: () => {
-    const { assessmentData, responses } = get();
-
-    if (!assessmentData || !assessmentData.scoringCategories) {
-      return null;
-    }
-
-    // Initialize results object
-    const results: AssessmentResults = {};
-
-    // Loop through each main category
-    Object.entries(assessmentData.scoringCategories).forEach(
-      ([categoryGroup, categories]) => {
-        results[categoryGroup] = {};
-
-        // For each subcategory, calculate score
-        Object.entries(categories as Record<string, number[]>).forEach(
-          ([categoryName, questionIds]) => {
-            // Calculate average score for this category
-            let sum = 0;
-            let count = 0;
-
-            questionIds.forEach((id) => {
-              if (responses[id] !== null && responses[id] !== undefined) {
-                sum += responses[id];
-                count++;
-              }
-            });
-
-            // Store average score (or 0 if no answers)
-            results[categoryGroup][categoryName] = count > 0 ? sum / count : 0;
-          }
-        );
-      }
-    );
-
-    return results;
-  },
-
-  // Get top career groups based on results
-  getTopCareerGroups: () => {
-    const { assessmentData, results } = get();
-
-    if (!results || !assessmentData || !assessmentData.careerGroupings) {
-      return [];
-    }
-
-    // Calculate score for each career group
-    const careerGroupScores = {};
-
-    Object.entries(assessmentData.careerGroupings).forEach(
-      ([groupName, groupData]) => {
-        const relevantCategories = groupData.relevantCategories || [];
-        let totalScore = 0;
-        let categoryCount = 0;
-
-        // Calculate average score from relevant categories
-        relevantCategories.forEach((category) => {
-          // Find which category group this belongs to
-          for (const [groupKey, categories] of Object.entries(results)) {
-            if (categories[category] !== undefined) {
-              totalScore += categories[category];
-              categoryCount++;
-              break;
-            }
-          }
+        set({
+          academicCompleted: transcript || false,
+          extracurricularCompleted: extracurricular || false,
+          behavioralCompleted: behavioral || false,
+          isLoading: false,
         });
 
-        careerGroupScores[groupName] =
-          categoryCount > 0 ? totalScore / categoryCount : 0;
-      }
-    );
-
-    // Sort and return top career groups
-    return Object.entries(careerGroupScores)
-      .sort((a, b) => b[1] - a[1])
-      .map(([groupName]) => groupName);
-  },
-
-  // Submit assessment to API
-  submitAssessment: async () => {
-    const { responses } = get();
-
-    // Calculate results before submission
-    const results = get().calculateResults();
-    set({ results, isSubmitting: true, error: null });
-
-    try {
-      // Submit to backend API
-      const response = await axios.post(
-        `${API_URL}/assessment/behavioral`,
-        {
-          responses,
-          results,
-        },
-        { withCredentials: true }
-      );
-
-      if (response.data.success) {
-        set({ completed: true, isSubmitting: false });
-        toast.success("Assessment submitted successfully!");
-        return true;
-      } else {
-        throw new Error(response.data.message || "Failed to submit assessment");
-      }
-    } catch (error) {
-      console.error("Assessment submission error:", error);
-
-      // Handle 404 errors specially - if the endpoint doesn't exist yet
-      if (error.response?.status === 404) {
-        // Store locally as fallback when API endpoint is missing
-        if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "assessment_responses",
-            JSON.stringify(responses)
-          );
-          localStorage.setItem("assessment_results", JSON.stringify(results));
-          localStorage.setItem(
-            "assessment_completed",
-            new Date().toISOString()
-          );
+        // If assessments are completed, fetch their data
+        if (transcript) {
+          // Additional logic to fetch academic data if needed
         }
 
-        set({ completed: true, isSubmitting: false });
-        toast.success("Assessment completed! (Saved locally)");
+        return response.data.assessmentStatus;
+      }
+
+      set({ isLoading: false });
+      return { transcript: false, extracurricular: false, behavioral: false };
+    } catch (error) {
+      console.error("Error fetching assessment status:", error);
+      set({ isLoading: false, error: "Failed to fetch assessment status" });
+      return { transcript: false, extracurricular: false, behavioral: false };
+    }
+  },
+
+  // Save academic transcript data
+  saveAcademicData: async (data) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await axios.post(
+        `${API_URL}/assessment/academic-transcript`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        set({
+          academicCompleted: true,
+          academicData: data,
+          isLoading: false,
+        });
         return true;
       }
 
-      set({
-        error: error.message || "Failed to submit assessment",
-        isSubmitting: false,
-      });
-      toast.error("Failed to submit assessment. Please try again.");
+      set({ isLoading: false });
+      return false;
+    } catch (error) {
+      console.error("Error saving academic data:", error);
+      set({ isLoading: false, error: "Failed to save academic data" });
       return false;
     }
   },
 
+  // Save extracurricular data
+  saveExtracurricularData: async (data) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await axios.post(
+        `${API_URL}/assessment/extracurricular`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        set({
+          extracurricularCompleted: true,
+          extracurricularData: data,
+          isLoading: false,
+        });
+        return true;
+      }
+
+      set({ isLoading: false });
+      return false;
+    } catch (error) {
+      console.error("Error saving extracurricular data:", error);
+      set({ isLoading: false, error: "Failed to save extracurricular data" });
+      return false;
+    }
+  },
+
+  // Save behavioral assessment data
+  saveBehavioralData: async (data) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await axios.post(
+        `${API_URL}/assessment/behavioral`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        set({
+          behavioralCompleted: true,
+          behavioralData: data,
+          isLoading: false,
+        });
+        return true;
+      }
+
+      set({ isLoading: false });
+      return false;
+    } catch (error) {
+      console.error("Error saving behavioral data:", error);
+      set({ isLoading: false, error: "Failed to save behavioral data" });
+      return false;
+    }
+  },
+
+  // Fetch combined assessment data for path generation
+  fetchCombinedData: async () => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await axios.get(`${API_URL}/assessment/combined-data`, {
+        withCredentials: true,
+      });
+
+      if (response.data) {
+        set({
+          combinedData: response.data,
+          isLoading: false,
+        });
+        return response.data;
+      }
+
+      set({ isLoading: false });
+      return null;
+    } catch (error) {
+      console.error("Error fetching combined data:", error);
+      set({
+        isLoading: false,
+        error: "Failed to fetch combined assessment data",
+      });
+      return null;
+    }
+  },
+
   // Reset assessment state
-  resetAssessment: () => {
-    const { questions } = get();
-
-    // Initialize empty responses
-    const initialResponses = {};
-    questions.forEach((q) => {
-      initialResponses[q.id] = null;
-    });
-
+  resetAssessmentState: () => {
     set({
-      responses: initialResponses,
-      currentQuestion: 0,
-      results: null,
-      completed: false,
+      academicCompleted: false,
+      extracurricularCompleted: false,
+      behavioralCompleted: false,
+      academicData: null,
+      extracurricularData: null,
+      behavioralData: null,
+      combinedData: null,
       error: null,
     });
+  },
+
+  // Check if all assessments are completed
+  getAllCompleted: () => {
+    const { academicCompleted, extracurricularCompleted, behavioralCompleted } =
+      get();
+    return academicCompleted && extracurricularCompleted && behavioralCompleted;
   },
 }));

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useAssessmentStore } from "@/store/useAssessmentStore";
+import { useAssessmentResultsStore } from "@/store/useAssessmentResultsStore";
 import {
   GraduationCap,
   Users,
@@ -14,58 +16,40 @@ import {
   Edit,
   PencilRuler,
   Sparkles,
+  Star,
 } from "lucide-react";
 import AcademicTranscriptForm from "@/components/assessment/AcademicTranscriptForm";
 import ExtracurricularsForm from "@/components/assessment/ExtracurricularsForm";
 import BehavioralAssessment from "@/components/assessment/BehavioralAssessment";
-import AssessmentSection from "@/components/assessment/AssessmentSection";
-import PathCard from "@/components/paths/PathCard";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
-
-// Mock previous assessment data - This would come from an API call in a real implementation
-const previousAssessments = [
-  {
-    id: "assessment-1",
-    title: "Career Assessment - March 2025",
-    description: "Software Engineering & Computer Science focused assessment",
-    matchPercentage: 92,
-    date: "March 15, 2025",
-    status: "completed",
-    result: {
-      topPaths: ["Software Engineering", "Computer Science", "Data Science"],
-      strengthAreas: ["Mathematics", "Logical Reasoning", "Problem Solving"],
-      recommendations: ["Consider internships in tech", "Join coding clubs"],
-    },
-  },
-  {
-    id: "assessment-2",
-    title: "Career Assessment - January 2025",
-    description: "General assessment with multiple career paths",
-    matchPercentage: 78,
-    date: "January 10, 2025",
-    status: "completed",
-    result: {
-      topPaths: ["Business Administration", "Marketing", "Psychology"],
-      strengthAreas: ["Communication", "Creative Thinking", "Leadership"],
-      recommendations: [
-        "Explore business courses",
-        "Join public speaking clubs",
-      ],
-    },
-  },
-];
+import AssessmentResultComponent from "@/components/assessment/AssessmentResultComponent";
 
 export default function AssessmentPage() {
   const router = useRouter();
   const { user, isAuthenticated, checkAuth } = useAuthStore();
+  const {
+    academicCompleted,
+    extracurricularCompleted,
+    behavioralCompleted,
+    isLoading,
+    academicData,
+    extracurricularData,
+    behavioralData,
+    fetchAssessmentStatus,
+    saveAcademicData,
+    saveExtracurricularData,
+    saveBehavioralData,
+    fetchCombinedData,
+    getAllCompleted,
+  } = useAssessmentStore();
 
-  // State for assessment sections completion status
-  const [completionStatus, setCompletionStatus] = useState({
-    academic: false,
-    extracurricular: false,
-    behavioral: false,
-  });
+  const {
+    results,
+    isLoading: isLoadingResults,
+    fetchAssessmentResults,
+  } = useAssessmentResultsStore();
 
   // State for active modal
   const [activeModal, setActiveModal] = useState<
@@ -75,13 +59,15 @@ export default function AssessmentPage() {
   // State for selected previous assessment
   const [selectedAssessment, setSelectedAssessment] = useState(null);
 
-  // State for existing assessment data
-  const [academicData, setAcademicData] = useState(null);
-  const [extracurricularData, setExtracurricularData] = useState(null);
-  const [behavioralData, setBehavioralData] = useState(null);
-
   // State for tracking assessment changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // State for confirmation dialog
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+
+  // State for generation loading
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -92,64 +78,22 @@ export default function AssessmentPage() {
     };
     initAuth();
 
-    // Here you would fetch the user's assessment completion status from the API
-    // This is a mock implementation for demonstration
-    const fetchAssessmentStatus = async () => {
-      // Mock API response - in reality, this would be an actual API call
-      // For now, we're just simulating a delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Mock data - in reality, this would come from the server
-      const academicCompleted =
-        localStorage.getItem("academic_assessment_completed") === "true";
-      const extracurricularCompleted =
-        localStorage.getItem("extracurricular_assessment_completed") === "true";
-      const behavioralCompleted =
-        localStorage.getItem("behavioral_assessment_completed") === "true";
-
-      setCompletionStatus({
-        academic: academicCompleted,
-        extracurricular: extracurricularCompleted,
-        behavioral: behavioralCompleted,
-      });
-
-      // Load saved assessment data for CRUD operations
-      if (academicCompleted) {
-        try {
-          const savedAcademicData = JSON.parse(
-            localStorage.getItem("academic_assessment_data") || "null"
-          );
-          setAcademicData(savedAcademicData);
-        } catch (e) {
-          console.error("Error parsing academic data", e);
-        }
-      }
-
-      if (extracurricularCompleted) {
-        try {
-          const savedExtracurricularData = JSON.parse(
-            localStorage.getItem("extracurricular_assessment_data") || "null"
-          );
-          setExtracurricularData(savedExtracurricularData);
-        } catch (e) {
-          console.error("Error parsing extracurricular data", e);
-        }
-      }
-
-      if (behavioralCompleted) {
-        try {
-          const savedBehavioralData = JSON.parse(
-            localStorage.getItem("behavioral_assessment_data") || "null"
-          );
-          setBehavioralData(savedBehavioralData);
-        } catch (e) {
-          console.error("Error parsing behavioral data", e);
-        }
-      }
+    // Fetch assessment completion status from backend
+    const getAssessmentStatus = async () => {
+      await fetchAssessmentStatus();
+      await fetchAssessmentResults();
     };
 
-    fetchAssessmentStatus();
-  }, [checkAuth, isAuthenticated, router]);
+    if (isAuthenticated) {
+      getAssessmentStatus();
+    }
+  }, [
+    checkAuth,
+    isAuthenticated,
+    router,
+    fetchAssessmentStatus,
+    fetchAssessmentResults,
+  ]);
 
   const handleOpenModal = (
     modalType: "academic" | "extracurricular" | "behavioral"
@@ -158,95 +102,114 @@ export default function AssessmentPage() {
   };
 
   const handleCloseModal = () => {
-    // If there are unsaved changes, confirm before closing
+    // If there are unsaved changes, show confirmation dialog
     if (hasUnsavedChanges) {
-      const confirmClose = window.confirm(
-        "You have unsaved changes. Are you sure you want to close?"
-      );
-      if (!confirmClose) {
-        return;
-      }
-      setHasUnsavedChanges(false);
+      setPendingAction("closeModal");
+      setShowConfirmDialog(true);
+      return;
     }
     setActiveModal(null);
+    setHasUnsavedChanges(false);
   };
 
-  const handleAcademicSubmit = (data) => {
-    console.log("Academic transcript data:", data);
-    // In a real application, you would save this data to your backend
-    // Here we're just using localStorage as a mock persistence layer
-    localStorage.setItem("academic_assessment_data", JSON.stringify(data));
-    localStorage.setItem("academic_assessment_completed", "true");
+  const handleConfirmAction = () => {
+    if (pendingAction === "closeModal") {
+      setActiveModal(null);
+      setHasUnsavedChanges(false);
+    }
 
-    setCompletionStatus((prev) => ({
-      ...prev,
-      academic: true,
-    }));
-
-    // Update the local state with the new data
-    setAcademicData(data);
-    setHasUnsavedChanges(false);
-    handleCloseModal();
-    toast.success("Academic transcript saved successfully!");
+    setShowConfirmDialog(false);
+    setPendingAction(null);
   };
 
-  const handleExtracurricularSubmit = (data) => {
-    console.log("Extracurricular data:", data);
-    // In a real application, you would save this data to your backend
-    localStorage.setItem(
-      "extracurricular_assessment_data",
-      JSON.stringify(data)
-    );
-    localStorage.setItem("extracurricular_assessment_completed", "true");
+  const handleAcademicSubmit = async (data) => {
+    try {
+      const success = await saveAcademicData(data);
 
-    setCompletionStatus((prev) => ({
-      ...prev,
-      extracurricular: true,
-    }));
-
-    // Update the local state with the new data
-    setExtracurricularData(data);
-    setHasUnsavedChanges(false);
-    handleCloseModal();
-    toast.success("Extracurricular activities saved successfully!");
+      if (success) {
+        toast.success("Academic transcript saved successfully!");
+        setHasUnsavedChanges(false);
+        handleCloseModal();
+      } else {
+        toast.error("Failed to save academic data. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error saving academic data:", error);
+      toast.error("An error occurred. Please try again.");
+    }
   };
 
-  const handleBehavioralSubmit = (data) => {
-    console.log("Behavioral assessment data:", data);
-    // In a real application, you would save this data to your backend
-    localStorage.setItem("behavioral_assessment_data", JSON.stringify(data));
-    localStorage.setItem("behavioral_assessment_completed", "true");
+  const handleExtracurricularSubmit = async (data) => {
+    try {
+      const success = await saveExtracurricularData(data);
 
-    setCompletionStatus((prev) => ({
-      ...prev,
-      behavioral: true,
-    }));
+      if (success) {
+        toast.success("Extracurricular activities saved successfully!");
+        setHasUnsavedChanges(false);
+        handleCloseModal();
+      } else {
+        toast.error("Failed to save extracurricular data. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error saving extracurricular data:", error);
+      toast.error("An error occurred. Please try again.");
+    }
+  };
 
-    // Update the local state with the new data
-    setBehavioralData(data);
-    setHasUnsavedChanges(false);
-    handleCloseModal();
-    toast.success("Behavioral assessment completed successfully!");
+  const handleBehavioralSubmit = async (data) => {
+    try {
+      const success = await saveBehavioralData(data);
+
+      if (success) {
+        toast.success("Behavioral assessment completed successfully!");
+        setHasUnsavedChanges(false);
+        handleCloseModal();
+      } else {
+        toast.error("Failed to save behavioral data. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error saving behavioral data:", error);
+      toast.error("An error occurred. Please try again.");
+    }
   };
 
   // Function to check if all assessments are completed
   const allAssessmentsCompleted = () => {
-    return (
-      completionStatus.academic &&
-      completionStatus.extracurricular &&
-      completionStatus.behavioral
-    );
+    return getAllCompleted();
   };
 
   // Handle generating path based on completed assessments
-  const handleGeneratePath = () => {
+  const handleGeneratePath = async () => {
     if (!allAssessmentsCompleted()) {
       toast.error("Please complete all assessment sections first!");
       return;
     }
 
-    // In a real app, you would call your API endpoint to generate a path
-    router.push("/paths/generate");
+    setIsGenerating(true);
+
+    try {
+      // Fetch combined data from all assessments
+      const combinedData = await fetchCombinedData();
+
+      if (!combinedData) {
+        toast.error("Failed to fetch assessment data. Please try again.");
+        setIsGenerating(false);
+        return;
+      }
+
+      // Store combined data in sessionStorage for use on the results page
+      sessionStorage.setItem(
+        "assessment_combined_data",
+        JSON.stringify(combinedData)
+      );
+
+      // Navigate to the path generation page
+      router.push("/assessment/results/generation");
+    } catch (error) {
+      console.error("Error generating path:", error);
+      toast.error("Failed to generate path. Please try again.");
+      setIsGenerating(false);
+    }
   };
 
   // Function to edit existing assessment
@@ -260,6 +223,18 @@ export default function AssessmentPage() {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-sky-700 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading assessment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state while fetching initial assessment status
+  if (isLoading && !academicData && !extracurricularData && !behavioralData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-sky-700 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your assessment data...</p>
         </div>
       </div>
     );
@@ -289,7 +264,7 @@ export default function AssessmentPage() {
                   <div className="p-3 rounded-full bg-blue-100 flex-shrink-0">
                     <GraduationCap className="w-6 h-6 text-blue-600" />
                   </div>
-                  {completionStatus.academic && (
+                  {academicCompleted && (
                     <button
                       onClick={() => handleEditAssessment("academic")}
                       className="text-gray-500 hover:text-sky-600 transition-colors"
@@ -306,7 +281,7 @@ export default function AssessmentPage() {
                   Enter your academic grades and subject performance
                 </p>
 
-                {completionStatus.academic ? (
+                {academicCompleted ? (
                   <div className="mt-2 mb-4">
                     <div className="flex items-center text-green-600 mb-2">
                       <CheckCircle className="w-5 h-5 mr-2" />
@@ -331,12 +306,12 @@ export default function AssessmentPage() {
                 <button
                   onClick={() => handleOpenModal("academic")}
                   className={`w-full mt-2 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                    completionStatus.academic
+                    academicCompleted
                       ? "bg-sky-100 text-sky-700 hover:bg-sky-200"
                       : "bg-sky-600 text-white hover:bg-sky-700"
                   }`}
                 >
-                  {completionStatus.academic ? (
+                  {academicCompleted ? (
                     <>
                       <PencilRuler className="w-4 h-4" />
                       <span>Update Transcript</span>
@@ -355,7 +330,7 @@ export default function AssessmentPage() {
                   <div className="p-3 rounded-full bg-green-100 flex-shrink-0">
                     <Users className="w-6 h-6 text-green-600" />
                   </div>
-                  {completionStatus.extracurricular && (
+                  {extracurricularCompleted && (
                     <button
                       onClick={() => handleEditAssessment("extracurricular")}
                       className="text-gray-500 hover:text-sky-600 transition-colors"
@@ -372,7 +347,7 @@ export default function AssessmentPage() {
                   Document your activities, positions, and achievements
                 </p>
 
-                {completionStatus.extracurricular ? (
+                {extracurricularCompleted ? (
                   <div className="mt-2 mb-4">
                     <div className="flex items-center text-green-600 mb-2">
                       <CheckCircle className="w-5 h-5 mr-2" />
@@ -399,12 +374,12 @@ export default function AssessmentPage() {
                 <button
                   onClick={() => handleOpenModal("extracurricular")}
                   className={`w-full mt-2 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                    completionStatus.extracurricular
+                    extracurricularCompleted
                       ? "bg-sky-100 text-sky-700 hover:bg-sky-200"
                       : "bg-sky-600 text-white hover:bg-sky-700"
                   }`}
                 >
-                  {completionStatus.extracurricular ? (
+                  {extracurricularCompleted ? (
                     <>
                       <PencilRuler className="w-4 h-4" />
                       <span>Update Activities</span>
@@ -423,7 +398,7 @@ export default function AssessmentPage() {
                   <div className="p-3 rounded-full bg-purple-100 flex-shrink-0">
                     <BrainCircuit className="w-6 h-6 text-purple-600" />
                   </div>
-                  {completionStatus.behavioral && (
+                  {behavioralCompleted && (
                     <button
                       onClick={() => handleEditAssessment("behavioral")}
                       className="text-gray-500 hover:text-sky-600 transition-colors"
@@ -440,7 +415,7 @@ export default function AssessmentPage() {
                   Complete a personality and aptitude assessment
                 </p>
 
-                {completionStatus.behavioral ? (
+                {behavioralCompleted ? (
                   <div className="mt-2 mb-4">
                     <div className="flex items-center text-green-600 mb-2">
                       <CheckCircle className="w-5 h-5 mr-2" />
@@ -448,10 +423,7 @@ export default function AssessmentPage() {
                     </div>
                     {behavioralData && (
                       <div className="text-sm text-gray-600 mt-2">
-                        <p>
-                          Responses: {behavioralData.responses?.length || 0}{" "}
-                          questions
-                        </p>
+                        <p>Assessment: Completed</p>
                       </div>
                     )}
                   </div>
@@ -467,12 +439,12 @@ export default function AssessmentPage() {
                 <button
                   onClick={() => handleOpenModal("behavioral")}
                   className={`w-full mt-2 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                    completionStatus.behavioral
+                    behavioralCompleted
                       ? "bg-sky-100 text-sky-700 hover:bg-sky-200"
                       : "bg-sky-600 text-white hover:bg-sky-700"
                   }`}
                 >
-                  {completionStatus.behavioral ? (
+                  {behavioralCompleted ? (
                     <>
                       <PencilRuler className="w-4 h-4" />
                       <span>Update Responses</span>
@@ -489,24 +461,33 @@ export default function AssessmentPage() {
           <div className="flex justify-center my-10">
             <button
               onClick={handleGeneratePath}
-              disabled={!allAssessmentsCompleted()}
+              disabled={!allAssessmentsCompleted() || isGenerating}
               className={`
                 px-8 py-4 text-lg font-bold rounded-xl transition-all flex items-center gap-3
                 ${
-                  allAssessmentsCompleted()
+                  allAssessmentsCompleted() && !isGenerating
                     ? "bg-gradient-to-r from-sky-600 via-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 border border-transparent"
                     : "bg-gray-300 text-gray-600 cursor-not-allowed"
                 }
                 ${
-                  allAssessmentsCompleted()
+                  allAssessmentsCompleted() && !isGenerating
                     ? "animate-pulse shadow-[0_0_15px_rgba(56,189,248,0.5)]"
                     : ""
                 }
               `}
             >
-              <Sparkles className="w-6 h-6" />
-              Generate Your Career Path
-              <Sparkles className="w-6 h-6" />
+              {isGenerating ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Generating Path...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-6 h-6" />
+                  Generate Your Career Path
+                  <Sparkles className="w-6 h-6" />
+                </>
+              )}
             </button>
           </div>
 
@@ -533,25 +514,51 @@ export default function AssessmentPage() {
               </Link>
             </div>
 
-            {previousAssessments.length > 0 ? (
+            {isLoadingResults ? (
+              <div className="flex justify-center py-8">
+                <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : results && results.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {previousAssessments.map((assessment) => (
+                {results.slice(0, 3).map((assessment) => (
                   <div
                     key={assessment.id}
                     className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all cursor-pointer"
-                    onClick={() => setSelectedAssessment(assessment)}
+                    onClick={() =>
+                      router.push(`/assessment/results/${assessment.id}`)
+                    }
                   >
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-xl font-semibold text-gray-900">
                         {assessment.title}
                       </h3>
-                      <span className="bg-sky-100 text-sky-800 text-sm font-medium px-2.5 py-0.5 rounded">
-                        {assessment.matchPercentage}% Match
-                      </span>
+                      <div className="flex items-center gap-1 bg-sky-100 text-sky-800 px-2 py-1 rounded-full">
+                        <Star className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          {assessment.matchPercentage}%
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-gray-600 mb-4 line-clamp-2">
                       {assessment.description}
                     </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {assessment.result.topPaths
+                        .slice(0, 2)
+                        .map((path, index) => (
+                          <span
+                            key={index}
+                            className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs"
+                          >
+                            {path}
+                          </span>
+                        ))}
+                      {assessment.result.topPaths.length > 2 && (
+                        <span className="text-xs text-gray-500">
+                          +{assessment.result.topPaths.length - 2} more
+                        </span>
+                      )}
+                    </div>
                     <div className="flex justify-between items-center text-sm text-gray-500">
                       <span>{assessment.date}</span>
                       <span className="flex items-center">
@@ -647,108 +654,17 @@ export default function AssessmentPage() {
           </div>
         )}
 
-        {/* Modal for Previous Assessment Details */}
-        {selectedAssessment && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
-              <div className="flex justify-between items-start mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {selectedAssessment.title}
-                </h2>
-                <button
-                  onClick={() => setSelectedAssessment(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  &times;
-                </button>
-              </div>
-
-              <div className="bg-sky-50 p-4 rounded-lg mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-sky-800 font-medium">Match Score:</span>
-                  <span className="bg-sky-600 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    {selectedAssessment.matchPercentage}%
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sky-800 font-medium">
-                    Date Completed:
-                  </span>
-                  <span className="text-gray-700">
-                    {selectedAssessment.date}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Top Career Paths
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {selectedAssessment.result.topPaths.map((path, index) => (
-                    <div
-                      key={index}
-                      className="bg-purple-50 p-3 rounded-lg text-center"
-                    >
-                      <span className="text-purple-800 font-medium">
-                        {path}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Strength Areas
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedAssessment.result.strengthAreas.map(
-                    (strength, index) => (
-                      <span
-                        key={index}
-                        className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
-                      >
-                        {strength}
-                      </span>
-                    )
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Recommendations
-                </h3>
-                <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                  {selectedAssessment.result.recommendations.map(
-                    (rec, index) => (
-                      <li key={index}>{rec}</li>
-                    )
-                  )}
-                </ul>
-              </div>
-
-              <div className="mt-8 flex justify-end gap-3">
-                <button
-                  onClick={() => setSelectedAssessment(null)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Close
-                </button>
-                <button
-                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
-                  onClick={() => {
-                    setSelectedAssessment(null);
-                    router.push(`/paths/${selectedAssessment.id}`);
-                  }}
-                >
-                  View Detailed Path
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Confirmation Dialog for Unsaved Changes */}
+        <ConfirmationDialog
+          isOpen={showConfirmDialog}
+          title="Unsaved Changes"
+          message="You have unsaved changes. Are you sure you want to exit without saving?"
+          onConfirm={handleConfirmAction}
+          onCancel={() => setShowConfirmDialog(false)}
+          confirmLabel="Discard Changes"
+          cancelLabel="Continue Editing"
+          type="warning"
+        />
       </main>
     </div>
   );
