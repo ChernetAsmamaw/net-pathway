@@ -47,7 +47,7 @@ export default function AboutPage() {
     {
       title: "Innovation",
       description:
-        "We constantly evolve our platform to reflect the changing demands of the tech industry.",
+        "We constantly evolve our platform to reflect the changing demands of the industry.",
       icon: Code,
     },
     {
@@ -88,8 +88,7 @@ export default function AboutPage() {
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h1 className="text-5xl font-bold text-sky-700 mb-6">Our Story</h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Building bridges between talent and opportunity in the tech
-              industry
+              Building bridges between talent and opportunity in the industry
             </p>
           </div>
 
@@ -170,7 +169,7 @@ export default function AboutPage() {
           {/* Person Behind Section */}
           <div className="mb-24">
             <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-              The Person Behind
+              Founder
             </h2>
             <div className="flex justify-center">
               <div className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow max-w-3xl">
@@ -197,8 +196,8 @@ export default function AboutPage() {
                     passionate software engineering student, I created this
                     platform to address the challenges many face when navigating
                     their careers. This project combines my technical skills
-                    with my desire to make tech career guidance more accessible
-                    to everyone.
+                    with my desire to make career guidance more accessible to
+                    everyone.
                   </p>
                 </div>
               </div>
@@ -232,9 +231,9 @@ export default function AboutPage() {
           <div className="bg-gradient-to-r from-sky-700 to-sky-600 text-white rounded-2xl p-12 text-center max-w-4xl mx-auto mb-20">
             <h2 className="text-3xl font-bold mb-6">Join Our Journey</h2>
             <p className="text-white/90 mb-8 max-w-2xl mx-auto">
-              Be part of a community that's reshaping the future of tech
-              careers. Whether you're just starting out or looking to advance to
-              the next level, we're here to help you build your success story.
+              Be part of a community that's reshaping the future careers.
+              Whether you're just starting out or looking to advance to the next
+              level, we're here to help you build your success story.
             </p>
             <button className="group px-8 py-4 bg-white text-sky-700 rounded-xl hover:bg-sky-50 transition-colors shadow-lg flex items-center mx-auto">
               Start Your Journey

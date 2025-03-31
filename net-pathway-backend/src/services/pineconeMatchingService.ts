@@ -28,7 +28,7 @@ export class PineconeMatchingService {
   private namespace: string;
   private initialized: boolean = false;
   private universitiesData: UniversityData;
-  createStudentProfile: any;
+  private createStudentProfile: (transcriptData: TranscriptData, assessmentResults: AssessmentResults) => string;
 
   constructor(universitiesData: UniversityData) {
     this.universitiesData = universitiesData;
@@ -106,7 +106,7 @@ export class PineconeMatchingService {
       await this.initialize();
 
       // Create student profile
-      const studentProfile createStudentProfile(
+      const studentProfile = this.createStudentProfile(
         transcriptData,
         assessmentResults
       );

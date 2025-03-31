@@ -20,17 +20,25 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useChatStore } from "@/store/useChatStore";
 
 // Updated navigation with consistent paths and admin route
-const getNavigation = (isAdmin: boolean) => {
+const getNavigation = (isAdmin: boolean, unreadCount: number) => {
+  // Base navigation items
   const baseNavigation = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Home", href: "/dashboard", icon: LayoutDashboard },
     { name: "Generated Paths", href: "/paths", icon: BookOpen },
     { name: "Assessment", href: "/assessment", icon: Target },
     { name: "Mentorship", href: "/mentorship", icon: Users },
     { name: "Blogs", href: "/blogs", icon: Briefcase },
     { name: "Discussion Board", href: "/discussions", icon: MessagesSquare },
+    // Add Messages with notification count
+    {
+      name: "Messages",
+      href: "/chats",
+      icon: MessageSquare,
+      notificationCount: unreadCount,
+    },
   ];
 
-  // Add admin dashboard link for admin users
+  // Add admin dashboard link for admin users (always at the end)
   if (isAdmin) {
     baseNavigation.push({
       name: "Admin Dashboard",
@@ -53,7 +61,8 @@ export default function Sidebar({ onCollapse }: SidebarProps) {
   const { unreadCount, fetchUnreadCount } = useChatStore();
   const isAdmin = user?.role === "admin";
 
-  const navigation = getNavigation(isAdmin);
+  // Get navigation with unreadCount included
+  const navigation = getNavigation(isAdmin, unreadCount);
 
   // Check for unread messages when component mounts and when authentication changes
   useEffect(() => {
@@ -99,55 +108,37 @@ export default function Sidebar({ onCollapse }: SidebarProps) {
                         : "text-gray-600 hover:bg-gray-50"
                     }`}
                   >
-                    <item.icon
-                      className={`w-5 h-5 ${
-                        isActive
-                          ? "text-sky-700"
-                          : "text-gray-400 group-hover:text-gray-500"
-                      }`}
-                    />
-                    {!isCollapsed && <span>{item.name}</span>}
+                    <div className="relative">
+                      <item.icon
+                        className={`w-5 h-5 ${
+                          isActive
+                            ? "text-sky-700"
+                            : "text-gray-400 group-hover:text-gray-500"
+                        }`}
+                      />
+                      {/* Add notification badge if present */}
+                      {item.notificationCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-sky-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+                          {item.notificationCount > 9
+                            ? "9+"
+                            : item.notificationCount}
+                        </span>
+                      )}
+                    </div>
+                    {!isCollapsed && (
+                      <div className="flex justify-between items-center w-full">
+                        <span>{item.name}</span>
+                        {item.notificationCount > 0 && (
+                          <span className="bg-sky-500 text-white text-xs rounded-full px-2 py-0.5">
+                            {item.notificationCount}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </Link>
                 </motion.div>
               );
             })}
-
-            {/* Chat Link with Notification Badge */}
-            <motion.div whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}>
-              <Link
-                href="/chats"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  pathname === "/chats"
-                    ? "bg-gradient-to-r from-sky-50 to-purple-50 text-sky-700"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                <div className="relative">
-                  <MessageSquare
-                    className={`w-5 h-5 ${
-                      pathname === "/chats"
-                        ? "text-sky-700"
-                        : "text-gray-400 group-hover:text-gray-500"
-                    }`}
-                  />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-sky-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
-                </div>
-                {!isCollapsed && (
-                  <div className="flex justify-between items-center w-full">
-                    <span>Messages</span>
-                    {unreadCount > 0 && (
-                      <span className="bg-sky-500 text-white text-xs rounded-full px-2 py-0.5">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </Link>
-            </motion.div>
           </nav>
         </div>
 
