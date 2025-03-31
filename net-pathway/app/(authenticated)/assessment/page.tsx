@@ -11,6 +11,9 @@ import {
   CheckCircle,
   AlertCircle,
   Layers,
+  Edit,
+  PencilRuler,
+  Sparkles,
 } from "lucide-react";
 import AcademicTranscriptForm from "@/components/assessment/AcademicTranscriptForm";
 import ExtracurricularsForm from "@/components/assessment/ExtracurricularsForm";
@@ -18,6 +21,7 @@ import BehavioralAssessment from "@/components/assessment/BehavioralAssessment";
 import AssessmentSection from "@/components/assessment/AssessmentSection";
 import PathCard from "@/components/paths/PathCard";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 // Mock previous assessment data - This would come from an API call in a real implementation
 const previousAssessments = [
@@ -71,6 +75,14 @@ export default function AssessmentPage() {
   // State for selected previous assessment
   const [selectedAssessment, setSelectedAssessment] = useState(null);
 
+  // State for existing assessment data
+  const [academicData, setAcademicData] = useState(null);
+  const [extracurricularData, setExtracurricularData] = useState(null);
+  const [behavioralData, setBehavioralData] = useState(null);
+
+  // State for tracking assessment changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
   useEffect(() => {
     const initAuth = async () => {
       await checkAuth();
@@ -85,18 +97,55 @@ export default function AssessmentPage() {
     const fetchAssessmentStatus = async () => {
       // Mock API response - in reality, this would be an actual API call
       // For now, we're just simulating a delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Mock data - in reality, this would come from the server
+      const academicCompleted =
+        localStorage.getItem("academic_assessment_completed") === "true";
+      const extracurricularCompleted =
+        localStorage.getItem("extracurricular_assessment_completed") === "true";
+      const behavioralCompleted =
+        localStorage.getItem("behavioral_assessment_completed") === "true";
+
       setCompletionStatus({
-        academic:
-          localStorage.getItem("academic_assessment_completed") === "true",
-        extracurricular:
-          localStorage.getItem("extracurricular_assessment_completed") ===
-          "true",
-        behavioral:
-          localStorage.getItem("behavioral_assessment_completed") === "true",
+        academic: academicCompleted,
+        extracurricular: extracurricularCompleted,
+        behavioral: behavioralCompleted,
       });
+
+      // Load saved assessment data for CRUD operations
+      if (academicCompleted) {
+        try {
+          const savedAcademicData = JSON.parse(
+            localStorage.getItem("academic_assessment_data") || "null"
+          );
+          setAcademicData(savedAcademicData);
+        } catch (e) {
+          console.error("Error parsing academic data", e);
+        }
+      }
+
+      if (extracurricularCompleted) {
+        try {
+          const savedExtracurricularData = JSON.parse(
+            localStorage.getItem("extracurricular_assessment_data") || "null"
+          );
+          setExtracurricularData(savedExtracurricularData);
+        } catch (e) {
+          console.error("Error parsing extracurricular data", e);
+        }
+      }
+
+      if (behavioralCompleted) {
+        try {
+          const savedBehavioralData = JSON.parse(
+            localStorage.getItem("behavioral_assessment_data") || "null"
+          );
+          setBehavioralData(savedBehavioralData);
+        } catch (e) {
+          console.error("Error parsing behavioral data", e);
+        }
+      }
     };
 
     fetchAssessmentStatus();
@@ -109,6 +158,16 @@ export default function AssessmentPage() {
   };
 
   const handleCloseModal = () => {
+    // If there are unsaved changes, confirm before closing
+    if (hasUnsavedChanges) {
+      const confirmClose = window.confirm(
+        "You have unsaved changes. Are you sure you want to close?"
+      );
+      if (!confirmClose) {
+        return;
+      }
+      setHasUnsavedChanges(false);
+    }
     setActiveModal(null);
   };
 
@@ -124,6 +183,9 @@ export default function AssessmentPage() {
       academic: true,
     }));
 
+    // Update the local state with the new data
+    setAcademicData(data);
+    setHasUnsavedChanges(false);
     handleCloseModal();
     toast.success("Academic transcript saved successfully!");
   };
@@ -142,6 +204,9 @@ export default function AssessmentPage() {
       extracurricular: true,
     }));
 
+    // Update the local state with the new data
+    setExtracurricularData(data);
+    setHasUnsavedChanges(false);
     handleCloseModal();
     toast.success("Extracurricular activities saved successfully!");
   };
@@ -157,6 +222,9 @@ export default function AssessmentPage() {
       behavioral: true,
     }));
 
+    // Update the local state with the new data
+    setBehavioralData(data);
+    setHasUnsavedChanges(false);
     handleCloseModal();
     toast.success("Behavioral assessment completed successfully!");
   };
@@ -178,7 +246,12 @@ export default function AssessmentPage() {
     }
 
     // In a real app, you would call your API endpoint to generate a path
-    router.push("/path/generate");
+    router.push("/paths/generate");
+  };
+
+  // Function to edit existing assessment
+  const handleEditAssessment = (type) => {
+    handleOpenModal(type);
   };
 
   if (!user) {
@@ -198,67 +271,252 @@ export default function AssessmentPage() {
         <div className="p-6 md:p-8">
           {/* Header with Assessment Overview */}
           <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-700">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-sky-800 mb-2">
-                  Career Assessment
-                </h1>
-                <p className="text-slate-600">
-                  Complete all three assessment sections to discover your
-                  personalized career path
-                </p>
-              </div>
-              <button
-                onClick={handleGeneratePath}
-                disabled={!allAssessmentsCompleted()}
-                className={`px-6 py-3 rounded-xl transition-colors flex items-center gap-2 ${
-                  allAssessmentsCompleted()
-                    ? "bg-green-600 text-white hover:bg-green-700"
-                    : "bg-gray-300 text-gray-600 cursor-not-allowed"
-                }`}
-              >
-                {allAssessmentsCompleted() ? (
-                  <>
-                    <CheckCircle className="w-5 h-5" /> Generate Your Path
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="w-5 h-5" /> Complete All Sections
-                  </>
-                )}
-              </button>
-            </div>
+            <h1 className="text-3xl font-bold text-sky-800 mb-2">
+              Career Assessment
+            </h1>
+            <p className="text-slate-600">
+              Complete all three assessment sections to discover your
+              personalized career path
+            </p>
           </div>
 
           {/* Assessment Sections */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             {/* Academic Transcript Section */}
-            <AssessmentSection
-              title="Academic Transcript"
-              description="Enter your academic grades and subject performance"
-              icon={GraduationCap}
-              isCompleted={completionStatus.academic}
-              onClick={() => handleOpenModal("academic")}
-            />
+            <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 rounded-full bg-blue-100 flex-shrink-0">
+                    <GraduationCap className="w-6 h-6 text-blue-600" />
+                  </div>
+                  {completionStatus.academic && (
+                    <button
+                      onClick={() => handleEditAssessment("academic")}
+                      className="text-gray-500 hover:text-sky-600 transition-colors"
+                      title="Edit assessment"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  Academic Transcript
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  Enter your academic grades and subject performance
+                </p>
+
+                {completionStatus.academic ? (
+                  <div className="mt-2 mb-4">
+                    <div className="flex items-center text-green-600 mb-2">
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      <span className="font-medium">Completed</span>
+                    </div>
+                    {academicData && (
+                      <div className="text-sm text-gray-600 mt-2">
+                        <p>GPA: {academicData.gpa}</p>
+                        <p>Subjects: {academicData.subjects?.length || 0}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-2 mb-4">
+                    <div className="flex items-center text-amber-600">
+                      <AlertCircle className="w-5 h-5 mr-2" />
+                      <span>Not completed</span>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => handleOpenModal("academic")}
+                  className={`w-full mt-2 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                    completionStatus.academic
+                      ? "bg-sky-100 text-sky-700 hover:bg-sky-200"
+                      : "bg-sky-600 text-white hover:bg-sky-700"
+                  }`}
+                >
+                  {completionStatus.academic ? (
+                    <>
+                      <PencilRuler className="w-4 h-4" />
+                      <span>Update Transcript</span>
+                    </>
+                  ) : (
+                    <span>Start Assessment</span>
+                  )}
+                </button>
+              </div>
+            </div>
 
             {/* Extracurricular Section */}
-            <AssessmentSection
-              title="Extracurriculars & Leadership"
-              description="Document your activities, positions, and achievements"
-              icon={Users}
-              isCompleted={completionStatus.extracurricular}
-              onClick={() => handleOpenModal("extracurricular")}
-            />
+            <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 rounded-full bg-green-100 flex-shrink-0">
+                    <Users className="w-6 h-6 text-green-600" />
+                  </div>
+                  {completionStatus.extracurricular && (
+                    <button
+                      onClick={() => handleEditAssessment("extracurricular")}
+                      className="text-gray-500 hover:text-sky-600 transition-colors"
+                      title="Edit assessment"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  Extracurriculars & Leadership
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  Document your activities, positions, and achievements
+                </p>
+
+                {completionStatus.extracurricular ? (
+                  <div className="mt-2 mb-4">
+                    <div className="flex items-center text-green-600 mb-2">
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      <span className="font-medium">Completed</span>
+                    </div>
+                    {extracurricularData && (
+                      <div className="text-sm text-gray-600 mt-2">
+                        <p>
+                          Activities:{" "}
+                          {extracurricularData.activities?.length || 0}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-2 mb-4">
+                    <div className="flex items-center text-amber-600">
+                      <AlertCircle className="w-5 h-5 mr-2" />
+                      <span>Not completed</span>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => handleOpenModal("extracurricular")}
+                  className={`w-full mt-2 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                    completionStatus.extracurricular
+                      ? "bg-sky-100 text-sky-700 hover:bg-sky-200"
+                      : "bg-sky-600 text-white hover:bg-sky-700"
+                  }`}
+                >
+                  {completionStatus.extracurricular ? (
+                    <>
+                      <PencilRuler className="w-4 h-4" />
+                      <span>Update Activities</span>
+                    </>
+                  ) : (
+                    <span>Start Assessment</span>
+                  )}
+                </button>
+              </div>
+            </div>
 
             {/* Behavioral Assessment Section */}
-            <AssessmentSection
-              title="Behavioral Assessment"
-              description="Complete a personality and aptitude assessment"
-              icon={BrainCircuit}
-              isCompleted={completionStatus.behavioral}
-              onClick={() => handleOpenModal("behavioral")}
-            />
+            <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 rounded-full bg-purple-100 flex-shrink-0">
+                    <BrainCircuit className="w-6 h-6 text-purple-600" />
+                  </div>
+                  {completionStatus.behavioral && (
+                    <button
+                      onClick={() => handleEditAssessment("behavioral")}
+                      className="text-gray-500 hover:text-sky-600 transition-colors"
+                      title="Edit assessment"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  Behavioral Assessment
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  Complete a personality and aptitude assessment
+                </p>
+
+                {completionStatus.behavioral ? (
+                  <div className="mt-2 mb-4">
+                    <div className="flex items-center text-green-600 mb-2">
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      <span className="font-medium">Completed</span>
+                    </div>
+                    {behavioralData && (
+                      <div className="text-sm text-gray-600 mt-2">
+                        <p>
+                          Responses: {behavioralData.responses?.length || 0}{" "}
+                          questions
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-2 mb-4">
+                    <div className="flex items-center text-amber-600">
+                      <AlertCircle className="w-5 h-5 mr-2" />
+                      <span>Not completed</span>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => handleOpenModal("behavioral")}
+                  className={`w-full mt-2 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                    completionStatus.behavioral
+                      ? "bg-sky-100 text-sky-700 hover:bg-sky-200"
+                      : "bg-sky-600 text-white hover:bg-sky-700"
+                  }`}
+                >
+                  {completionStatus.behavioral ? (
+                    <>
+                      <PencilRuler className="w-4 h-4" />
+                      <span>Update Responses</span>
+                    </>
+                  ) : (
+                    <span>Start Assessment</span>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* Generate Path Button - Below assessment sections with glowing effect */}
+          <div className="flex justify-center my-10">
+            <button
+              onClick={handleGeneratePath}
+              disabled={!allAssessmentsCompleted()}
+              className={`
+                px-8 py-4 text-lg font-bold rounded-xl transition-all flex items-center gap-3
+                ${
+                  allAssessmentsCompleted()
+                    ? "bg-gradient-to-r from-sky-600 via-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 border border-transparent"
+                    : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                }
+                ${
+                  allAssessmentsCompleted()
+                    ? "animate-pulse shadow-[0_0_15px_rgba(56,189,248,0.5)]"
+                    : ""
+                }
+              `}
+            >
+              <Sparkles className="w-6 h-6" />
+              Generate Your Career Path
+              <Sparkles className="w-6 h-6" />
+            </button>
+          </div>
+
+          {!allAssessmentsCompleted() && (
+            <div className="text-center mb-8 text-amber-700 bg-amber-50 p-4 rounded-lg max-w-2xl mx-auto">
+              <AlertCircle className="w-5 h-5 inline-block mr-2" />
+              Complete all three assessments above to generate your personalized
+              career path
+            </div>
+          )}
 
           {/* Previous Assessments Section */}
           <div className="mb-8">
@@ -318,9 +576,22 @@ export default function AssessmentPage() {
         {activeModal === "academic" && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Academic Transcript
+                </h2>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  &times;
+                </button>
+              </div>
               <AcademicTranscriptForm
                 onSubmit={handleAcademicSubmit}
                 onCancel={handleCloseModal}
+                initialData={academicData}
+                onDataChange={() => setHasUnsavedChanges(true)}
               />
             </div>
           </div>
@@ -330,9 +601,22 @@ export default function AssessmentPage() {
         {activeModal === "extracurricular" && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Extracurricular Activities
+                </h2>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  &times;
+                </button>
+              </div>
               <ExtracurricularsForm
                 onSubmit={handleExtracurricularSubmit}
                 onCancel={handleCloseModal}
+                initialData={extracurricularData}
+                onDataChange={() => setHasUnsavedChanges(true)}
               />
             </div>
           </div>
@@ -342,9 +626,22 @@ export default function AssessmentPage() {
         {activeModal === "behavioral" && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Behavioral Assessment
+                </h2>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  &times;
+                </button>
+              </div>
               <BehavioralAssessment
                 onComplete={handleBehavioralSubmit}
                 onCancel={handleCloseModal}
+                initialData={behavioralData}
+                onDataChange={() => setHasUnsavedChanges(true)}
               />
             </div>
           </div>
