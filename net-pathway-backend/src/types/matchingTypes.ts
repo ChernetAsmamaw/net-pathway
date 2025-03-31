@@ -1,3 +1,4 @@
+// net-pathway-backend/src/types/matchingTypes.ts
 export interface Course {
   name: string;
   grade: string;
@@ -5,11 +6,17 @@ export interface Course {
   credits: number;
 }
 
+export interface Extracurricular {
+  name: string;
+  role: string;
+  description: string;
+}
+
 export interface TranscriptData {
   courses: Course[];
   gpa: number;
   strengths: string[];
-  extracurriculars: string[];
+  extracurriculars: Extracurricular[]; // Changed from string[] to Extracurricular[]
 }
 
 export interface AssessmentResults {
@@ -89,4 +96,11 @@ export interface ProgramInfo {
   tags: string[];
   applicationDeadline?: string;
   universityId: string;
+}
+
+// Define assessment status interface
+export interface AssessmentStatus {
+  transcript: boolean;
+  extracurricular: boolean;
+  behavioral: boolean;
 }

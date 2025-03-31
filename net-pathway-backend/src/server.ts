@@ -11,6 +11,8 @@ import { profileImageRouter } from "./routes/profile.image.routes";
 import { discussionRouter } from "./routes/discussion.routes";
 import { chatRouter } from "./routes/chat.routes";
 
+import { unifiedAssessmentRouter } from "./routes/unified.assessment.routes";
+
 // import { assessmentRouter } from "./routes/assessment.routes";
 // import { langchainProgramMatchingRouter } from "./routes/langchain.program.matching.routes";
 
@@ -61,6 +63,8 @@ app.use("/api/admin/statistics", adminStatisticsRouter);
 app.use("/api/profile/image", profileImageRouter);
 app.use("/api/discussions", discussionRouter);
 app.use("/api/chat", chatRouter);
+
+app.use("/api/assessment", unifiedAssessmentRouter);
 
 // app.use("/api/assessment", assessmentRouter);
 // app.use("/api/langchain-matching", langchainProgramMatchingRouter);

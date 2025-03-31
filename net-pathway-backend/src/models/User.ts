@@ -98,6 +98,23 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+
+  // track assessment completion status
+  assessmentStatus: {
+    transcript: {
+      type: Boolean,
+      default: false,
+    },
+    extracurricular: {
+      type: Boolean,
+      default: false,
+    },
+    behavioral: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
   dateOfBirth: {
     type: Date,
     default: null,
