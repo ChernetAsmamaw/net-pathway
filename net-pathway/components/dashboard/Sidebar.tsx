@@ -24,8 +24,9 @@ const getNavigation = (isAdmin: boolean, unreadCount: number) => {
   // Base navigation items
   const baseNavigation = [
     { name: "Home", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Generated Paths", href: "/paths", icon: BookOpen },
+
     { name: "Assessment", href: "/assessment", icon: Target },
+    { name: "Assessment History", href: "/assessment/history", icon: BookOpen },
     { name: "Mentorship", href: "/mentorship", icon: Users },
     { name: "Blogs", href: "/blogs", icon: Briefcase },
     { name: "Discussion Board", href: "/discussions", icon: MessagesSquare },

@@ -8,20 +8,7 @@ import {
   Save,
   CheckCircle,
 } from "lucide-react";
-
-/**
- * AcademicTranscriptForm Component
- *
- * This component allows users to input their academic transcript information,
- * including GPA and subject scores.
- *
- * Requirements:
- * - GPA is mandatory
- * - At least 5 subjects required for completion
- * - Subject percentages must be between 0-100
- * - "Save & Exit" saves progress but doesn't mark as completed
- * - "Save & Complete" only works when all requirements are met
- */
+import { toast } from "react-hot-toast";
 
 interface Subject {
   id: string;
@@ -42,6 +29,7 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
   initialData = null,
   onDataChange,
 }) => {
+  // Available subjects list
   const predefinedSubjects = [
     "Amharic",
     "English",
@@ -62,84 +50,91 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
     "Other",
   ];
 
-  // Initialize state with initial data or defaults
-  const [subjects, setSubjects] = useState<Subject[]>(
-    initialData?.subjects?.length > 0
-      ? initialData.subjects
-      : [
-          { id: crypto.randomUUID(), name: "", percentage: 0 },
-          { id: crypto.randomUUID(), name: "", percentage: 0 },
-          { id: crypto.randomUUID(), name: "", percentage: 0 },
-          { id: crypto.randomUUID(), name: "", percentage: 0 },
-          { id: crypto.randomUUID(), name: "", percentage: 0 },
-        ]
-  );
+  // Initialize with initial data or default values
+  const [subjects, setSubjects] = useState<Subject[]>(() => {
+    // If initialData has subjects, use them
+    if (initialData?.subjects?.length > 0) {
+      return initialData.subjects.map((s: any) => ({
+        ...s,
+        id: s.id || crypto.randomUUID(),
+      }));
+    }
+
+    // Otherwise, start with 5 empty subject slots
+    return [
+      { id: crypto.randomUUID(), name: "", percentage: 0 },
+      { id: crypto.randomUUID(), name: "", percentage: 0 },
+      { id: crypto.randomUUID(), name: "", percentage: 0 },
+      { id: crypto.randomUUID(), name: "", percentage: 0 },
+      { id: crypto.randomUUID(), name: "", percentage: 0 },
+    ];
+  });
+
+  // GPA state
   const [gpa, setGpa] = useState(initialData?.gpa || 0);
+
+  // Custom subject input state
   const [customSubject, setCustomSubject] = useState("");
   const [showCustomSubjectInput, setShowCustomSubjectInput] = useState(false);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [saveProgress, setSaveProgress] = useState(0);
 
-  // Notify parent of data changes
+  // Validation errors state
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Track if data has been modified since last save
+  const [isDataModified, setIsDataModified] = useState(false);
+
+  // Notify parent of changes
   useEffect(() => {
-    if (onDataChange) {
+    if (onDataChange && isDataModified) {
       onDataChange();
     }
-    setHasUnsavedChanges(true);
-  }, [gpa, subjects, onDataChange]);
+  }, [gpa, subjects, onDataChange, isDataModified]);
 
-  // Auto-save timer
-  useEffect(() => {
-    if (hasUnsavedChanges) {
-      const timer = setInterval(() => {
-        setSaveProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(timer);
-            // Auto-save when progress reaches 100%
-            const dataToSave = {
-              subjects: subjects.filter((s) => s.name.trim() !== ""),
-              gpa,
-              submittedAt: new Date().toISOString(),
-            };
-            localStorage.setItem(
-              "academic_assessment_data",
-              JSON.stringify(dataToSave)
-            );
-            setHasUnsavedChanges(false);
-            return 0;
-          }
-          return prev + 10;
-        });
-      }, 250);
-
-      return () => clearInterval(timer);
-    }
-    return undefined;
-  }, [hasUnsavedChanges, saveProgress, gpa, subjects]);
-
-  // Handle field changes
+  // Handle subject changes
   const handleSubjectChange = (
     id: string,
     field: keyof Subject,
     value: string | number
   ) => {
-    setSubjects(
-      subjects.map((subj) =>
-        subj.id === id ? { ...subj, [field]: value } : subj
+    setSubjects((prev) =>
+      prev.map((subject) =>
+        subject.id === id ? { ...subject, [field]: value } : subject
       )
     );
-    // Clear any existing errors for this field
+
+    // Mark data as modified
+    setIsDataModified(true);
+
+    // Clear errors for this field
     if (errors[`subject-${id}-${field}`]) {
-      setErrors((prev) => ({ ...prev, [`subject-${id}-${field}`]: "" }));
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[`subject-${id}-${field}`];
+        return newErrors;
+      });
     }
   };
 
-  // Form validation
+  // Handle GPA change
+  const handleGpaChange = (value: number) => {
+    setGpa(value);
+    setIsDataModified(true);
+
+    // Clear GPA error if it exists
+    if (errors.gpa) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.gpa;
+        return newErrors;
+      });
+    }
+  };
+
+  // Validate form data
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    // Validate GPA (now required)
+    // Validate GPA
     if (gpa === 0 || gpa === null || gpa === undefined) {
       newErrors.gpa = "GPA is required";
     } else if (gpa < 0 || gpa > 4) {
@@ -150,13 +145,14 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
     const validSubjects = subjects.filter(
       (subject) => subject.name.trim() !== ""
     );
+
     if (validSubjects.length < 5) {
       newErrors.minimumSubjects = "Please add at least 5 subjects";
     }
 
+    // Validate percentages for subjects with names
     subjects.forEach((subject) => {
       if (subject.name) {
-        // Only validate subjects that have a name
         if (subject.percentage < 0 || subject.percentage > 100) {
           newErrors[`subject-${subject.id}-percentage`] =
             "Percentage must be between 0 and 100";
@@ -168,6 +164,7 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
     const subjectNames = subjects
       .map((s) => s.name)
       .filter((name) => name !== "");
+
     if (new Set(subjectNames).size !== subjectNames.length) {
       newErrors.duplicateSubjects = "Duplicate subjects are not allowed";
     }
@@ -176,53 +173,51 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle save and exit without completion validation
+  // Handle Save & Exit
   const handleSaveAndExit = () => {
+    // Gather data from valid subjects
+    const validSubjects = subjects.filter((s) => s.name.trim() !== "");
+
+    // Prepare data
     const dataToSave = {
-      subjects: subjects.filter((s) => s.name.trim() !== ""),
+      subjects: validSubjects,
       gpa,
       submittedAt: new Date().toISOString(),
     };
 
+    // Save to localStorage
     localStorage.setItem(
       "academic_assessment_data",
       JSON.stringify(dataToSave)
     );
-
-    // Save to localStorage but don't mark as completed
     localStorage.setItem("academic_assessment_completed", "false");
-    setHasUnsavedChanges(false);
 
+    // Mark data as no longer modified after saving
+    setIsDataModified(false);
+
+    // Success message
+    toast.success("Progress saved");
+
+    // Exit form
     onCancel();
   };
 
-  // Handle manual save
-  const handleSaveProgress = () => {
-    const dataToSave = {
-      subjects: subjects.filter((s) => s.name.trim() !== ""),
-      gpa,
-      submittedAt: new Date().toISOString(),
-    };
-    localStorage.setItem(
-      "academic_assessment_data",
-      JSON.stringify(dataToSave)
-    );
-    setHasUnsavedChanges(false);
-    toast.success("Progress saved");
-  };
-
-  // Handle form submission with validation
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (validateForm()) {
+      // Get valid subjects only
       const validSubjects = subjects.filter((s) => s.name.trim() !== "");
+
+      // Prepare submission data
       const dataToSubmit = {
         subjects: validSubjects,
         gpa,
         submittedAt: new Date().toISOString(),
       };
 
-      // Submit to parent component
+      // Submit to parent
       onSubmit(dataToSubmit);
 
       // Save to localStorage and mark as completed
@@ -231,22 +226,18 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
         JSON.stringify(dataToSubmit)
       );
       localStorage.setItem("academic_assessment_completed", "true");
-      setHasUnsavedChanges(false);
-    }
-  };
 
-  // Handle removing a subject
-  const handleRemoveSubject = (id: string) => {
-    if (subjects.length > 5) {
-      setSubjects(subjects.filter((s) => s.id !== id));
+      // Mark data as no longer modified after saving
+      setIsDataModified(false);
+
+      toast.success("Academic transcript saved successfully!");
     } else {
-      // Show an alert or toast
-      toast.info("You need at least 5 subjects");
+      toast.error("Please fix the errors before submitting");
     }
   };
 
   // Add a custom subject
-  const addCustomSubject = () => {
+  const handleAddCustomSubject = () => {
     if (customSubject.trim()) {
       setSubjects([
         ...subjects,
@@ -254,23 +245,50 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
       ]);
       setCustomSubject("");
       setShowCustomSubjectInput(false);
+      setIsDataModified(true);
     }
   };
 
-  // Count how many valid subjects we have
+  // Handle removing a subject
+  const handleRemoveSubject = (id: string) => {
+    if (subjects.length > 5) {
+      setSubjects(subjects.filter((s) => s.id !== id));
+      setIsDataModified(true);
+    } else {
+      toast.info("You need at least 5 subjects");
+    }
+  };
+
+  // Handle manual saving of progress
+  const handleSaveProgress = () => {
+    // Gather data from valid subjects
+    const validSubjects = subjects.filter((s) => s.name.trim() !== "");
+
+    // Prepare data
+    const dataToSave = {
+      subjects: validSubjects,
+      gpa,
+      submittedAt: new Date().toISOString(),
+    };
+
+    // Save to localStorage
+    localStorage.setItem(
+      "academic_assessment_data",
+      JSON.stringify(dataToSave)
+    );
+
+    // Mark data as saved
+    setIsDataModified(false);
+
+    // Success message
+    toast.success("Progress saved");
+  };
+
+  // Count valid subjects
   const validSubjectCount = subjects.filter((s) => s.name.trim() !== "").length;
   const meetsMinimumSubjects = validSubjectCount >= 5;
   const isGpaValid = gpa > 0 && gpa <= 4;
   const canSubmit = meetsMinimumSubjects && isGpaValid;
-
-  // A helper function to check if all fields are filled for a subject
-  const isSubjectComplete = (subject: Subject) => {
-    return (
-      subject.name.trim() !== "" &&
-      subject.percentage >= 0 &&
-      subject.percentage <= 100
-    );
-  };
 
   return (
     <div className="p-6 bg-gray-50 rounded-lg">
@@ -304,27 +322,20 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
           </p>
           <p className="text-blue-700 text-sm">
             Enter percentage averages for each subject to get an accurate
-            assessment. Your data will be saved when you exit even if
-            incomplete.
+            assessment.
           </p>
         </div>
       </div>
 
-      {/* Auto-save indicator */}
-      {hasUnsavedChanges && (
-        <div className="mb-4 flex items-center gap-2 justify-end">
-          <div className="w-24 h-2 bg-gray-200 rounded-full">
-            <div
-              className="h-2 bg-green-500 rounded-full transition-all duration-300"
-              style={{ width: `${saveProgress}%` }}
-            ></div>
-          </div>
-          <span className="text-xs text-gray-500">Auto-saving...</span>
+      {/* Save Controls */}
+      {isDataModified && (
+        <div className="mb-4 flex justify-end items-center gap-2">
+          <span className="text-amber-600 text-sm">Unsaved changes</span>
           <button
             onClick={handleSaveProgress}
-            className="text-sky-600 text-sm flex items-center gap-1 hover:text-sky-800 ml-4"
+            className="text-sky-600 text-sm flex items-center gap-1 hover:text-sky-800 px-3 py-1 border border-sky-200 rounded-lg bg-sky-50"
           >
-            <Save className="w-4 h-4" /> Save Now
+            <Save className="w-4 h-4" /> Save Progress
           </button>
         </div>
       )}
@@ -386,8 +397,8 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
             max="4"
             step="0.01"
             value={gpa}
-            onChange={(e) => setGpa(Number(e.target.value))}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+            onChange={(e) => handleGpaChange(Number(e.target.value))}
+            className={`w-full px-4 py-2 border rounded-lg ${
               errors.gpa ? "border-red-500" : "border-gray-300"
             }`}
             required
@@ -407,7 +418,7 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
                   onChange={(e) =>
                     handleSubjectChange(subject.id, "name", e.target.value)
                   }
-                  className={`w-full px-4 py-2 border rounded-lg bg-white focus:ring-blue-500 ${
+                  className={`w-full px-4 py-2 border rounded-lg ${
                     errors[`subject-${subject.id}-name`]
                       ? "border-red-500"
                       : "border-gray-300"
@@ -440,7 +451,7 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
                       Number(e.target.value)
                     )
                   }
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-blue-500 ${
+                  className={`w-full px-4 py-2 border rounded-lg ${
                     errors[`subject-${subject.id}-percentage`]
                       ? "border-red-500"
                       : "border-gray-300"
@@ -474,11 +485,11 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
                 value={customSubject}
                 onChange={(e) => setCustomSubject(e.target.value)}
                 placeholder="Enter custom subject"
-                className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500"
+                className="flex-grow px-4 py-2 border border-gray-300 rounded-lg"
               />
               <button
                 type="button"
-                onClick={addCustomSubject}
+                onClick={handleAddCustomSubject}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Add
@@ -504,12 +515,13 @@ const AcademicTranscriptForm: React.FC<AcademicTranscriptFormProps> = ({
           {/* Add Subject Button */}
           <button
             type="button"
-            onClick={() =>
+            onClick={() => {
               setSubjects([
                 ...subjects,
                 { id: crypto.randomUUID(), name: "", percentage: 0 },
-              ])
-            }
+              ]);
+              setIsDataModified(true);
+            }}
             className="mt-4 w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500"
           >
             <Plus className="w-5 h-5 inline-block" /> Add Another Subject

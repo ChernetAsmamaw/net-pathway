@@ -1,70 +1,5 @@
-// store/useAssessmentStore.tsx
 import { create } from "zustand";
 import axios from "axios";
-import { toast } from "react-hot-toast";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-
-// Define assessment data interfaces
-interface Subject {
-  name: string;
-  percentage: number;
-}
-
-interface Activity {
-  name: string;
-  position: string;
-  description: string;
-}
-
-interface AssessmentResponse {
-  [key: number]: number;
-}
-
-interface AssessmentResults {
-  riasec?: Record<string, number>;
-  multiple_intelligence?: Record<string, number>;
-}
-
-interface AssessmentState {
-  // Status trackers
-  academicCompleted: boolean;
-  extracurricularCompleted: boolean;
-  behavioralCompleted: boolean;
-  isLoading: boolean;
-  error: string | null;
-
-  // Assessment data
-  academicData: { subjects: Subject[]; gpa: number } | null;
-  extracurricularData: { activities: Activity[] } | null;
-  behavioralData: {
-    responses: AssessmentResponse;
-    results: AssessmentResults;
-  } | null;
-
-  // Combined data
-  combinedData: any | null;
-
-  // Functions
-  fetchAssessmentStatus: () => Promise<void>;
-
-  saveAcademicData: (data: {
-    subjects: Subject[];
-    gpa: number;
-  }) => Promise<boolean>;
-  saveExtracurricularData: (data: {
-    activities: Activity[];
-  }) => Promise<boolean>;
-  saveBehavioralData: (data: {
-    responses: AssessmentResponse;
-    results: AssessmentResults;
-  }) => Promise<boolean>;
-
-  fetchCombinedData: () => Promise<any>;
-
-  resetAssessmentState: () => void;
-  getAllCompleted: () => boolean;
-}
 
 export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   // Initial state
@@ -77,7 +12,9 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   academicData: null,
   extracurricularData: null,
   behavioralData: null,
-  combinedData: null,
+
+  careerPaths: null,
+  isGeneratingPaths: false,
 
   // Fetch assessment status from backend
   fetchAssessmentStatus: async () => {
@@ -99,19 +36,17 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
           isLoading: false,
         });
 
-        // If assessments are completed, fetch their data
-        if (transcript) {
-          // Additional logic to fetch academic data if needed
-        }
-
         return response.data.assessmentStatus;
       }
 
       set({ isLoading: false });
       return { transcript: false, extracurricular: false, behavioral: false };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching assessment status:", error);
-      set({ isLoading: false, error: "Failed to fetch assessment status" });
+      set({
+        isLoading: false,
+        error: "Failed to fetch assessment status",
+      });
       return { transcript: false, extracurricular: false, behavioral: false };
     }
   },
@@ -124,9 +59,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       const response = await axios.post(
         `${API_URL}/assessment/academic-transcript`,
         data,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (response.status === 200) {
@@ -135,14 +68,21 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
           academicData: data,
           isLoading: false,
         });
+        toast.success("Academic transcript saved successfully");
         return true;
       }
 
       set({ isLoading: false });
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving academic data:", error);
-      set({ isLoading: false, error: "Failed to save academic data" });
+      set({
+        isLoading: false,
+        error: error.response?.data?.message || "Failed to save academic data",
+      });
+      toast.error(
+        error.response?.data?.message || "Failed to save academic data"
+      );
       return false;
     }
   },
@@ -155,9 +95,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       const response = await axios.post(
         `${API_URL}/assessment/extracurricular`,
         data,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (response.status === 200) {
@@ -166,14 +104,23 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
           extracurricularData: data,
           isLoading: false,
         });
+        toast.success("Extracurricular activities saved successfully");
         return true;
       }
 
       set({ isLoading: false });
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving extracurricular data:", error);
-      set({ isLoading: false, error: "Failed to save extracurricular data" });
+      set({
+        isLoading: false,
+        error:
+          error.response?.data?.message ||
+          "Failed to save extracurricular data",
+      });
+      toast.error(
+        error.response?.data?.message || "Failed to save extracurricular data"
+      );
       return false;
     }
   },
@@ -186,9 +133,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       const response = await axios.post(
         `${API_URL}/assessment/behavioral`,
         data,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (response.status === 200) {
@@ -197,14 +142,22 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
           behavioralData: data,
           isLoading: false,
         });
+        toast.success("Behavioral assessment saved successfully");
         return true;
       }
 
       set({ isLoading: false });
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving behavioral data:", error);
-      set({ isLoading: false, error: "Failed to save behavioral data" });
+      set({
+        isLoading: false,
+        error:
+          error.response?.data?.message || "Failed to save behavioral data",
+      });
+      toast.error(
+        error.response?.data?.message || "Failed to save behavioral data"
+      );
       return false;
     }
   },
@@ -219,23 +172,72 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       });
 
       if (response.data) {
-        set({
-          combinedData: response.data,
-          isLoading: false,
-        });
+        set({ isLoading: false });
         return response.data;
       }
 
       set({ isLoading: false });
       return null;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching combined data:", error);
       set({
         isLoading: false,
-        error: "Failed to fetch combined assessment data",
+        error:
+          error.response?.data?.message ||
+          "Failed to fetch combined assessment data",
       });
+
+      // If error is about incomplete assessments, show appropriate message
+      if (error.response?.status === 400) {
+        toast.error("All assessment sections must be completed first");
+      } else {
+        toast.error("Failed to fetch assessment data");
+      }
+
       return null;
     }
+  },
+
+  // Generate career paths based on assessment data
+  generateCareerPaths: async () => {
+    try {
+      set({ isGeneratingPaths: true, error: null });
+
+      const response = await axios.get(`${API_URL}/assessment/generate-paths`, {
+        withCredentials: true,
+      });
+
+      if (response.data && response.data.paths) {
+        const paths = response.data.paths;
+        set({
+          careerPaths: paths,
+          isGeneratingPaths: false,
+        });
+        return paths;
+      }
+
+      set({ isGeneratingPaths: false });
+      return null;
+    } catch (error: any) {
+      console.error("Error generating career paths:", error);
+      set({
+        isGeneratingPaths: false,
+        error:
+          error.response?.data?.message || "Failed to generate career paths",
+      });
+
+      toast.error(
+        error.response?.data?.message || "Failed to generate career paths"
+      );
+      return null;
+    }
+  },
+
+  // Check if all assessments are completed
+  getAllCompleted: () => {
+    const { academicCompleted, extracurricularCompleted, behavioralCompleted } =
+      get();
+    return academicCompleted && extracurricularCompleted && behavioralCompleted;
   },
 
   // Reset assessment state
@@ -247,15 +249,10 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       academicData: null,
       extracurricularData: null,
       behavioralData: null,
-      combinedData: null,
+      careerPaths: null,
       error: null,
     });
   },
-
-  // Check if all assessments are completed
-  getAllCompleted: () => {
-    const { academicCompleted, extracurricularCompleted, behavioralCompleted } =
-      get();
-    return academicCompleted && extracurricularCompleted && behavioralCompleted;
-  },
 }));
+
+export default useAssessmentStore;
